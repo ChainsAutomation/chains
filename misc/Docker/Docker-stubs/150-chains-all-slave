@@ -1,0 +1,4 @@
+## Chains
+RUN mkdir -p /srv/chains && mkdir -p /var/log/chains
+RUN svn --quiet --username chains --password 'chains' co http://svn.chainsa.com/chains/branches/0.9/ /srv/chains/
+RUN /srv/chains/bin/chains-install-from-svn

@@ -1,0 +1,92 @@
+This should be moved to wiki
+----------------------------
+
+1 DESCRIBE
+
+ 1.1 Basic structure
+
+  {
+   info: Some text string    # sect 1.2
+   actions: [{}, {}, {}]     # sect 1.3
+   events: [{}, {}, {}]      # sect 1.4
+  }
+
+ 1.2 Info
+
+  * A simple text string that describes the device (or daemon)
+
+ 1.3 Actions
+
+  * See also:
+
+      * Auto-describe:
+        lib/chains/common/introspect.py
+
+      * onDescribe:
+        lib/chains/common/amqp.py
+
+  * Auto-describe figures out list of methods + arguments
+
+  * The rest must be in the comment under each function, f.ex:
+
+    * A simple function where arguments are not described, 
+      or which has no arguments:
+        def cmdFunc1(self, arg1, arg2=1):
+            """ A function that does something clever """
+
+    * A function that is fully described:
+        def cmdFunc2(self, arg1, kw1=23):
+            """
+            A function that does something more clever.
+            @param arg1 string Some string lizm...
+            @param kw1  int   Some int parameter.
+            @valid kw1  [0,1,2]
+            """
+      The above will describe a function that takes 2 params,
+      where the first is a string with info "Some string lizm..."
+      and the second is an int, where the only valid values are 0-2.
+
+      The resulting data-structure, which is also what your data
+      should look like if you implement onDescribe for actions manually,
+      is like this:
+
+      [
+         # arg1:
+         {...stuff for arg1...},
+         # kw1:
+         {'info': 'Some int parameter.', 'default': 23, 'required': False, 'valid': [0,1,2], 'key': 'arg1', 'type': 'int'}
+      ]
+
+ 1.4 Events
+
+  {
+   'host': 'my.host.com' || 'device': 'mydevice1',
+   'key': 'uniqueKeyForThisEventOnThisDevice',
+   'data': { ...free dictionary, but customary to use "value" for main value... }
+  }
+
+  topic in amqp is eventPrefix.id.key where id is host/device
+
+
+    'events': [
+        {
+            'id': 'state',
+            'key': {
+                'info': 'Name of host that is up or down (key part of line in device config)'
+            },
+            'data': {
+                'value': {
+                    'type': 'string',
+                    'valid': ['up','down'],
+                    'info': 'Up if replies to ping'
+                },
+                'address': {
+                    'type': 'string',
+                    'info': 'IP or hostname as configured in config (value part of line in device config)'
+                },
+            },
+            'info': 'Event that signals that a host changed to up or down'
+        }
+    ],
+
+

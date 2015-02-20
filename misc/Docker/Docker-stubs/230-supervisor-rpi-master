@@ -1,0 +1,4 @@
+## SUPERVISOR
+RUN mkdir -p /var/log/supervisor
+RUN cp /srv/chains/misc/supervisord/startup-sequence-master /startup-sequence
+RUN cp /srv/chains/misc/supervisord/supervisord.conf-rpi-master /etc/supervisor/conf.d/supervisord.conf

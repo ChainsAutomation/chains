@@ -1,0 +1,3 @@
+# zsh
+RUN cp /srv/chains/misc/zsh/zshrc /root/.zshrc
+RUN chsh -s /bin/zsh

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+supervisorctl start rabbitmq
+supervisorctl start sshd
+supervisorctl start chains-zeroconf-publishd
+# wait a few seconds for rabbit to have started properly
+sleep 3
+supervisorctl start chains-orchestrator
+supervisorctl start chains-reactor
+supervisorctl start chains-manager
+

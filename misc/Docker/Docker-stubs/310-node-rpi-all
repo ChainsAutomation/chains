@@ -1,0 +1,5 @@
+# Node install and dependencies for node devices
+RUN apt-get update
+RUN apt-get -y install nodejs npm lirc liblircclient-dev
+WORKDIR /srv/chains
+RUN npm install -g

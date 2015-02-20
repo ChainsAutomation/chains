@@ -1,0 +1,21 @@
+#!/bin/bash
+
+function _opts()
+{
+	args=""
+	if [ $COMP_CWORD == 3 ]; then
+		args="${COMP_WORDS[0]} ${COMP_WORDS[1]} ${COMP_WORDS[2]} ${COMP_WORDS[3]}"
+	elif [ $COMP_CWORD == 2 ]; then
+		args="${COMP_WORDS[0]} ${COMP_WORDS[1]} ${COMP_WORDS[2]}"
+	elif [ $COMP_CWORD == 1 ]; then
+		args="${COMP_WORDS[0]} ${COMP_WORDS[1]}"
+	elif [ $COMP_CWORD == 0 ]; then
+		args="${COMP_WORDS[0]}"
+	fi
+	result=`python /srv/chains/lib/chains/commandline/bash.py $COMP_CWORD $args`
+	#echo "idx: $COMP_CWORD - args: $args" >>/tmp/jazz
+	COMPREPLY=( $result )
+}
+
+complete -F _opts chains-admin
+

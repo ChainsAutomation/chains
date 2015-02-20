@@ -1,0 +1,74 @@
+[inet_http_server]
+port = 0.0.0.0:9001
+username = chains
+password = chains
+
+[supervisord]
+nodaemon=true
+
+[program:startup]
+command=/startup-sequence
+autostart=true
+autorestart=false
+
+[program:sshd]
+command=/usr/sbin/sshd -D
+autostart=false
+autorestart=true
+priority=5
+startsecs=10
+
+[program:rabbitmq]
+#command=/usr/sbin/rabbitmq-server
+command=/srv/rabbitmq.sh
+autostart=false
+redirect_stderr=true
+autorestart=true
+priority=1
+startsecs=10
+
+[program:chains-zeroconf-publishd]
+command=/srv/chains/bin/chains-publish-zerod
+autostart=false
+autorestart=true
+redirect_stderr=true
+priority=999
+
+[program:chains-manager]
+command=/srv/chains/lib/chains/daemon/__init__.py manager
+autostart=false
+autorestart=true
+redirect_stderr=true
+priority=999
+
+[program:chains-orchestrator]
+command=/srv/chains/lib/chains/daemon/__init__.py orchestrator
+autostart=false
+autorestart=true
+redirect_stderr=true
+priority=999
+
+[program:chains-reactor]
+# using straight old python
+# command=/srv/chains/lib/chains/daemon/__init__.py reactor
+# Using pypy on RPi:
+# /usr/lib/pypy/bin/pypy-c /srv/chains/lib/chains/daemon/__init__.py reactor
+# Using pypy on X86:
+command=/usr/bin/pypy /srv/chains/lib/chains/daemon/__init__.py reactor
+autostart=false
+autorestart=true
+redirect_stderr=true
+#user=chainsuser
+priority=999
+
+#[program:telldusd]
+#command:/usr/sbin/telldusd --nodaemon
+#priority=5
+
+[group:chains]
+programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-publishd
+priority=999
+
+[group:system]
+programs=rabbitmq,sshd
+priority=10

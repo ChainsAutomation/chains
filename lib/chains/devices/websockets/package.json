@@ -1,0 +1,9 @@
+{
+  "name": "chains-websockets",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "~3.2.6",
+    "amqp": "0.2.0",
+    "socket.io": "0.9"
+  }
+}

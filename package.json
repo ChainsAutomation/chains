@@ -1,0 +1,9 @@
+{
+    "author": "Ole-Kenneth",
+    "version": "0.0.1",
+    "name": "Chains",
+    "dependencies": {
+        "chains-amqp": "*",
+        "chains-lirc": "*"
+    }
+}

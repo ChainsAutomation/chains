@@ -1,0 +1,24 @@
+chains-admin device start test
+chains-admin device list
+# viser test online => ok
+chains-admin device stop test
+chains-admin device list
+# viser test offline => ok
+
+chains-admin device start test
+chains-admin device list
+# viser test online => ok
+chains-admin device action test shutdown
+chains-admin device list
+# viser test online :(
+# fordi: devicen har shuttet ned, men manager vet ikke dette fordi devicen shuttet ned "selv"
+
+ingen krise, fordi man skal ikke shutte ned devices på den måten.
+men samme problemstilling gjelder hvis devicen f.eks. tryner. 
+den vil da etterhvert gå offline fordi orchestrator ser at det manger heartbeats
+men så vil den gå online igjen når manager sender sine devices, fordi manager
+tror den er online.
+
+enten bør heartbeat-stuff flyttes til manager og bare agregeres på orchestrator
+eller så bør manager få vite om når devices dør på noe vis,
+eller så bør manager offlinifisere devices i sin liste når orchestartor sier de er nede

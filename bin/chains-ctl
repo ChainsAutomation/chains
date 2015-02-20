@@ -1,0 +1,129 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          chains-ctl
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Chains
+### END INIT INFO
+
+
+CONFPATH="/etc/chains/chains.conf"
+INITPATH="/etc/init.d/"
+
+NAME=chainsctl
+DESC=$NAME
+SELFPATH=$INITPATH$NAME
+ACTION=$1
+DAEMON=$2
+DEBUG=0
+
+if [ -z $ACTION ]
+    then
+	echo "Usage: $SELFPATH {start|stop|restart|force-reload} [daemon-id]" >&2;
+	exit 1;
+fi
+
+set -o nounset    # Exit when trying to use unset variables
+set -o errexit    # Exit on unexpected errors (must be below ismaster grep)
+
+daemons=`egrep "^\[(orchestrator|manager|reactor)" /etc/chains/chains.conf | awk -F \[ '{ print $2 }' | awk -F \] '{ print $1 }'`
+if [ ! -z $DAEMON ]; then
+	ok=0
+	for d in $daemons; do
+		if [ $d == $DAEMON ]; then
+			ok=1
+		fi
+	done
+	if [ $ok -ne 1 ]; then
+		echo "No such daemon: $DAEMON"
+		exit 127
+	fi
+	daemons=$DAEMON
+fi
+
+if [ $DEBUG -eq 1 ]; then
+  for d in $daemons; do
+    echo "DEBUG - daemon: $d"
+  done
+fi
+
+LOGDIR=`grep "^logdir" $CONFPATH | sed -e "s/^logdir[[:space:]]*[:=][[:space:]]*\(.*\)/\1/"`
+RUNDIR=`grep "^rundir" $CONFPATH | sed -e "s/^rundir[[:space:]]*[:=][[:space:]]*\(.*\)/\1/"`
+LIBDIR=`grep "^libdir" $CONFPATH | sed -e "s/^libdir[[:space:]]*[:=][[:space:]]*\(.*\)/\1/"`
+#BINDIR=`grep "^bindir" $CONFPATH | sed -e "s/^bindir[[:space:]]*[:=][[:space:]]*\(.*\)/\1/"`
+mkdir -p $LOGDIR
+mkdir -p $RUNDIR
+
+if [ $DEBUG -eq 1 ]; then
+ echo "DEBUG - logdir: $LOGDIR"
+ echo "DEBUG - rundir: $RUNDIR"
+ echo "DEBUG - libdir: $LIBDIR"
+fi
+
+for d in $daemons; do
+	LAUNCHER="$LIBDIR/daemon/__init__.py $d fork"
+	LAUNCHER_FG="$LIBDIR/daemon/__init__.py $d"
+	PIDF=$RUNDIR/$d.pid # todo
+    if [ $DEBUG -eq 1 ]; then
+	  echo "DEBUG - action:  $ACTION $d"
+      echo "DEBUG - pidfile: $PIDF"
+      if [ -e $PIDF ]; then
+        echo "DEBUG - pidfile exists"
+      else
+        echo "DEBUG - pidfile does not exist"
+      fi
+    fi
+
+	case "$ACTION" in
+	  fg)
+		echo "Starting chains $DESC in foreground: $NAME"
+		$LAUNCHER_FG
+		;;
+	  start)
+		echo -n "Starting chains $d: "
+		start-stop-daemon --start --quiet --pidfile $PIDF --exec $LAUNCHER
+		echo "$d."
+		;;
+	  stop|restart)
+		echo -n "Stopping chains $d: "
+		start-stop-daemon --stop --quiet --oknodo --pidfile $PIDF
+		echo "$d."
+		;;
+	  # todo: respond to signal in daemons
+	  reload|force-reload)
+		echo "Reloading chains $d configuration files."
+		start-stop-daemon --stop --signal 1 --quiet --pidfile $PIDF
+		;;
+	  *)
+		# echo "Usage: $N {start|stop|restart|reload|force-reload}" >&2
+		echo "Usage: $SELFPATH {start|stop|restart|force-reload|fg}" >&2
+		exit 1
+		;;
+	esac
+
+done
+
+if [ $ACTION == "restart" ]; then
+	for d in $daemons; do
+		LAUNCHER="$LIBDIR/daemon/__init__.py $d fork"
+		LAUNCHER_FG="$LIBDIR/daemon/__init__.py $d"
+		PIDF=$RUNDIR/$d.pid # todo
+		if [ $DEBUG -eq 1 ]; then
+		  echo "DEBUG - action:  (re)start $d"
+		  echo "DEBUG - pidfile: $PIDF"
+		  if [ -e $PIDF ]; then
+			echo "DEBUG - pidfile exists"
+		  else
+			echo "DEBUG - pidfile does not exist"
+		  fi
+		fi
+
+		echo -n "Starting chains $d: "
+		start-stop-daemon --start --quiet --pidfile $PIDF --exec $LAUNCHER
+		echo "$d."
+	done
+fi
+
+exit 0

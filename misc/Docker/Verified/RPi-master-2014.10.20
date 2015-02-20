@@ -1,0 +1,49 @@
+# Dockerfile for Chains Master on x86
+# Check out README for build/run instructions
+FROM resin/rpi-raspbian
+MAINTAINER chris@chainsautomation.com
+ENV MYPASSWORD chains
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y python-software-properties software-properties-common openssh-server supervisor subversion zsh pypy python-pip
+RUN pip install zeroconf
+# Set root password
+RUN echo "root:$MYPASSWORD" | chpasswd
+RUN apt-get install -y wget
+## Chains
+RUN mkdir -p /srv/chains && mkdir -p /var/log/chains
+RUN svn --quiet --username chains --password 'chains' co http://svn.chainsa.com/chains/branches/0.9/ /srv/chains/
+RUN /srv/chains/bin/chains-install-from-svn -m
+RUN apt-get install -y rabbitmq-server
+# rabbitmq enable webgui
+RUN rabbitmq-plugins enable rabbitmq_management
+RUN cp /srv/chains/misc/supervisord/rabbitmq.sh /srv/
+# zsh
+RUN cp /srv/chains/misc/zsh/zshrc /root/.zshrc
+RUN chsh -s /bin/zsh
+## SUPERVISOR
+RUN mkdir -p /var/log/supervisor
+RUN cp /srv/chains/misc/supervisord/startup-sequence /startup-sequence
+RUN cp /srv/chains/misc/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# pypy
+RUN ln -s /srv/chains/lib/chains /usr/lib/pypy/dist-packages/ && ln -s /usr/lib/python2.7/dist-packages/amqplib /usr/lib/pypy/dist-packages/
+## SSHD
+RUN sed -i 's/.*session.*required.*pam_loginuid.so.*/session optional pam_loginuid.so/g' /etc/pam.d/sshd
+# create sshd dir before running sshd (for key generation) or it fails, ubuntu 14:04 changes needed for ssh login
+RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
+RUN /bin/echo -e "LANG=\"en_US.UTF-8\" > /etc/default/locale"
+RUN /usr/sbin/sshd
+
+# Node install and dependencies for node devices
+RUN apt-get update
+RUN apt-get -y install nodejs npm lirc liblircclient-dev
+WORKDIR /srv/chains
+RUN npm install -g
+# Tellstick
+RUN echo "# telldus" >> /etc/apt/sources.list
+RUN echo "deb http://download.telldus.com/debian/ stable main" >> /etc/apt/sources.list
+RUN wget -q http://download.telldus.se/debian/telldus-public.key -O- | apt-key add -
+RUN apt-get update && apt-get install -y telldus-core python-pip
+RUN pip install tellcore-py
+## Expose ports used by sshd, rabbitmq, rabbitmq-web, webapi x2, supervisord-web
+EXPOSE 22 5672 15672 8181 8080 9001
+CMD ["/usr/bin/supervisord"]

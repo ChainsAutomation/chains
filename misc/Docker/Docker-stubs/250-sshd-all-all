@@ -1,0 +1,7 @@
+## SSHD
+RUN sed -i 's/.*session.*required.*pam_loginuid.so.*/session optional pam_loginuid.so/g' /etc/pam.d/sshd
+# create sshd dir before running sshd (for key generation) or it fails, ubuntu 14:04 changes needed for ssh login
+RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
+RUN /bin/echo -e "LANG=\"en_US.UTF-8\" > /etc/default/locale"
+RUN /usr/sbin/sshd
+

@@ -1,0 +1,6 @@
+# Tellstick
+RUN echo "# telldus" >> /etc/apt/sources.list
+RUN echo "deb http://download.telldus.com/debian/ stable main" >> /etc/apt/sources.list
+RUN wget -q http://download.telldus.se/debian/telldus-public.key -O- | apt-key add -
+RUN apt-get update && apt-get install -y telldus-core
+RUN pip install tellcore-py

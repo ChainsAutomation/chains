@@ -1,0 +1,45 @@
+#!/usr/bin/env python2
+
+"""Device implementing zeroconf publishing service for chains master servers"""
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import socket
+from chains.contrib.zeroconf import ServiceInfo, Zeroconf
+
+def get_ip():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(('google.com', 80))
+    ip = sock.getsockname()[0]
+    sock.close()
+    return ip
+
+
+def main():
+    zeroconf = Zeroconf()
+    ip_addr = get_ip()
+    hostname = socket.gethostname()
+    services = []
+    desc = {'Description': 'Chains Home Automation service on rabbitmq'}
+    amqp_info = ServiceInfo("_amqp._tcp.local.",
+                            "Chains Master AMQP %s._amqp._tcp.local." % hostname,
+                            socket.inet_aton(ip_addr), 5672, 0, 0,
+                            desc, "%s.local." % hostname)
+    services.append(amqp_info)
+    for info in services:
+        zeroconf.registerService(info)
+
+    try:
+        raw_input("Waiting (press Enter to exit)...")
+    finally:
+        print("Unregistering...")
+        zeroconf.unregisterService(info)
+        zeroconf.close()
+
+
+if __name__ == '__main__':
+    print('Starting zeroconf publishing service')
+    main()
+else:
+    print("Do not import this file")
+    print(__name__)
+

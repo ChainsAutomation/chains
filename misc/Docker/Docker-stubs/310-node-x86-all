@@ -1,0 +1,6 @@
+# Node install and dependencies for node devices
+RUN apt-add-repository ppa:chris-lea/node.js
+RUN apt-get update
+RUN apt-get -y install nodejs lirc liblircclient-dev
+WORKDIR /srv/chains
+RUN npm install -g

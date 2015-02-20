@@ -1,0 +1,4 @@
+RUN apt-get install -y rabbitmq-server
+# rabbitmq enable webgui
+RUN rabbitmq-plugins enable rabbitmq_management
+RUN cp /srv/chains/misc/supervisord/rabbitmq.sh /srv/

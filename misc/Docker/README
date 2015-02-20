@@ -1,0 +1,121 @@
+##########################################
+###### Chains on Docker HOWTO:
+##########################################
+
+Chains has two types of nodes:
+* The master which is the hub where all events are sent, controls rules and sends commands to slaves.
+* The slave which forwards all events to the master and receives commands from master.
+
+Below are the instructions to create any of the two.
+
+### Creating a chains master container
+1. Create Dockerfile by running the command below from the chains directory:
+1.1 bin/dockerfile-assemble.py master
+2. Create a docker image by running the following command from the chains directory:
+2.1 sudo docker build --no-cache -t chains/chains-master .
+3. Start the container by running the following commands:
+3.1 sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /dev/bus/usb:/dev/bus/usb -h chainsmaster -p 2222:22 -p 8181:8181 -p 5672:5672 -p 15672:15672 -p 9001:9001 chains/chains-master
+
+### Creating a chains slave container
+1. Create Dockerfile by running the command below from the chains directory:
+1.1 bin/dockerfile-assemble.py slave
+2. Create a docker image by running the following command from the chains directory:
+2.1 sudo docker build --no-cache -t chains/chains-slave .
+3. Start the container by running one of the following commands:
+3.1 sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /dev/bus/usb:/dev/bus/usb -h chainsslave -p 2222:22 -p 9001:9001 chains/chains-slave
+
+You should now have a chains container running on your machine.
+
+##########################################
+### Docker run command explained
+##########################################
+
+* The first part, "sudo docker run -d", basically just tells docker to run the image in the background
+* The parts "--privileged" and "-v /dev/bus/usb:/dev/bus/usb" are there to give the container access to the host machines usb devices
+* Using "--net=host" is needed for zeroconf, which lets chains-slaves find the master server automatically
+* Configuration is stored in the host computers filesystem, not the container, when using the "-v /etc/chains:/etc/chains" option
+
+
+
+####################################################################################
+####################################################################################
+Below are old howtos which are kept for now in case there is something useful there.
+However much has changed, so please stick to the howto above.
+####################################################################################
+####################################################################################
+
+
+##########################################
+# OLD HOWTO build image and run container
+##########################################
+1. Change directory to the Docker image type and arch you want, e.g. MasterImage/RPi
+2. Create the dockerfile in the repository root by running ls | xargs cat >/srv/chains/Dockerfile
+3. Create image by chainging to the repo root and running the following:
+   sudo docker build -t chrisq/chains-master .
+4. Create and run a container based on the previous image:
+   sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /dev/bus/usb:/dev/bus/usb -h chainsmaster -p 2222:22 -p 8181:8181 -p 5672:5672 -p 15672:15672 -p 9001:9001 chrisq/chains-master
+5. ssh into container with following command, default password is chains (special options are there to avoid errors after every rebuild, which I do ALOT.)
+   ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null localhost -p 2222 -l root
+
+# Creating symlinks from Docker-stubs to the variants directories:
+1. x86 master:
+   find ../../Docker-stubs/| egrep -e '(-all-all$|-all-master$|-x86-all$|-x86-master$)' | xargs -I{} ln -s {} .
+2. x86 slave:
+   find ../../Docker-stubs/| egrep -e '(-all-all$|-all-slave$|-x86-all$|-x86-slave$)' | xargs -I{} ln -s {} .
+3. RPi master:
+   find ../../Docker-stubs/| egrep -e '(-all-all$|-all-master$|-rpi-all$|-rpi-master$)' | xargs -I{} ln -s {} .
+4. RPi slave:
+   find ../../Docker-stubs/| egrep -e '(-all-all$|-all-slave$|-rpi-all$|-rpi-slave$)' | xargs -I{} ln -s {} .
+
+####################################
+########### OLDer build image HOWTO:
+####################################
+put the Dockerfile in an empty directory together with supervisord.conf
+# Then build image using following command:
+sudo docker build -t chrisq/chains-master .
+# Create container with the following command:
+sudo docker run -d --privileged -v /dev/bus/usb:/dev/bus/usb -h chainsmaster -p 2222:22 -p 8080:8080 -p 8181:8181 -p 5672:5672 -p 9001:9001 chrisq/chains-master
+sudo docker run -d --privileged -v /etc/chains:/etc/chains -v /dev/bus/usb:/dev/bus/usb -h chainsmaster -p 2222:22 -p 8181:8181 -p 5672:5672 -p 15672:15672 -p 9001:9001 chrisq/chains-master
+# ssh into container with following command, default password is chains (special options are there to avoid errors after every rebuild)
+ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null localhost -p 2222 -l root
+
+############ DEVCE DEPENDENCIES (on ubuntu 14:04)
+How to install needed dependencies for different devices
+
+#### TELLSTICK
+####
+wget -qO - http://download.telldus.se/debian/telldus-public.key | apt-key add -
+echo "deb http://download.telldus.com/debian/ stable main" >/etc/apt/sources.list.d/telldus.list
+apt-get update
+apt-get install telldus-core
+# Add telldusd to supervisor:
+[program:telldusd]
+command:/usr/sbin/telldusd
+priority=5
+
+#### PHIDGETS
+####
+apt-get install libusb-dev make unzip
+wget -P /root/ http://www.phidgets.com/downloads/libraries/libphidget.tar.gz
+mkdir /root/libphidgets
+tar xzvf /root/libphidget.tar.gz -C /root/libphidgets
+cd `ls -d /root/libphidgets/*`
+./configure
+make
+make install
+mkdir /root/phidgetspython
+wget -P /root/phidgetspython/ http://www.phidgets.com/downloads/libraries/PhidgetsPython.zip
+unzip /root/phidgetspython/PhidgetsPython.zip -d /root/phidgetspython/
+cd `ls -d /root/phidgetspython/*`
+
+#### Serial devices
+####
+apt-get install python-serial
+
+#### Bluetooth
+####
+apt-get install python-bluez python-cwiid
+
+#### IRCBot
+####
+apt-get install python-irclib

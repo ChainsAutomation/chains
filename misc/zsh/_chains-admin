@@ -1,0 +1,324 @@
+#compdef chains-admin
+# ------------------------------------------------------------------------------
+# Description
+# -----------
+#
+#  Completion script for Chains (http://wiki.chainsautomation.com).
+#
+#  Source: https://svn.chainsautomation.com
+#
+# ------------------------------------------------------------------------------
+# Author
+# -------
+#
+#  * Chris Qvigstad (https://github.com/chrisaq)
+#  Based on the structure of vagrant completion by:
+#  * Nikita Fedyashev (https://github.com/nfedyashev)
+#  * Mark Cornick (https://github.com/markcornick)
+#
+# ------------------------------------------------------------------------------
+
+
+local -a _1st_arguments
+_1st_arguments=(
+    'device:Device commands'
+    'manager:Manager commands'
+    'reactor:Reactor commands'
+    'amqp:Amqp commands'
+    'shell:Chains shell'
+)
+
+local -a _device_arguments
+_device_arguments=(
+    'list:List all devices with status (at online managers)'
+    'describe:DEVICEID Describe device actions and events'
+    'start:DEVICEID Start device'
+    'stop:DEVICEID Stop device'
+    'restart:DEVICEID Restart device (todo)'
+    'reload:DEVICEID Reload device (todo)'
+    'enable:DEVICEID Enable device'
+    'disable:DEVICEID Disable device'
+    'action:DEVICEID ACTION (ARGS) Run device action'
+)
+
+local -a _manager_arguments
+_manager_arguments=(
+    'list:List all (online) managers'
+    'describe:MANAGERID Describe manager actions'
+    'reload:MANAGERID Reload manager config'
+    'action:MANAGERID ACTION (ARGS) Run manager action'
+)
+
+local -a _reactor_arguments
+_reactor_arguments=(
+    'list:List all (online) reactors'
+    'describe:REACTORID Describe reactor actions'
+    'action:REACTORID ACTION (ARGS) Run reactor action'
+)
+
+local -a _amqp_arguments
+_amqp_arguments=(
+'event:DEVICEID KEY VALUE (EXTRA)'
+    'rpc:TOPIC DATA'
+    'send:TOPIC'
+    'recv:TOPICS'
+)
+
+__task_list ()
+{
+    local expl
+    local -a tasks
+
+    tasks=(device manager reactor amqp shell)
+
+    _wanted tasks expl 'help' compadd $tasks
+}
+
+__device_list ()
+{
+  #echo FUNCTION: device_list
+  _wanted application expl 'command' compadd $(command chains-admin device list | grep -v '^Device\|^-\|^$' | awk '{print $1}')
+  #_wanted application expl 'command' compadd dev1 dev2 dev3 dev4 dev5
+}
+
+__device_action_list ()
+{
+  # For some reason $line is the current last device
+  #echo FUNCTION: device_action_list
+  #echo LINE: $line
+  #echo STATE: $state
+  #echo OPTIONS: $options
+  #_wanted application expl 'options' compadd $(options chains-admin device describe $line | grep '^    name:' | awk '{print $2}')
+  #echo "COMMAND: chains-admin device describe ${line[1]:7}"
+  _wanted application expl 'options' compadd $(chains-admin device describe ${line[1]} | grep '^    name:' | awk '{print $2}' | cut -d_ -f2)
+  #_wanted application expl 'options' compadd ${line}-act1 ${line}-act2 ${line}-act3 ${line}-act4
+  #echo FUNCTION: device_action_list ENDS
+}
+
+__device_event_list ()
+{
+  # For some reason $line is the current last device
+  #echo LINE: $line
+  _wanted application expl 'options' compadd $(options chains-admin device describe $line | grep 'event something' | awk '{print $2}')
+  #_wanted application expl 'options' compadd TODO-completion
+  #echo FUNCTION: device_action_list ENDS
+}
+
+__manager_list ()
+{
+    _wanted application expl 'command' compadd $(command chains-admin manager list | grep -v '^Manager\|^-\|^$' | awk '{print $1}')
+    #_wanted application expl 'command' compadd man1 man2 man3
+}
+
+__manager_action_list ()
+{
+  #_wanted application expl 'options' compadd $(options chains-admin manager describe $line)
+  _wanted application expl 'options' compadd TODO-completion
+}
+
+
+__reactor_list ()
+{
+    _wanted application expl 'command' compadd $(command chains-admin reactor list | grep -v '^Reactor\|^-\|^$' | awk '{print $1}')
+    #_wanted application expl 'command' compadd reactor1 reactor2
+}
+
+__reactor_action_list ()
+{
+  #_wanted application expl 'options' compadd $(options chains-admin reactor describe $line)
+  #_wanted application expl 'options' compadd TODO-completion
+  _wanted application expl 'options' compadd $(chains-admin reactor describe chainsmaster | grep '(' | awk '{print $1}' | cut -d'(' -f1)
+}
+
+__amqp_topic_list ()
+{
+  #_wanted application expl 'options' compadd $(options chains-admin amqp blabla)
+  _wanted application expl 'options' compadd TODO-completion
+}
+
+__chains-device ()
+{
+# TODO:
+# action ARGS missing
+    local curcontext="$curcontext" state line
+    local -A opt_args
+
+    _arguments -C \
+        ':command:->command' \
+        '*::options:->options'
+
+   #echo STATE: $state
+   #echo LINE: $line
+   #echo LINE length: ${#line[@]}
+   case $state in
+       (command)
+           _describe -t commands "device subcommand" _device_arguments
+           return
+       ;;
+
+       (options)
+           case $line[1] in
+               (describe|disable|enable|reload|restart|start|stop)
+                   _arguments ':feature:__device_list'
+               ;;
+               (action)
+                 _arguments ':feature:__device_list' ':feature:__device_action_list'
+#                 if [ ${#line[@]} -eq 2 ] ; then
+                    #_arguments ':feature:__device_list'
+                  #elif [ ${#line[@]} -eq 3 ] ; then
+                    #echo ELIF: yeah 3 args
+                    #echo curcontext $curcontext
+                    #_arguments ':feature:__device_action_list'
+                 #else
+                   #echo unknown, man
+                 #fi
+               ;;
+           esac
+       ;;
+    esac
+}
+
+__chains-manager ()
+{
+    local curcontext="$curcontext" state line
+    local -A opt_args
+
+    _arguments -C \
+        ':command:->command' \
+        '*::options:->options'
+
+   #echo STATE: $state
+   #echo LINE: $line
+   #echo LINE length: ${#line[@]}
+   case $state in
+       (command)
+           _describe -t commands "manager subcommand" _manager_arguments
+           return
+       ;;
+
+       (options)
+           case $line[1] in
+               (describe|reload)
+                   _arguments ':feature:__manager_list'
+               ;;
+               (action)
+                 _arguments ':feature:__manager_list' ':feature:__manager_action_list'
+               ;;
+           esac
+       ;;
+    esac
+}
+
+__chains-reactor ()
+{
+    local curcontext="$curcontext" state line
+    local -A opt_args
+
+    _arguments -C \
+        ':command:->command' \
+        '*::options:->options'
+
+   #echo STATE: $state
+   #echo LINE: $line
+   #echo LINE length: ${#line[@]}
+   case $state in
+       (command)
+           _describe -t commands "reactor subcommand" _reactor_arguments
+           return
+       ;;
+
+       (options)
+           case $line[1] in
+               (describe|reload)
+                   _arguments ':feature:__reactor_list'
+               ;;
+               (action)
+                 _arguments ':feature:__reactor_list' ':feature:__reactor_action_list'
+               ;;
+           esac
+       ;;
+    esac
+}
+
+__chains-amqp ()
+{
+    local curcontext="$curcontext" state line
+    local -A opt_args
+
+    _arguments -C \
+        ':command:->command' \
+        '*::options:->options'
+
+   #echo STATE: $state
+   #echo LINE: $line
+   #echo LINE length: ${#line[@]}
+   case $state in
+       (command)
+           _describe -t commands "amqp subcommand" _amqp_arguments
+           return
+       ;;
+
+       (options)
+           case $line[1] in
+               (rpc|send|recv)
+                   _arguments ':feature:__amqp_topic_list'
+               ;;
+               (event)
+                 _arguments ':feature:__device_list' ':feature:__device_event_list'
+               ;;
+           esac
+       ;;
+    esac
+}
+
+local expl
+#local -a boxes installed_boxes
+
+local curcontext="$curcontext" state line
+local -A opt_args
+
+_arguments -C \
+    ':command:->command' \
+    '*::options:->options'
+
+case $state in
+  (command)
+      _describe -t commands "chains subcommand" _1st_arguments
+      return
+  ;;
+
+  (options)
+    case $line[1] in
+      (help)
+         _arguments ':feature:__task_list'
+      ;;
+
+      (device)
+          __chains-device
+      ;;
+
+      (manager)
+          __chains-manager
+      ;;
+
+      (reactor)
+          __chains-reactor
+      ;;
+
+      (amqp)
+          __chains-amqp
+      ;;
+
+      (shell)
+#_arguments ':feature:__vm_list'
+    esac
+  ;;
+esac
+
+# Local Variables:
+# mode: Shell-Script
+# sh-indentation: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# End:
+# vim: ft=zsh sw=2 ts=2 et

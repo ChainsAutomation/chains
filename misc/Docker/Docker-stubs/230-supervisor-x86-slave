@@ -1,0 +1,4 @@
+## SUPERVISOR
+RUN mkdir -p /var/log/supervisor
+RUN cp /srv/chains/misc/supervisord/startup-sequence-slave /startup-sequence
+RUN cp /srv/chains/misc/supervisord/supervisord.conf-x86-slave /etc/supervisor/conf.d/supervisord.conf

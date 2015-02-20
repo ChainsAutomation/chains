@@ -1,0 +1,165 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_DIR=$(dirname "$0");
+#SCRIPT_DIR=$(readlink -f "$SCRIPT_DIR")
+BASE_DIR="$SCRIPT_DIR/.."
+BASE_DIR=$(readlink -f "$BASE_DIR")
+CONF_DIR=/etc/chains
+MASTER=10
+INST_INITD=1
+INST_PATH=1
+
+while getopts mb:c:ip o
+do  case "$o" in
+    b)     BASE_DIR="$OPTARG";;
+    m)     MASTER=1;;
+    c)     CONF_DIR="$OPTARG";;
+    i)     INST_INITD=0;;
+    p)     INST_PATH=0;;
+    [?])   echo >&2 "" 
+           echo >&2 "Usage: $0 [options]"
+           echo >&2 ""
+           echo >&2 "  -b <dir>   Set base dir, default: $BASE_DIR"
+           echo >&2 "  -c <dir>   Set conf dir, default: $CONF_DIR"
+           echo >&2 "  -m         Set mode to master, default: slave"
+           echo >&2 "  -i         Don't install in init.d"
+           echo >&2 "  -p         Don't modify environment PATH"
+           echo >&2 ""
+           exit 1;;
+    esac
+done
+#shift $OPTIND-1
+
+EXAMPLE_DIR=$BASE_DIR/misc/examples
+DATA_DIR=$BASE_DIR/data
+PATH_DEF="PATH=$BASE_DIR/bin:\$PATH"
+#PY_VER=`python -V 2>&1 | awk '{ print $2 }' | sed 's/\.[0-9][^0-9]*$//'`
+PY_VER=`python -V 2>&1 | awk '{ print $2 }' | awk -F '.' '{ print $1"."$2 }'`
+PY_PATH=/usr/lib/python$PY_VER
+
+echo "-----------------------------------"
+echo "Setting up chains (SVN version)"
+echo "-----------------------------------"
+echo "      base dir: $BASE_DIR"
+echo "      conf dir: $CONF_DIR"
+echo "      data dir: $DATA_DIR"
+echo "    python dir: $PY_PATH"
+if [ $MASTER -eq 1 ]; then
+ echo "          mode: master"
+else
+ echo "          mode: slave"
+fi
+if [ $INST_INITD -eq 1 ]; then
+ echo "   make init.d: yes"
+else
+ echo "   make init.d: no"
+fi
+if [ $INST_PATH -eq 1 ]; then
+ echo "  set env path: yes"
+else
+ echo "  set env path: no"
+fi
+echo "-----------------------------------"
+
+echo ""
+echo "Press ctrl-d to continue or ctrl-c to abort"
+cat
+
+# =========================
+# Config
+# =========================
+
+# Make config dir
+mkdir -p $CONF_DIR
+
+# Copy master or slave example conf
+CONF_FILE=$CONF_DIR/chains.conf
+if [ -f $CONF_FILE ]; then
+  echo "Not overwriting existing config file: $CONF_FILE"
+else
+  if [ $MASTER -eq 1 ]; then
+   echo "Copying master example conf to $CONF_FILE"
+   cp $EXAMPLE_DIR/etc-master/chains.conf $CONF_FILE
+  else
+   #echo "Copying slave example conf to $CONF_FILE"
+   #cp $EXAMPLE_DIR/etc-slave/chains.conf $CONF_FILE
+   echo "Not copying slave example conf. It will be autocreated on first run."
+  fi
+fi
+
+# =========================
+# Startup
+# =========================
+
+if [ $INST_INITD -eq 1 ]; then
+    echo "Symlinking bin/chains-ctl to /etc/init.d/chains-ctl"
+    rm -f /etc/init.d/chains-ctl
+    ln -s $BASE_DIR/bin/chains-ctl /etc/init.d/chains-ctl
+    echo "Doing update-rc.d for chains-ctl"
+    update-rc.d chains-ctl defaults 99
+fi
+
+# =========================
+# Non-SVN dirs
+# =========================
+
+echo "Creating non-SVN dirs (if not exists)"
+mkdir -p $CONF_DIR/rules_available
+mkdir -p $CONF_DIR/rules_enabled
+mkdir -p $DATA_DIR
+mkdir -p $DATA_DIR/devices
+mkdir -p $DATA_DIR/log
+mkdir -p $DATA_DIR/rrd
+mkdir -p $DATA_DIR/tmp
+mkdir -p $DATA_DIR/db
+
+# =========================
+# Python lib
+# =========================
+
+echo "Symlinking lib/chains to $PY_PATH/chains"
+rm -rf $PY_PATH/chains
+ln -s $BASE_DIR/lib/chains $PY_PATH/chains
+
+# =========================
+# Path in env
+# =========================
+
+if [ $INST_PATH -eq 1 ]; then
+    cp /etc/bash.bashrc /etc/bash.bashrc.bak
+    cat /etc/bash.bashrc.bak | grep -v $PATH_DEF >/etc/bash.bashrc
+    echo $PATH_DEF >>/etc/bash.bashrc
+fi
+
+# =========================
+# Dependencies
+# =========================
+
+echo "Installing dependencies"
+if [ $MASTER -eq 1 ]; then
+  apt-get install -y rabbitmq-server
+fi
+apt-get install -y python-cjson python-psutil
+
+set +e
+apt-get install -y python-amqplib
+ec=$?
+set -e
+if [ $ec -ne 0 ]; then
+    easy_install amqplib
+fi
+
+# publishd needs this
+set +e
+which python2 >/dev/null 2>/dev/null
+ok=$?
+set -e
+if [ $ok -ne 0 ]; then
+  ln -s `which python` /usr/bin/python2
+fi
+
+echo "-----------------------------------"
+echo "Done installing chains"
+echo "-----------------------------------"
