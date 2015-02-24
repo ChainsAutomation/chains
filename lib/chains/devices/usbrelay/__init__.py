@@ -1,6 +1,10 @@
 import chains.device
 from chains.common import log
 
+# Thanks to darrylb123 for figuring out how this device works:
+# https://github.com/darrylb123/usbrelay
+
+# Using python hidapi
 # https://github.com/trezor/cython-hidapi
 # pip install hidapi
 
@@ -50,7 +54,7 @@ class USBRelayDevice(chains.device.Device):
     def action_on(self, rid, path=None):
         '''
         Turn a relay on
-        @param  rid     int   ID
+        @param  rid     int   Relay number
         @param  path     string   USB path
         '''
         self._set_relay(rid, self.ON, path)
@@ -58,7 +62,7 @@ class USBRelayDevice(chains.device.Device):
     def action_off(self, rid, path=None):
         '''
         Turn a relay off
-        @param  rid     int   ID
+        @param  rid     int   Relay number
         @param  path     string   USB path
         '''
         self._set_relay(rid, self.OFF, path)
@@ -66,7 +70,7 @@ class USBRelayDevice(chains.device.Device):
     def action_toggle(self, rid, path=None):
         '''
         Toggle a relay
-        @param  rid     int   ID
+        @param  rid     int   Relay number
         @param  path     string   USB path
         '''
         if not path:
