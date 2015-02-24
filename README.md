@@ -44,6 +44,7 @@ A receiver device could have actions like PowerOn, ChangeSource and Mute, while 
 * Time
 * IRC
 * LGTV
+* USB-Relay
 
 In development:
 * OneWire
@@ -52,7 +53,6 @@ In development:
 * mpd
 * xmms2
 * Micropython
-* USB-Relay
 * Asterisk (voip)
 * Motion
 
