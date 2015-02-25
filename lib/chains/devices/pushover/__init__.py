@@ -7,50 +7,28 @@ class PushoverDevice(Device):
 
     def onInit(self):
         # Required parameters for pushover
-        try:
-            self.token = self.config.get('token')
-            self.username = self.config.get('username')
-        except:
-            log.warn('Device needs token and username to work.')
-            sys.exit(1)
+        self.token = self.config.get('token')
+        self.username = self.config.get('username')
+            if not self.token or self.username:
+                log.warn('Device needs token and username to work.')
+                sys.exit(1)
         # Optional parameters for pushover
         #  TODO: optionally set default values for these in config
         self.pushurl = 'https://api.pushover.net/1/messages.json'
-        self.message = "Chains calling!"
-        try:
-            self.message = self.config.get('message')
-        except:
-            pass
-        self.targetdevice = None
-        try:
-            self.targetdevice = self.config.get('targetdevice')
-        except:
-            pass
-        self.title = None
-        try:
-            self.title = self.config.get('title')
-        except:
-            pass
-        self.url = None
-        try:
-            self.url = self.config.get('url')
-        except:
-            pass
-        self.urltitle = None
-        try:
-            self.urltitle = self.config.get('urltitle')
-        except:
-            pass
-        self.priority = 1 # "-2" no notification, -1 quiet notification, 1 - high priority, 2 requires confirmation by user
-        try:
-            self.priority = self.config.get('priority')
-        except:
-            pass
-        self.sound = "bike" # https://pushover.net/api#sounds
-        try:
-            self.sound = self.config.get('sound')
-        except:
-            pass
+
+        self.message = self.config.get('message')
+        if not self.message:
+            self.message = "Chains calling!"
+        self.targetdevice = self.config.get('targetdevice')
+        self.title = self.config.get('title')
+        self.url = self.config.get('url')
+        self.urltitle = self.config.get('urltitle')
+        self.priority = self.config.get('priority')
+        if not self.priority:
+            self.priority = 1 # "-2" no notification, -1 quiet notification, 1 - high priority, 2 requires confirmation by user
+        self.sound = self.config.get('sound')
+        if not self.sound:
+            self.sound = "bike" # https://pushover.net/api#sounds
         # self.timestamp, override servers timestamp, not needed as far as i can see
 
     def onStart(self):
