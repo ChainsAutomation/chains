@@ -9,9 +9,9 @@ class PushoverDevice(Device):
         # Required parameters for pushover
         self.token = self.config.get('token')
         self.username = self.config.get('username')
-            if not self.token or self.username:
-                log.warn('Device needs token and username to work.')
-                sys.exit(1)
+        if not self.token or self.username:
+            log.warn('Device needs token and username to work.')
+            sys.exit(1)
         # Optional parameters for pushover
         #  TODO: optionally set default values for these in config
         self.pushurl = 'https://api.pushover.net/1/messages.json'
