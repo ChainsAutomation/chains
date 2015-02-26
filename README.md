@@ -58,7 +58,32 @@ In development:
 
 #Installation
 
+We will eventually provide docker images from the docker registry, but for now dockerfiles can be created by bin/dockerfile-assemble.py and built on your own system.
+Docker is a good match for our project since we need a host of different libraries and services running to support the different devices. Providing instructions for all distributions and testing these configurations would be too time consuming. The whole process, however, is described in the generated dockerfile. Feel free to install it locally.
+
 #Development
+
+We aim at making development of new devices as easy as possible.
+While it is possible to write everything from scratch, we provide a framework that takes care of common functions and hides unnecessary boilerplate.
+
+```python
+import chains.device
+
+class MynewDevice(chains.device.Device):
+  def onInit(self):
+    code which runs at device startup
+  
+  def action_something(self, myparam):
+    """
+    Do something
+    @param   myparam  string  A string needed for this action
+    """
+    action_code_goes_here
+
+```
+
+The above code will create description of the action "something" on the "Mynew-device" and announce it to the Chains system. For now the best way to write devices is to model them after the existing devices, PhilipsHue is a good place to start.
+We will eventually document this on our wiki.
 
 #Contact
 
