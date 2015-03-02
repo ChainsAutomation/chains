@@ -14,24 +14,37 @@ While most home automation software focuses on supporting a single piece of hard
 In the Chains documentation we often refer to nodes, devices and services, these are explained below.
 
 **Node**
+
 Nodes are computers runnning Chains. Multiple machines are supported, and communicate on a regular tcp/ip network.
 
 **Device**
+
 A device is a program that controls something in chains, usually a piece of hardware or internet service.
 Example devices: PhilipsHue, 
 
 **Service**
+
 A service is a specific piece of functionality exposed on a `device`. A single device be able to do several `actions` and report several `events`. We call these "sub-devices" services. E.g. "the bluetooth device exposes an Obex service"
 
 ###What are events, actions and rules?
 
 **Event**
+
 A `device` will often report changes or things that happen to the system. This is called an `event`.
 A remote control device would send an event when a button is pressed, a temperature sensor device would send an event containing the current temperature and so on.
 
 **Action**
+
 Some devices are able to do things as well as report `events` these are called actions.
 A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light control device could have actions like LightOn, LightOff and AllOff.
+
+**Rule**
+
+A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be chained together to create more advanced logic. Example in pseudo code:
+```
+if event('open_door') -> action(all_lights_on) and action(play_radio)
+```
+The simplest rules can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available.
 
 ###Supported platforms
 
