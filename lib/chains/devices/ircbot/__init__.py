@@ -5,8 +5,11 @@
 
 # ircbot
 try:
-    from ircbot import SingleServerIRCBot
-    from irclib import nm_to_n, nm_to_h, nm_to_u, irc_lower, ip_numstr_to_quad, ip_quad_to_numstr, is_channel
+    from irc.bot import SingleServerIRCBot
+    #from ircbot import SingleServerIRCBot
+    from irc.client import is_channel, ip_quad_to_numstr, ip_numstr_to_quad, NickMask
+    from irc.strings import lower as irc_lower
+    #from irclib import nm_to_n, nm_to_h, nm_to_u, irc_lower, ip_numstr_to_quad, ip_quad_to_numstr, is_channel
 except:
     log.warn('Missing irc-library, time to fail')
 from string import lower
@@ -212,7 +215,7 @@ class IrcbotDevice(Device, SingleServerIRCBot):
             self.do_join(chan)
 
     def on_privmsg(self, c, e):
-        nick = nm_to_n(e.source())
+        nick = NickMask(e.source()).nick
         try:
             if e.arguments()[0][0] == '!':
                 a2 = e.arguments()[0].split(" ")
@@ -229,7 +232,7 @@ class IrcbotDevice(Device, SingleServerIRCBot):
 
     def on_pubmsg(self, c, e):
         try:
-            nick = nm_to_n(e.source())
+            nick = NickMask(e.source()).nick
             a = e.arguments()[0].split(":", 1)
             #print "pub_msg: %s" % a
             #print "pub_msg first char: '%s'" % a[0][0]
@@ -256,7 +259,7 @@ class IrcbotDevice(Device, SingleServerIRCBot):
 
     # irclib.Event{ type=join, source=hafuzz!~hafuzz@193.91.144.150, target=#chains, arguments=[] }
     def on_join(self, c, e):
-        nick = nm_to_n(e.source())
+        nick = NickMask(e.source()).nick
         chan = e.target()
         log.info('on_join %s @ %s | %s' % (nick, chan, self.eventToString(e)))
         self.botEvent({
@@ -294,13 +297,13 @@ class IrcbotDevice(Device, SingleServerIRCBot):
     def reply(self, e, text):
         "Send TEXT to public channel or as private msg, in reply to event E."
         if e.eventtype() == "pubmsg":
-            self.say_public("%s: %s" % (nm_to_n(e.source()), text), e.target())
+            self.say_public("%s: %s" % (NickMask(e.source()).nick, text), e.target())
         elif e.eventtype() == "privmsg":
-            self.say_private(nm_to_n(e.source()), text)
+            self.say_private(NickMask(e.source()).nick, text)
         elif e.eventtype() == "dccmsg":
-            self.connection.notice(nm_to_n(e.source()), text)
+            self.connection.notice(NickMask(e.source()).nick, text)
         else:
-            self.say_private(nm_to_n(e.source()), text)
+            self.say_private(NickMask(e.source()).nick, text)
 
     def requests(self, nick, cmd, args):
         ret_result = []
