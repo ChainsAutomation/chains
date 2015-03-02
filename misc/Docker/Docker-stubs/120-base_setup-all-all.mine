@@ -1,6 +1,0 @@
-ENV MYPASSWORD chains
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y python-software-properties software-properties-common openssh-server supervisor subversion zsh pypy python-pip python-dev
-RUN pip install zeroconf psutil
-# Set root password
-RUN echo "root:$MYPASSWORD" | chpasswd
