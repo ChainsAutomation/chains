@@ -2,7 +2,12 @@
 
 Chains is a home automation system.
 
-The main goal of the Chains project is to support as many different devices as possible, eventually make it easy to use and to make developing support for new devices easy. 
+The main goals of the Chains project are:
+* Support as many different devices as possible
+* Easy device development
+* Easy installation
+
+While most home automation software focuses on supporting a single piece of hardware, we aim to support them all and make them work together.
 
 ###What are nodes, devices and services?
 
@@ -30,7 +35,7 @@ A receiver device could have actions like PowerOn, ChangeSource and Mute, while 
 
 ###Supported platforms
 
-* Linux on Raspberry Pi
+* Linux on Raspberry Pi and Raspberry Pi 2
 * Linux on x86 (32/64bit)
 
 ###Supported devices (sensors, relays etc)
@@ -45,6 +50,7 @@ A receiver device could have actions like PowerOn, ChangeSource and Mute, while 
 * IRC
 * LGTV
 * USB-Relay
+* System-information
 
 In development:
 * OneWire
@@ -82,8 +88,8 @@ class MynewDevice(chains.device.Device):
 
 ```
 
-The above code will create description of the action "something" on the "Mynew-device" and announce it to the Chains system. For now the best way to write devices is to model them after the existing devices, PhilipsHue is a good place to start.
-We will eventually document this on our wiki.
+The above code will create description of the action "something" on the "Mynew"-device and announce it to the Chains system. For now the best way to write devices is to model them after the existing devices, PhilipsHue is a good place to start.
+We will eventually document this in our wiki.
 
 #Contact
 
