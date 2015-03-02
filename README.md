@@ -16,14 +16,16 @@ In the Chains documentation we often refer to nodes, devices and services, these
 ###Node
 Nodes are computers runnning Chains. Multiple machines are supported, and communicate on a regular tcp/ip network.
 
-##Device
-A device is a program that controls something in chains, usually a piece of hardware or internet service.
-Example devices: PhilipsHue, 
+###Device
+A `device` is a program that controls something in chains, usually a piece of hardware or internet service.
+Example devices: PhilipsHue, onewire, timer, pushover.
 
 ###Service
 A service is a specific piece of functionality exposed on a `device`. A single device be able to do several `actions` and report several `events`. We call these "sub-devices" services. E.g. "the bluetooth device exposes an Obex service"
 
 ##What are events, actions and rules?
+
+While nodes, devices and services deals with the software controlling hardware sensors and such; events, actions and rules are what makes it possible for the former to connect and cooperate.
 
 ###Event
 A `device` will often report changes or things that happen to the system. This is called an `event`.
