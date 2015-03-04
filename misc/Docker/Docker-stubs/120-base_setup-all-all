@@ -1,6 +1,6 @@
 ENV MYPASSWORD chains
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y python-software-properties software-properties-common openssh-server supervisor subversion zsh pypy python-pip python-dev cython
+RUN apt-get install -y git python-software-properties software-properties-common openssh-server supervisor subversion zsh pypy python-pip python-dev cython libusb-1.0-0 libusb-1.0-0-dev
 #RUN pip install zeroconf psutil
 RUN pip install zeroconf psutil falcon uWSGI hidapi irc Phidgets
 # Set root password
