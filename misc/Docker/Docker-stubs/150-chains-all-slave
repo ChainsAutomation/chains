@@ -1,4 +1,4 @@
 ## Chains
 RUN mkdir -p /srv/chains && mkdir -p /var/log/chains
-RUN git clone https://github.com/ChainsAutomation/chains.git temp/chains
+RUN git clone https://github.com/ChainsAutomation/chains.git /srv/chains
 RUN /srv/chains/bin/chains-install-from-svn
