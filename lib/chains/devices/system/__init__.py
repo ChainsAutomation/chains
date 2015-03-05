@@ -48,7 +48,7 @@ class SystemDevice(Device):
 
     def _get_sysinfo(self):
         """ Gather system info into a dictionary for sendEvent.
-            This is information that rarely if ever change.
+            This is information that rarely if ever changes. Well, yeah, this changed with the uptime stats.
         """
         sysinfo = {
                 'hostname': os.uname()[1],
@@ -56,7 +56,8 @@ class SystemDevice(Device):
                 'cpu_cores': ps.cpu_count(),
                 'architecture': pf.architecture()[0],
                 'bin_format': pf.architecture()[1],
-                'up_since': datetime.datetime.fromtimestamp(p.boot_time()).strftime("%Y-%m-%d %H:%M:%S"),
+                'up_since': datetime.datetime.fromtimestamp(ps.boot_time()).strftime("%Y-%m-%d %H:%M:%S"),
+                'uptime': int((datetime.datetime.now() - datetime.datetime.fromtimestamp(ps.boot_time())).total_seconds() / 60),
                 }
         return sysinfo
 
