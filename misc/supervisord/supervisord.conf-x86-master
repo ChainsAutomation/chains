@@ -28,7 +28,7 @@ priority=1
 startsecs=10
 
 [program:chains-zeroconf-publishd]
-command=/srv/chains/bin/chains-publish-zerod
+command=/srv/chains/bin/chains-zeroconf-publishd
 autostart=false
 autorestart=true
 redirect_stderr=true

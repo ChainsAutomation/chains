@@ -11,12 +11,12 @@ command=/startup-sequence
 autostart=true
 autorestart=false
 
-[program:sshd]
-command=/usr/sbin/sshd -D
-autostart=false
-autorestart=true
-priority=5
-startsecs=10
+#[program:sshd]
+#command=/usr/sbin/sshd -D
+#autostart=false
+#autorestart=true
+#priority=5
+#startsecs=10
 
 [program:rabbitmq]
 #command=/usr/sbin/rabbitmq-server
@@ -28,7 +28,7 @@ priority=1
 startsecs=10
 
 [program:chains-zeroconf-publishd]
-command=/srv/chains/bin/chains-publish-zerod
+command=/srv/chains/bin/chains-zeroconf-publishd
 autostart=false
 autorestart=true
 redirect_stderr=true
