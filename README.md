@@ -14,10 +14,10 @@ While most home automation software focuses on supporting a single piece of hard
 In the Chains documentation we often refer to nodes, devices and services, these are explained below.
 
 ###Node
-Nodes are computers runnning Chains. Multiple machines are supported, and communicate on a regular tcp/ip network.
+Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using RabbitMQ.
 
 ###Device
-A `device` is a program that controls something in chains, usually a piece of hardware or internet service.
+A `device` is a program that controls something in chains, usually a piece of hardware like a ligh controller or internet service like pushover.net.
 Example devices: PhilipsHue, onewire, timer, pushover.
 
 ###Service
@@ -25,7 +25,7 @@ A service is a specific piece of functionality exposed on a `device`. A single d
 
 ##What are events, actions and rules?
 
-While nodes, devices and services deals with the software controlling hardware sensors and such; events, actions and rules are what makes it possible for the former to connect and cooperate.
+While nodes, devices and services deal with the software controlling hardware sensors and such; events, actions and rules are what makes it possible for the former to connect and cooperate.
 
 ###Event
 A `device` will often report changes or things that happen to the system. This is called an `event`.
@@ -36,9 +36,12 @@ Some devices are able to do things as well as report `events` these are called a
 A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light control device could have actions like LightOn, LightOff and AllOff.
 
 ###Rule
-A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be chained together to create more advanced logic. Example in pseudo code:
+A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic. Example in pseudo code:
 ```
-if event('open_door') -> action(all_lights_on) and action(play_radio)
+if event('open_door')
+   action(all_lights_on) 
+   and
+   action(play_radio)
 ```
 The simplest rules can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available.
 
