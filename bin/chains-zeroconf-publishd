@@ -27,13 +27,13 @@ def main():
                             desc, "%s.local." % hostname)
     services.append(amqp_info)
     for info in services:
-        zeroconf.registerService(info)
+        zeroconf.register_service(info)
 
     try:
         raw_input("Waiting (press Enter to exit)...")
     finally:
         print("Unregistering...")
-        zeroconf.unregisterService(info)
+        zeroconf.unregister_service(info)
         zeroconf.close()
 
 
