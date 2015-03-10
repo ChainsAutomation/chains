@@ -9,12 +9,12 @@ The main goals of the Chains project are:
 
 While most home automation software focuses on supporting a single piece of hardware, we aim to support them all and make them work together.
 
-##What are nodes, devices and services?
+##What are nodes(master/slave), devices and services?
 
 In the Chains documentation we often refer to nodes, devices and services, these are explained below.
 
 ###Node
-Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using RabbitMQ.
+Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using RabbitMQ. If you run chains on only one machine you must run the "master" node, this is the hub of the chains system and takes cares of `rules` described below. Slave nodes are installed on additional computers that you may add to the chains network.
 
 ###Device
 A `device` is a program that controls something in chains, usually a piece of hardware like a ligh controller or internet service like pushover.net.
