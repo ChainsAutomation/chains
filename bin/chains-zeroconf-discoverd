@@ -3,7 +3,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys, socket, ConfigParser, os
-from chains.contrib.zeroconf import raw_input, ServiceBrowser, Zeroconf
+#from chains.contrib.zeroconf import raw_input, ServiceBrowser, Zeroconf
+from zeroconf import raw_input, ServiceBrowser, Zeroconf
 
 #class ChainsFinder(object):
 class ChainsFinder:
@@ -18,7 +19,7 @@ class ChainsFinder:
     def addService(self, zeroconf, type, name):
         print("Service %s added" % (name,))
         print("  Type is %s" % (type,))
-        info = zeroconf.getServiceInfo(type, name)
+        info = zeroconf.get_service_info(type, name)
 
         if info:
 
