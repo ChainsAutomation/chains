@@ -11,12 +11,12 @@ command=/startup-sequence
 autostart=true
 autorestart=false
 
-[program:sshd]
-command=/usr/sbin/sshd -D
-autostart=false
-autorestart=true
-priority=5
-startsecs=10
+#[program:sshd]
+#command=/usr/sbin/sshd -D
+#autostart=false
+#autorestart=true
+#priority=5
+#startsecs=10
 
 [program:rabbitmq]
 #command=/usr/sbin/rabbitmq-server
@@ -49,11 +49,6 @@ redirect_stderr=true
 priority=999
 
 [program:chains-reactor]
-# using straight old python
-# command=/srv/chains/lib/chains/daemon/__init__.py reactor
-# Using pypy on RPi:
-# /usr/lib/pypy/bin/pypy-c /srv/chains/lib/chains/daemon/__init__.py reactor
-# Using pypy on X86:
 command=/usr/bin/pypy /srv/chains/lib/chains/daemon/__init__.py reactor
 autostart=false
 autorestart=true
@@ -70,5 +65,5 @@ programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-publi
 priority=999
 
 [group:system]
-programs=rabbitmq,sshd
+programs=rabbitmq
 priority=10

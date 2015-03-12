@@ -11,12 +11,12 @@ command=/startup-sequence
 autostart=true
 autorestart=false
 
-[program:sshd]
-command=/usr/sbin/sshd -D
-autostart=false
-autorestart=true
-priority=5
-startsecs=10
+#[program:sshd]
+#command=/usr/sbin/sshd -D
+#autostart=false
+#autorestart=true
+#priority=5
+#startsecs=10
 
 [program:chains-zeroconf-discoverd]
 command=/srv/chains/bin/chains-zeroconf-discoverd /etc/chains/amqp.conf
@@ -37,9 +37,9 @@ priority=999
 #priority=5
 
 [group:chains]
-programs=chains-manager,chains-orchestrator,chains-reactor
+programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-discoverd
 priority=999
 
 [group:system]
-programs=rabbitmq,sshd
+programs=rabbitmq
 priority=10

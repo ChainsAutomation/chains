@@ -49,12 +49,7 @@ redirect_stderr=true
 priority=999
 
 [program:chains-reactor]
-# using straight old python
-# command=/srv/chains/lib/chains/daemon/__init__.py reactor
-# Using pypy on RPi:
 command=/usr/lib/pypy/bin/pypy-c /srv/chains/lib/chains/daemon/__init__.py reactor
-# Using pypy on X86:
-#/usr/bin/pypy /srv/chains/lib/chains/daemon/__init__.py reactor
 autostart=false
 autorestart=true
 redirect_stderr=true
@@ -70,5 +65,5 @@ programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-publi
 priority=999
 
 [group:system]
-programs=rabbitmq,sshd
+programs=rabbitmq
 priority=10
