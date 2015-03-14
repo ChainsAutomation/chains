@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import sys, socket, ConfigParser, os
 #from chains.contrib.zeroconf import raw_input, ServiceBrowser, Zeroconf
-from zeroconf import raw_input, ServiceBrowser, Zeroconf
+from zeroconf import ServiceBrowser, Zeroconf
 
 #class ChainsFinder(object):
 class ChainsFinder:
