@@ -287,6 +287,7 @@ class Orchestrator(amqp.AmqpDaemon):
             id = self.generateUuid()
             instanceData['main']['id'] = id
             instanceConfig.set('main', 'id', id)
+            data['main']['id'] = id
             hasChanges = True
 
         if not instanceData['main'].get('name'):
