@@ -469,7 +469,7 @@ class Orchestrator(amqp.AmqpDaemon):
         items      = []
         for deviceId in self.data['device']:
             deviceConfig = self.data['device'][deviceId]
-            if deviceConfig['main'].get('name') == deviceName:
+            if deviceConfig.get('main').get('name') == deviceName:
                 items.append(deviceConfig)
         if len(items) == 1:
             deviceConfig = items[0]
