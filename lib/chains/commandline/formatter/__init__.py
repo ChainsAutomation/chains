@@ -11,7 +11,7 @@ def load(formatterName):
         if os.path.exists(path):
             try:
                 return utils.newObject(
-                    pkgName   = 'chains.commandline.formatter.%s' % formatterName, 
+                    pkgName   = formatterName, #'chains.commandline.formatter.%s' % formatterName, 
                     className = 'Formatter%s' % formatterName,
                     path = '%s/%s.py' % (dir, formatterName)
                 )
