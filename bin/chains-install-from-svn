@@ -40,7 +40,7 @@ PY_VER=`python -V 2>&1 | awk '{ print $2 }' | awk -F '.' '{ print $1"."$2 }'`
 PY_PATH=/usr/lib/python$PY_VER
 
 echo "-----------------------------------"
-echo "Setting up chains (SVN version)"
+echo "Setting up chains (src version)"
 echo "-----------------------------------"
 echo "      base dir: $BASE_DIR"
 echo "      conf dir: $CONF_DIR"
@@ -83,9 +83,8 @@ else
    echo "Copying master example conf to $CONF_FILE"
    cp $EXAMPLE_DIR/etc-master/chains.conf $CONF_FILE
   else
-   #echo "Copying slave example conf to $CONF_FILE"
-   #cp $EXAMPLE_DIR/etc-slave/chains.conf $CONF_FILE
-   echo "Not copying slave example conf. It will be autocreated on first run."
+   echo "Generating default slave config"
+   echo "from chains.common import config; foo = config.data()" | python
   fi
 fi
 
@@ -102,10 +101,10 @@ if [ $INST_INITD -eq 1 ]; then
 fi
 
 # =========================
-# Non-SVN dirs
+# Non-repo dirs
 # =========================
 
-echo "Creating non-SVN dirs (if not exists)"
+echo "Creating non-repo dirs (if not exists)"
 mkdir -p $CONF_DIR/rules_available
 mkdir -p $CONF_DIR/rules_enabled
 mkdir -p $DATA_DIR
