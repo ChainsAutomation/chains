@@ -80,7 +80,7 @@ Docker is a good match for our project since we need a host of different librari
 ```sh
 ####Docker build/install for chains master node
 # Create config dir and download default config:
-sudo sh -c "mkdir /etc/chains; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-master/chains.conf -O /etc/chains/chains.conf"
+sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-master/chains.conf -O /etc/chains/chains.conf"
 # Create chains master image:
 bin/dockerfile-assemble.py master
 sudo docker build --no-cache -t chains/chains-master .
@@ -89,7 +89,7 @@ sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /dev/bu
 
 ####Docker build/install for chains slave node (only if you already have a master node running on different computer)
 # Create config dir and download default config:
-sudo sh -c "mkdir /etc/chains; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-slave/chains.conf -O /etc/chains/chains.conf"
+sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-slave/chains.conf -O /etc/chains/chains.conf"
 # Create chains slave image:
 bin/dockerfile-assemble.py slave
 sudo docker build --no-cache -t chains/chains-slave .
