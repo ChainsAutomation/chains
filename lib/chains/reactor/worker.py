@@ -561,7 +561,6 @@ class ChainThread(threading.Thread):
         """
         connection = amqp.Connection() # todo: clean up!
         return connection.rpc(
-            keys = [ 'dr.%s.*' % deviceId, 'dx.%s.*' % deviceId ],
             queuePrefix = 'rpc-reactor-worker'
         )
 
