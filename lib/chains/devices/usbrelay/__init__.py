@@ -16,7 +16,7 @@ class USBRelayDevice(chains.device.Device):
     def onInit(self):
         self.ON = 255
         self.OFF = 253
-        self.devices = _find_devs()
+        self.devices = self._find_devs()
 
     def _find_devs(self):
         devices = {}
@@ -30,7 +30,7 @@ class USBRelayDevice(chains.device.Device):
 
     def _set_relay(self, rid, val, path=None):
         if not path:
-            path = self.devices.keys()[0]['path']
+            path = self.devices[self.devices.keys()[0]]['path']
         hdev = hid.device()
         hdev.open_path(path)
         hdev.write([0,val,rid,0,0,0,0,0,0])
@@ -39,7 +39,7 @@ class USBRelayDevice(chains.device.Device):
     def _get_state(self, path=None):
         state = {}
         if not path:
-            path = self.devices.keys()[0]['path']
+            path = self.devices[self.devices.keys()[0]]['path']
         ports = self.devices[path]['ports']
         hdev = hid.device()
         hdev.open_path(path)
