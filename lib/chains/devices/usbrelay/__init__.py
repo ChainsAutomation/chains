@@ -44,11 +44,11 @@ class USBRelayDevice(chains.device.Device):
         hdev = hid.device()
         hdev.open_path(path)
         info = hdev.get_feature_report(0x01,9)
-        for state in range(ports):
-            if info[7] & 1 << state:
-                state.update({state + 1 : 1})
+        for cur in range(ports):
+            if info[7] & 1 << cur:
+                state.update({cur + 1 : 1})
             else:
-                state.update({state + 1 : 0})
+                state.update({cur + 1 : 0})
         return state
 
     def action_on(self, rid, path=None):
