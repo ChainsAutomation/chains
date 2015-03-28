@@ -115,7 +115,12 @@ class SystemDevice(Device):
         for m in ps.disk_partitions():
             mounts.update({m.mountpoint: p.disk_usage(m.mountpoint).percent})
         diskinfo = {
-                'disk': 'diskinfo',
+                'read_count': ps.disk_io_counters(perdisk=False).read_count,
+                'write_count': ps.disk_io_counters(perdisk=False).write_count,
+                'read_bytes': ps.disk_io_counters(perdisk=False).read_bytes,
+                'write_bytes': ps.disk_io_counters(perdisk=False).write_bytes,
+                'read_time': ps.disk_io_counters(perdisk=False).read_time,
+                'write_time': ps.disk_io_counters(perdisk=False).write_time,
                 #'': ,
                 }
         diskinfo.update(mounts)
@@ -123,8 +128,11 @@ class SystemDevice(Device):
 
     def _get_netinfo(self):
         """ gather neetwork info into a dictionary for sendEvent """
-        netinfo = {
-                'net': 'netinfo',
-                #'': ,
-                }
+        nics = {}
+        niclist = ps.net_io_counters(pernic=True)
+        for nic in niclist:
+            nics.update({nic: {})
+            for name in niclist[nic]._fields:
+                nics[nic].update({name: getattr(niclist[nic], name)})
+        return nics
 
