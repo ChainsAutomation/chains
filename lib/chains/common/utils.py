@@ -81,7 +81,7 @@ def fetchurl(url, username=None, password=None, postdata=None, headers=None, get
     if gethandle: return u
 
     # Or data
-    data = u.readlines() 
+    data = u.readlines()
     u.close()
     return data
 
@@ -110,7 +110,7 @@ def formatDecimals(val, decimals=2):
     for n in range(decimals-len(d)):
         d += '0'
     return '%s.%s' % (i, d[:decimals])
-    
+
 
 def formatTime(t, skipSec=False):
     if not t: return 'Never'
@@ -154,5 +154,5 @@ def caseSplit(txt, lcFirst=True, firstOnly=False):
                 buf += c
     result.append(buf)
     return result
-            
+
 

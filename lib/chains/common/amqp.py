@@ -16,7 +16,7 @@ PREFIX_ACTION_ERROR       = 'x'
 PREFIX_HEARTBEAT_REQUEST  = 'H'
 PREFIX_HEARTBEAT_RESPONSE = 'h'
 
-HEARTBEAT_VALUE_OFFLINE  = 0 
+HEARTBEAT_VALUE_OFFLINE  = 0
 HEARTBEAT_VALUE_ONLINE   = 1
 HEARTBEAT_VALUE_RESPONSE = 2
 HEARTBEAT_VALUE_REQUEST  = 3
@@ -67,7 +67,7 @@ class Connection:
 
         self.conn      = amqp.Connection(
             self.address,
-            userid = self.user,  
+            userid = self.user,
             password = self.password,
             ssl = self.ssl
         )
@@ -128,15 +128,15 @@ class Channel:
         if self.ch:
             if self.consumeKeys:
                 for key in self.consumeKeys:
-                    try: 
+                    try:
                         self.ch.queue_unbind(self.queueName, self.exchange, key)
                     except Exception, e:
                         log.info('Ignore fail to unbind queue %s from %s for %s: %s' % (self.queueName, self.exchange, key, e))
-            try: 
+            try:
                 self.ch.queue_delete(queue=self.queueName)
             except Exception, e:
                 log.info('Ignore fail to delete queue: %s' % e)
-            try: 
+            try:
                 self.ch.close()
             except Exception, e:
                 log.info('Ignore fail to close channel object: %s' % e)
@@ -290,14 +290,14 @@ class Rpc(Channel):
         self.response = None
         self.correlationId = getUuid() #str(uuid.uuid4())
         msg = amqp.Message(
-            json.encode(data), 
+            json.encode(data),
             content_type='text/json',
             correlation_id = self.correlationId,
             #reply_to = self.queue
         )
         self.ch.basic_publish(
-            msg, 
-            self.exchange, 
+            msg,
+            self.exchange,
             key,
             #reply_to = self.queue,
             #correlation_id = self.correlationId
@@ -332,7 +332,7 @@ class Rpc(Channel):
             raise RemoteException(body)
         log.debug('RPC-CALL: return %s' % body)
         return body
-        
+
 class AmqpDaemon:
 
     def __init__(self, type, id):
@@ -360,7 +360,7 @@ class AmqpDaemon:
             self._connect()
         except ConnectionNotReadyException, e:
             self.reconnect(e)
-            
+
     def reconnect(self, e):
         if self.connection:
             self.connection.close()
@@ -607,7 +607,7 @@ class AmqpDaemon:
 
     def action_setLogLevel(self, level):
         log.setLevel(level)
-        log.warn('Changed loglevel to "%s" during runtime' % level)	
+        log.warn('Changed loglevel to "%s" during runtime' % level)
 
     def action_getLogLevel(self):
         return log.getLevel()
@@ -669,12 +669,10 @@ def runWithSignalHandler(daemon):
         daemon.shutdown()
         daemon.sendOfflineEvent()
         sys.exit(0)
-    signal.signal(signal.SIGTERM, signalHandler) # $ kill <pid>
+    signal.signal(signal.SIGTERM, signalHandler)  # $ kill <pid>
     signal.signal(signal.SIGINT, signalHandler)  # Ctrl-C
     try:
         daemon.run()
     except Exception, e:
         log.error('Daemon crashed: %s' % utils.e2str(e))
         raise e
-        
-

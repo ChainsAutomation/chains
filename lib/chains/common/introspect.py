@@ -43,7 +43,7 @@ def describeMethod(fun):
         funcDoc, argsDoc, argsDocOrder = _parseMethodDoc(fun.__doc__)
 
         item = {
-            'name': re.sub( '^action_', '', fun.func_name ), 
+            'name': re.sub( '^action_', '', fun.func_name ),
             'args': [],
             'info': funcDoc
         }
@@ -72,7 +72,7 @@ def describeMethod(fun):
                 item['args'].append(argsDoc[key])
 
         return item
-                
+
 
 def _parseMethodDoc(text):
     funcDoc = []

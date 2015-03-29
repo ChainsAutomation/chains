@@ -158,7 +158,7 @@ class CoreConfig(BaseConfig):
 
         c.write(file)
         file.close()
-        
+
 
 class ConnectionConfig(BaseConfig):
     def __init__(self):

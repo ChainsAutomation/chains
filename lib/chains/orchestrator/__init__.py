@@ -180,7 +180,7 @@ class Orchestrator(amqp.AmqpDaemon):
             log.info('Ask manager %s for device list since reconfigured' % topic[1])
             self.sendManagerAction(topic[1], 'getDevices')
         '''
-            
+
     def setOnline(self, type, key, force=False):
 
         if not type or not key:
@@ -205,7 +205,7 @@ class Orchestrator(amqp.AmqpDaemon):
             '''
             eventTopic = '%s%s.%s.online' % (
                 self.typeToPrefix(type),
-                amqp.PREFIX_EVENT, 
+                amqp.PREFIX_EVENT,
                 key
             )
             event = {'data': {'value': True}, 'key': 'online'}
@@ -238,7 +238,7 @@ class Orchestrator(amqp.AmqpDaemon):
 
             eventTopic = '%s%s.%s.online' % (
                 self.typeToPrefix(type),
-                amqp.PREFIX_EVENT, 
+                amqp.PREFIX_EVENT,
                 key
             )
             event = {'data': {'value': False}, 'key': 'online'}
@@ -474,9 +474,9 @@ class Orchestrator(amqp.AmqpDaemon):
                 items.append(deviceConfig)
         if len(items) == 1:
             deviceConfig = items[0]
-            #log.info("parseDeviceParam(3): %s => %s @ %s" % (value,deviceConfig['main'].get('id'), deviceConfig['main'].get('manager'))) 
+            #log.info("parseDeviceParam(3): %s => %s @ %s" % (value,deviceConfig['main'].get('id'), deviceConfig['main'].get('manager')))
             return deviceConfig['main'].get('id'), deviceConfig['main'].get('manager')
-        
+
         # not found
         raise Exception('No such device: %s' % value)
 

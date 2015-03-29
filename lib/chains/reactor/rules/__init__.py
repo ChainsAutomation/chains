@@ -16,10 +16,10 @@ chains.reactor.rules.config
 
 chains.reactor.rules.definition
 
-    This module contains the bits necceceary to define rules. 
+    This module contains the bits necceceary to define rules.
     Each rule in rules_available/ should import * from here.
     F.ex: evt(), act(), fun() etc
-    
+
 chains.reactor.rules.functions
 
     This module contains the built-in functions that can be

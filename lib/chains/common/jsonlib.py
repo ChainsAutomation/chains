@@ -19,6 +19,6 @@ except:
  except:
   import simplejson
   encode = simplejson.dumps
-  decode = simplejson.loads 
+  decode = simplejson.loads
   mode = 'simplejson'
 

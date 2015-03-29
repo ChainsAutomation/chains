@@ -18,7 +18,7 @@ do  case "$o" in
     c)     CONF_DIR="$OPTARG";;
     i)     INST_INITD=0;;
     p)     INST_PATH=0;;
-    [?])   echo >&2 "" 
+    [?])   echo >&2 ""
            echo >&2 "Usage: $0 [options]"
            echo >&2 ""
            echo >&2 "  -b <dir>   Set base dir, default: $BASE_DIR"

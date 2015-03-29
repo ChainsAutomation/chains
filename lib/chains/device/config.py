@@ -164,7 +164,7 @@ def getUuidFile(deviceId):
 
 def ensureUuid(deviceId):
     file = getUuidFile(deviceId)
-    uuid = None  
+    uuid = None
     if os.path.exists(file):
         fp   = open(file, 'r')
         uuid = fp.read()
@@ -176,7 +176,7 @@ def ensureUuid(deviceId):
     fp.write(uuid)
     fp.close()
     return uuid
-    
+
 
 """
 def _getConfigPath(deviceId=None, isEnabled=True):
