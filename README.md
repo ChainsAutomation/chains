@@ -9,47 +9,11 @@ The main goals of the Chains project are:
 
 While most home automation software focuses on supporting a single piece of hardware, we aim to support them all and make them work together.
 
-##What are nodes(master/slave), devices and services?
-
-In the Chains documentation we often refer to nodes, devices and services, these are explained below.
-
-###Node
-Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using RabbitMQ. If you run chains on only one machine you must run the "master" node, this is the hub of the chains system and takes cares of `rules` described below. Slave nodes are installed on additional computers that you may add to the chains network.
-
-###Device
-A `device` is a program that controls something in chains, usually a piece of hardware like a ligh controller or internet service like pushover.net.
-Example devices: PhilipsHue, onewire, timer, pushover.
-
-###Service
-A service is a specific piece of functionality exposed on a `device`. A single device be able to do several `actions` and report several `events`. We call these "sub-devices" services. E.g. "the bluetooth device exposes an Obex service"
-
-##What are events, actions and rules?
-
-While nodes, devices and services deal with the software controlling hardware sensors and such; events, actions and rules are what makes it possible for the former to connect and cooperate.
-
-###Event
-A `device` will often report changes or things that happen to the system. This is called an `event`.
-A remote control device would send an event when a button is pressed, a temperature sensor device would send an event containing the current temperature and so on.
-
-###Action
-Some devices are able to do things as well as report `events` these are called actions.
-A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light control device could have actions like LightOn, LightOff and AllOff.
-
-###Rule
-A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic. Example in pseudo code:
-```
-if event('open_door')
-   action(all_lights_on) 
-   and
-   action(play_radio)
-```
-The simplest rules can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available.
-
-###Supported platforms
+##Supported platforms
 * Linux on Raspberry Pi and Raspberry Pi 2
 * Linux on x86 (32/64bit)
 
-###Supported devices (sensors, relays etc)
+##Supported devices (sensors, relays etc)
 * Phidgets
 * Philips Hue
 * rrd (graphing)
@@ -96,6 +60,45 @@ sudo docker build --no-cache -t chains/chains-slave .
 # Run chains slave
 sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /dev/bus/usb:/dev/bus/usb chains/chains-slave
 ```
+
+# Chains intro
+
+##What are nodes(master/slave), devices and services?
+
+In the Chains documentation we often refer to nodes, devices and services, these are explained below.
+
+###Node
+Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using RabbitMQ. If you run chains on only one machine you must run the "master" node, this is the hub of the chains system and takes cares of `rules` described below. Slave nodes are installed on additional computers that you may add to the chains network.
+
+###Device
+A `device` is a program that controls something in chains, usually a piece of hardware like a ligh controller or internet service like pushover.net.
+Example devices: PhilipsHue, onewire, timer, pushover.
+
+###Service
+A service is a specific piece of functionality exposed on a `device`. A single device be able to do several `actions` and report several `events`. We call these "sub-devices" services. E.g. "the bluetooth device exposes an Obex service"
+
+##What are events, actions and rules?
+
+While nodes, devices and services deal with the software controlling hardware sensors and such; events, actions and rules are what makes it possible for the former to connect and cooperate.
+
+###Event
+A `device` will often report changes or things that happen to the system. This is called an `event`.
+A remote control device would send an event when a button is pressed, a temperature sensor device would send an event containing the current temperature and so on.
+
+###Action
+Some devices are able to do things as well as report `events` these are called actions.
+A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light control device could have actions like LightOn, LightOff and AllOff.
+
+###Rule
+A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic. Example in pseudo code:
+```
+if event('open_door')
+   action(all_lights_on) 
+   and
+   action(play_radio)
+```
+The simplest rules can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available.
+
 
 #Development
 
