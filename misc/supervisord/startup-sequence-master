@@ -1,7 +1,22 @@
 #!/bin/bash
 
+# If this is the first time this container is started, 
+# create some default configs if none exists.
+
+if [ ! -f /chains-configured ]; then
+    echo "First run, installing default configs"
+    mkdir -p /etc/chains/Devices
+    if [ ! -f /etc/chains/chains.conf ]; then
+        cp /src/chains/misc/examples/etc-master/chains.conf /etc/chains/
+    fi
+    # TODO: add some default devices too
+    touch /chains-configured
+else
+    echo "Config exists, rolling on"
+fi
+
 supervisorctl start rabbitmq
-supervisorctl start sshd
+# supervisorctl start sshd
 supervisorctl start chains-zeroconf-publishd
 # wait a few seconds for rabbit to have started properly
 sleep 3
