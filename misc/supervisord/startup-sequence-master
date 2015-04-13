@@ -7,7 +7,7 @@ if [ ! -f /chains-configured ]; then
     echo "First run, installing default configs"
     mkdir -p /etc/chains/Devices
     if [ ! -f /etc/chains/chains.conf ]; then
-        cp /src/chains/misc/examples/etc-master/chains.conf /etc/chains/
+        cp /srv/chains/misc/examples/etc-master/chains.conf /etc/chains/
     fi
     # TODO: add some default devices too
     touch /chains-configured
