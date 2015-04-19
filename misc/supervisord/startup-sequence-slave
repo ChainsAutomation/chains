@@ -16,6 +16,7 @@ else
 fi
 
 #supervisorctl start sshd
+supervisorctl start telldusd
 supervisorctl start chains-zeroconf-discoverd
 # wait a few seconds for rabbit to have started properly
 sleep 3

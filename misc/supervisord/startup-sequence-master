@@ -17,6 +17,8 @@ fi
 
 supervisorctl start rabbitmq
 # supervisorctl start sshd
+supervisorctl start telldusd
+supervisorctl start static-server
 supervisorctl start chains-zeroconf-publishd
 # wait a few seconds for rabbit to have started properly
 sleep 3

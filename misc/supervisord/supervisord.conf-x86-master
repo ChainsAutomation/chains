@@ -56,9 +56,11 @@ redirect_stderr=true
 #user=chainsuser
 priority=999
 
-#[program:telldusd]
-#command=/usr/sbin/telldusd --nodaemon
-#priority=5
+[program:telldusd]
+command=/usr/sbin/telldusd --nodaemon
+autostart=false
+autorestart=true
+priority=5
 
 [program:static-server]
 command=/usr/bin/http-server /srv/chains/data -r -p 8888
