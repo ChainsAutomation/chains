@@ -3,6 +3,7 @@
     "version": "0.0.1",
     "name": "Chains",
     "dependencies": {
+        "http-server": "*",
         "chains-amqp": "*",
         "chains-lirc": "*"
     }
