@@ -2,6 +2,7 @@ import chains.device
 from chains.common import log
 import time, datetime
 import RPi.GPIO as GPIO
+import picamera
 
 class RPiDevice(chains.device.Device):
 
