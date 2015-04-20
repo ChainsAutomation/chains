@@ -3,6 +3,14 @@ from chains.common import log
 class StopRuleException(Exception):
     pass
 
+def sendEvent(event, eventType):
+    conn      = amqp.Connection()
+    rpc       = conn.rpc()
+
+    result = rpc.call('%se.%s.%s' % (eventType, device, key), [event])
+    log.debug("Reactor sent and got result: %s" % (result,))
+
+
 def iff(context, args):
     op = '='
     try: op = args['operator']

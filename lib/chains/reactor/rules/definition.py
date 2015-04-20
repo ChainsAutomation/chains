@@ -8,10 +8,11 @@ def cc(id, **kw):
 def evt(device, key, value='*', operator=None, extra=None, target=None, timeout=None, onTimeout=None):
     return ('e', device, key, value, operator, extra, target, timeout, onTimeout)
 
-def sevt(device, key, value=None, extra=None):
-    evt = {'device': device, 'key': key, 'value': value, 'extra': {}}
+def sevt(device, key, value=None, extra=None, eventType='d'):
+    event = {'device': device, 'key': key, 'value': value, 'extra': {}}
     if extra: evt['extra'] = extra
-    return mact('event', [evt])
+
+    return fun(_functions.sendEvent, event, eventType)
 
 def act(devid, action, args=None, target=None, block=None, timeout=None):
     return ('a', devid, action, args, target, block, timeout)
