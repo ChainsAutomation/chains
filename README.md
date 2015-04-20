@@ -55,7 +55,7 @@ sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/ch
 
 
 ####Docker build/install for chains slave node (only if you already have a master node running on different computer)
-```
+```sh
 # Create config dir and download default config:
 sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-slave/chains.conf -O /etc/chains/chains.conf"
 # Create chains slave image:
