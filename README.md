@@ -41,24 +41,28 @@ While most home automation software focuses on supporting a single piece of hard
 
 We will eventually provide docker images from the docker registry, but for now dockerfiles can be created by bin/dockerfile-assemble.py and built on your own system.
 Docker is a good match for our project since we need a host of different libraries and services running to support the different devices. Providing instructions for all distributions and testing these configurations would be too time consuming. The whole process, however, is described in the generated dockerfile. Feel free to install it locally.
-```sh
 ####Docker build/install for chains master node
+```sh
 # Create config dir and download default config:
 sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-master/chains.conf -O /etc/chains/chains.conf"
+
 # Create chains master image:
 bin/dockerfile-assemble.py master
 sudo docker build --no-cache -t chains/chains-master .
 # Run chains master
-sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /dev/bus/usb:/dev/bus/usb chains/chains-master
+sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb chains/chains-master
+```
+
 
 ####Docker build/install for chains slave node (only if you already have a master node running on different computer)
+```
 # Create config dir and download default config:
 sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-slave/chains.conf -O /etc/chains/chains.conf"
 # Create chains slave image:
 bin/dockerfile-assemble.py slave
 sudo docker build --no-cache -t chains/chains-slave .
 # Run chains slave
-sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /dev/bus/usb:/dev/bus/usb chains/chains-slave
+sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb chains/chains-slave
 ```
 
 # Chains intro
@@ -99,6 +103,21 @@ if event('open_door')
 ```
 The simplest rules can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available.
 
+####Example
+```python
+from chains.reactor.rules.definition import *
+
+rules = [
+   [
+        cc(id='when-pir-on', info='When PIR-on event. Turn on light'),
+        evt('86f7e47fb6994d4c927d1fc4323e9002', 'lamp-3', '*', target='lamp3'), # lamp-3 is a PIR-sensor
+        iff('$lamp3.data.value', '255'),
+        iff('$State.99d04731e29e49cabefc32378661c297.minute.data.hour', '16', '>'),
+        iff('$State.99d04731e29e49cabefc32378661c297.minute.data.hour', '18', '<'),
+        act('tellstick', 'on', ['1'])
+   ]
+]
+```
 
 #Development
 
