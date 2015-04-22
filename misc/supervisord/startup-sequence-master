@@ -3,20 +3,38 @@
 # If this is the first time this container is started, 
 # create some default configs if none exists.
 
+ARCH=`uname -m`
 if [ ! -f /chains-configured ]; then
     echo "First run, installing default configs"
-    mkdir -p /etc/chains/Devices
+    mkdir -p /etc/chains/devices
     if [ ! -f /etc/chains/chains.conf ]; then
         cp /srv/chains/misc/examples/etc-master/chains.conf /etc/chains/
     fi
-    # TODO: add some default devices too
+    if [ ! -f /etc/chains/amqp.conf ]; then
+        cp /srv/chains/misc/Docker/chains-config/amqp.conf /etc/chains/
+    fi
+    # Add some default devices
+    shopt -s nullglob
+    files=(/etc/chains/devices/*)
+    shopt -u nullglob
+    if [ ${#files[@]} -lt 1 ]; then
+        if [[ (${ARCH} == 'x86_64') || (${ARCH} == 'i686') ]]; then
+            echo "container is x86"
+            cp /srv/chains/misc/Docker/chains-config/default-devices-master/* /etc/chains/devices/
+        fi
+        if [[ ${ARCH} == 'armv7l' ]]; then
+            echo "container is RPi"
+            cp /srv/chains/misc/Docker/chains-config/default-devices-master/* /etc/chains/devices/
+            cp /srv/chains/misc/Docker/chains-config/default-devices-rpi/* /etc/chains/devices/
+        fi
+    fi
     touch /chains-configured
 else
     echo "Config exists, rolling on"
 fi
 
 supervisorctl start system:rabbitmq
-# supervisorctl start sshd
+# supervisorctl start system:sshd
 supervisorctl start system:telldusd
 supervisorctl start system:static-server
 supervisorctl start chains:chains-zeroconf-publishd
