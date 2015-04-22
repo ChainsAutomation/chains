@@ -36,7 +36,7 @@ priority=999
 command:/usr/sbin/telldusd --nodaemon
 autostart=false
 autorestart=true
-rpriority=5
+priority=5
 
 [group:chains]
 programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-discoverd
