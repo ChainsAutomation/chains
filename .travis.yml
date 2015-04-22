@@ -29,5 +29,5 @@ script:
   - bin/dockerfile-assemble.py master
   - docker version
   - docker build --no-cache -t chains/chains-master .
-  - docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb chains/chains-master
-  - docker exec chains-master tail -f /var/log/supervisord/*
+  - docker run -d --privileged --net=host chains/chains-master
+  - docker ps
