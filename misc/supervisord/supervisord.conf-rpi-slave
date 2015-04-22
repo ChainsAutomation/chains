@@ -32,14 +32,16 @@ autorestart=true
 redirect_stderr=true
 priority=999
 
-#[program:telldusd]
-#command:/usr/sbin/telldusd --nodaemon
-#priority=5
+[program:telldusd]
+command:/usr/sbin/telldusd --nodaemon
+autostart=false
+autorestart=true
+rpriority=5
 
 [group:chains]
 programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-discoverd
 priority=999
 
 [group:system]
-programs=rabbitmq
+programs=rabbitmq,telldusd
 priority=10

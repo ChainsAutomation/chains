@@ -73,5 +73,5 @@ programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-publi
 priority=999
 
 [group:system]
-programs=rabbitmq
+programs=rabbitmq,telldusd,static-server
 priority=10
