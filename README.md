@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/ChainsAutomation/chains.svg?branch=master)](https://travis-ci.org/ChainsAutomation/chains)
 #Chains
 
 Chains is a home automation system.
