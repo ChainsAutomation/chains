@@ -15,7 +15,7 @@ before_install:
 
 install:
   - sudo apt-get -qqy update
-  - sudo apt-get -qqy install lxc lxc-docker-1.2.0 slirp
+  - sudo apt-get -qqy install lxc lxc-docker-1.6.0 slirp
   - sudo sudo usermod -aG docker "$USER"
   - git clone git://github.com/cptactionhank/sekexe
 
@@ -31,3 +31,5 @@ script:
   - docker build --no-cache -t chains/chains-master .
   - docker run -d --privileged --net=host chains/chains-master
   - docker ps
+  - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status
+  - DOCKERID=`docker ps -q`; docker exec $DOCKERID /srv/chains/bin/chains-admin amqp event server isonline true
