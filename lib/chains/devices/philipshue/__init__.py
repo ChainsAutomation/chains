@@ -17,7 +17,7 @@ class PhilipsHueDevice(chains.device.Device):
         @param  id     int   ID
         '''
         self.getLight(id).on = True
-        
+
     def action_off(self, id):
         '''
         Turn a lamp off
@@ -125,7 +125,6 @@ class PhilipsHueDevice(chains.device.Device):
             level = 65535
         return level
 
-        
     """
     def sendLampEvent(self, id, value):
         self.sendEvent(id, { 'value': value })
