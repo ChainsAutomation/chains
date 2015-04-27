@@ -33,3 +33,5 @@ script:
   - docker ps
   - sleep 60
   - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status
+  - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/pip install pytest
+  - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/local/bin/py.test /srv/chains/test/
