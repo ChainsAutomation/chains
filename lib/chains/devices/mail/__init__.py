@@ -67,9 +67,7 @@ class MailDevice(Device):
                 # print "lines: " + str(hlines)
                 # print lines[len(lines)-1]
                 # print "bytes: " + str(bytes)
-                mailto = 'unknown'
-                mailfrom = 'unknown'
-                subject = 'None'
+                mailto = mailfrom = subject = 'unknown'
                 if bytes < self.maxsize:
                     mresponse, mlines, bytes = pop.retr(msgnum)
                     mailstring = ''
