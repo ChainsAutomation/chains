@@ -27,6 +27,7 @@ While most home automation software focuses on supporting a single piece of hard
 * LGTV
 * USB-Relay
 * System-information
+* Mail
 
 **In development:**
 * OneWire
