@@ -1,4 +1,4 @@
-import unittest
+import unittest, os
 from chains.common.utils import *
 
 class TestUtils(unittest.TestCase):
@@ -31,8 +31,9 @@ class TestUtils(unittest.TestCase):
     self.assertEqual('1.00 w', formatDuration(week))
 
   def test_formatTime(self):
-    testTime = 1111885200 # 2005-03-27 03:00:00
-    self.assertEqual('2005-03-27 03:00:00', formatTime(testTime))
+    os.environ['TZ'] = 'Europe/London'
+    testTime = 1111885200
+    self.assertEqual('2005-03-27 02:00:00', formatTime(testTime))
 
   def test_caseSplit(self):
     testText = 'CamelCaseStringToTestWith'
