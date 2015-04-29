@@ -51,7 +51,7 @@ sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com
 bin/dockerfile-assemble.py master
 sudo docker build --no-cache -t chains/chains-master .
 # Run chains master
-sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb chains/chains-master
+sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-master
 ```
 
 
@@ -63,7 +63,7 @@ sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com
 bin/dockerfile-assemble.py slave
 sudo docker build --no-cache -t chains/chains-slave .
 # Run chains slave
-sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb chains/chains-slave
+sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-slave
 ```
 
 # Chains intro
