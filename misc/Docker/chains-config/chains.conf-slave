@@ -1,0 +1,15 @@
+[main]
+confdir = /etc/chains
+datadir = /srv/chains/data
+bindir = /srv/chains/bin
+logdir = /var/log/chains
+sharedir = /srv/chains/share
+rundir = /var/run/chains
+libdir = /srv/chains/lib/chains
+rulesdir = /etc/chains
+loglevel = warn
+heartbeat = 5
+
+[manager]
+id = {hostname}
+
