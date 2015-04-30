@@ -15,7 +15,8 @@ before_install:
 
 install:
   - sudo apt-get -qqy update
-  - sudo apt-get -qqy install lxc lxc-docker-1.6.0 slirp
+  - sudo apt-get -qqy install lxc lxc-docker-1.6.0 slirp python-pip
+  - sudo /usr/bin/pip install pytest
   - sudo sudo usermod -aG docker "$USER"
   - git clone git://github.com/cptactionhank/sekexe
 
@@ -25,6 +26,7 @@ before_script:
 #  - docker pull rocker/r-base
 
 script:
+  - sudo /usr/local/bin/py.test test/
   - sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-master/chains.conf -O /etc/chains/chains.conf"
   - bin/dockerfile-assemble.py master
   - docker version
@@ -33,8 +35,10 @@ script:
   - docker ps
   - sleep 60
   - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status
-  - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/pip install pytest
-  - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/local/bin/py.test /srv/chains/test/
 
 notifications:
-  chat: "irc.freenode.net#chains"
+  irc:
+    channels:
+      - "irc.freenode.net#chains"
+    on_success: always
+    on_failure: always
