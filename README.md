@@ -45,8 +45,8 @@ We will eventually provide docker images from the docker registry, but for now d
 Docker is a good match for our project since we need a host of different libraries and services running to support the different devices. Providing instructions for all distributions and testing these configurations would be too time consuming. The whole process, however, is described in the generated dockerfile. Feel free to install it locally.
 ####Docker build/install for chains master node
 ```sh
-# Create config dir and download default config:
-sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-master/chains.conf -O /etc/chains/chains.conf"
+# Create config and data dir:
+sudo sh -c "mkdir -p /etc/chains/devices && mkdir -p /srv/chains/data"
 
 # Create chains master image:
 bin/dockerfile-assemble.py master
@@ -58,8 +58,9 @@ sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/ch
 
 ####Docker build/install for chains slave node (only if you already have a master node running on different computer)
 ```sh
-# Create config dir and download default config:
-sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-slave/chains.conf -O /etc/chains/chains.conf"
+# Create config and data dir:
+sudo sh -c "mkdir -p /etc/chains/devices && mkdir -p /srv/chains/data"
+
 # Create chains slave image:
 bin/dockerfile-assemble.py slave
 sudo docker build --no-cache -t chains/chains-slave .
