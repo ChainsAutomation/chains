@@ -7,6 +7,7 @@ import picamera
 class RPiDevice(chains.device.Device):
 
     def onInit(self):
+        self.datadir = self.config.getDataDir()
         self.interval = self.config.get('interval'):
         if not self.interval:
             self.interval = 60
@@ -41,5 +42,26 @@ class RPiDevice(chains.device.Device):
             return {'cam_led':'off'}
         else:
             return False
+
+    def action_camcapture(self, imgname='image.jpg'):
+        '''
+        Capture an image using the rpi camera
+        @param  imgname  string  Use the image filename
+        '''
+        camera = picamera.PiCamera()
+        camera.capture(self.datadir + '/image.jpg')
+        # sendevent picture captured with filename 
+
+    def action_camcapture(self, vidname='video.h264', length=10):
+        '''
+        Record a video using the rpi camera
+        @param  vidname  string  Use the video filename
+        @param  length  int  Length of video in seconds
+        '''
+        camera.start_recording('video.h264')
+        sleep(length)
+        camera.stop_recording()
+        # return instantly with a recording event and filename,
+        # sendevent on video finished with filename
 
 # /opt/vc/bin/raspistill
