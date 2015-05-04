@@ -14,10 +14,10 @@ heartbeat: 5
 id: main
 
 [reactor]
-id: {hostname}
+id: chainsmaster
 
 [manager]
-id: {hostname}
+id: chainsmaster
 #env_DISPLAY: :0.0
 #env_XAUTHORITY: /home/stian/.Xauthority
 

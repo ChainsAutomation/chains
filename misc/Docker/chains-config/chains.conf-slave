@@ -11,5 +11,5 @@ loglevel = warn
 heartbeat = 5
 
 [manager]
-id = {hostname}
+id: chainsslave
 
