@@ -1,1 +1,2 @@
 FROM resin/rpi-raspbian
+RUN apt-get -y install libcec1
