@@ -28,6 +28,8 @@ While most home automation software focuses on supporting a single piece of hard
 * USB-Relay
 * System-information
 * Mail
+* Network proximity
+* Raspberry Pi (GPIOs and camera)
 
 **In development:**
 * OneWire
