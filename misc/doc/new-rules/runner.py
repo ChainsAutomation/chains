@@ -61,7 +61,7 @@ if __name__ == '__main__':
     from rule1 import rule as rule1
     runner = RuleRunner(rule1)
     time.sleep(0.5)
-    runner.onEvent(Event(device='tellstick',key='switch-2'))
+    runner.onEvent(Event(device='tellstick',key='switch-2')) # block!
     time.sleep(0.5)
     runner.onEvent(Event(device='tellstick',key='lamp-3'))
     time.sleep(0.5)
