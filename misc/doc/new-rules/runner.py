@@ -1,25 +1,69 @@
 #!/usr/bin/env python2
 
-# array holding active rules with next matches
-rules = []
+from definition import Event, debug
+import types
 
-# importing rules from rules files
-from rule1 import rule as rule1
+class Context:
+    def __init__(self):
+        # Possibly add some other useful stuff here, like amqp connection etc...
+        self.state = {'timer.hour.data.value': 17} # todo.. this is just a test
 
+class RuleRunner:
 
-# some test values we'll send to the rule
-state = '{state of things}'
-event1 = '{first event}'
-event2 = '{second event}'
+    def __init__(self, rule):
+        debug('Init runner')
+        self.isComplete = False
+        self.context    = Context()           # Holds state and any other info useful to the rule 
+        self.rule       = rule(self.context)  # The generator that is the configured rule
+        self.events     = None                # The next/first event-list we're waiting to match
+        self.getNext()                        # Go to the first event-list
 
-try:
-    my_rule1 = rule1()
-    #my_rule1 = rule1(0,0)
-    nextmatch = next(my_rule1)
-    print "RUNNER: next match: %s" % str(nextmatch)
-    nextmatch = my_rule1.send([event1, state])
-    print nextmatch
-    nextmatch = my_rule1.send([event2, state])
-    print nextmatch
-except StopIteration:
-    print "rule is done"
+    # Called by reactor each time any event occurs
+    def onEvent(self, event):
+        if self.isComplete:
+            return
+        debug('Occurring event:', event)
+        if self.matchEvent(event):
+            self.getNext()
+
+    # Called once the rule is complete
+    def onComplete(self):
+        debug('Rule completed')
+        self.isComplete = True
+
+    # Go to next event in rule (after running any non-event steps before it)
+    def getNext(self):
+        try:
+            # no need to send() new context all the time, since context is a pointer
+            #data = self.rule.send(self.context)
+            data = self.rule.next()
+            if type(data) == types.ListType:
+                self.events = data
+            else:
+                self.events = [data]
+            debug('Wait for one of events:', self.events)
+        except StopIteration:
+            self.onComplete()
+
+    # Check if the event that occurred matches one of the events in the
+    # event-list we're waiting for. We use a list of expected events
+    # to facilitate "OR".
+    def matchEvent(self, occurringEvent):
+        for expectedEvent in self.events:
+            if occurringEvent.match(expectedEvent):
+                debug('Matched event:', expectedEvent)
+                return True
+        return False
+
+     
+if __name__ == '__main__':
+    import time
+    from rule1 import rule as rule1
+    runner = RuleRunner(rule1)
+    time.sleep(0.5)
+    runner.onEvent(Event(device='tellstick',key='switch-2'))
+    time.sleep(0.5)
+    runner.onEvent(Event(device='tellstick',key='lamp-3'))
+    time.sleep(0.5)
+    runner.onEvent(Event(device='lirc',key='phillips',data={"value":"BTN_1"}))
+    
