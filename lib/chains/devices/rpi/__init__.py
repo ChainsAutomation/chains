@@ -8,7 +8,7 @@ class RPiDevice(chains.device.Device):
 
     def onInit(self):
         self.datadir = self.config.getDataDir()
-        self.interval = self.config.get('interval'):
+        self.interval = self.config.get('interval')
         if not self.interval:
             self.interval = 60
         self.model_version = self.config.get('model_version')

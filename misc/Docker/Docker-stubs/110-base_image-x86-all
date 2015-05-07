@@ -1,1 +1,3 @@
 FROM ubuntu:14.04
+Run apt-get update
+RUN apt-get -y install libcec2
