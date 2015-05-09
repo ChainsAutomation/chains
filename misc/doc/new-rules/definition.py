@@ -1,3 +1,4 @@
+import time
 
 class Action:
 
@@ -6,6 +7,8 @@ class Action:
         self.action = action
         self.params = params
         debug("Action", self)
+        time.sleep(2)
+        debug("- action done")
 
 
 class Event:
@@ -16,8 +19,20 @@ class Event:
 
     # quick'n'dirty matching for testing
     # probably needs some l0ve to work in production
+
+    # Match one of the passed events
+    def match(self, event): # event can be 1 Event or list of events
+        if type(event) == types.ListType:
+            events = event
+        else:
+            events = [event]
+        for event2 in events:
+            if self.matchEvent(event2):
+                return True
+        return False
         
-    def match(self, event):
+    # Match a single event
+    def matchEvent(self, event):
         for key in dir(self):
             if key[0] == '_': 
                 continue
