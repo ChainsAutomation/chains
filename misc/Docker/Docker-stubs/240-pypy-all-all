@@ -1,2 +1,2 @@
 # pypy
-RUN ln -s /srv/chains/lib/chains /usr/lib/pypy/dist-packages/ && ln -s /usr/lib/python2.7/dist-packages/amqplib /usr/lib/pypy/dist-packages/ && ln -s /usr/local/lib/python2.7/dist-packages/gevent /usr/lib/pypy/dist-packages/
+RUN ln -s /srv/chains/lib/chains /usr/lib/pypy/dist-packages/ && ln -s /usr/lib/python2.7/dist-packages/amqplib /usr/lib/pypy/dist-packages/
