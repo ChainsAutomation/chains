@@ -3,18 +3,30 @@ from chains.common import log
 
 import os
 import datetime
+import timr
 import psutil as ps
 import platform as pf
 
 class SystemDevice(Device):
 
     def onInit(self):
-        self.interval = self.config.getInt('interval')
+        self.interval = int(self.config.get('interval'))
+        if not self.interval:
+            self.interval = 10  # seconds
 
     def onStart(self):
         """ start loop """
         # let user defined how often to update data
-        pass
+        log('SystemDevice main loop starting')
+        while not self._shutdown:
+            log('Main loop running')
+            self.action_cpuinfo()
+            self.action_meminfo()
+            self.action_netinfo()
+            self.action_sysinfo()
+            self.action_diskinfo()
+            # wait a while before sending system info again
+            time.sleep(self.interval)
 
     def action_sysinfo(self):
         """ Get system information """
