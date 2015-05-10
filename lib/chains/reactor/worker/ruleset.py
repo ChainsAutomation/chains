@@ -1,6 +1,8 @@
 from chains.common import log
 from chains.reactor.worker.ruleinstances import RuleInstances
 
+# todo: implement timeout & onTimeout
+
 # RuleSet
 # Holds all RuleInstancess and passes events from AMQP to them
 class RuleSet:

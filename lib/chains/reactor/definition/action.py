@@ -1,6 +1,5 @@
 from chains.common import amqp
 
-# todo: test
 # todo: option for async (ie. no rpc, just push msg to amqp)
 def Action(device, action, params=None):
     if not params:
