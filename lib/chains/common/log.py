@@ -2,7 +2,7 @@
 
 import logging, logging.handlers
 from chains.common import config
-import types, json
+import types, json, os
 
 
 level  = None
@@ -26,6 +26,8 @@ def getLevel():
     return level
 
 def setFileName(name):
+    if not os.path.exists(config.get('logdir')):
+        os.makedirs(config.get('logdir'))
     setFilePath( config.get('logdir') + '/' + name + '.log' )
 
 def setFilePath(path):

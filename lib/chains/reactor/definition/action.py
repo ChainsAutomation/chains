@@ -1,7 +1,11 @@
+from chains.common import amqp
 
-class Action:
-
-    def __init__(self, device, action, params=None):
-        self.device = device
-        self.action = action
-        self.params = params
+# todo: test
+# todo: option for async (ie. no rpc, just push msg to amqp)
+def Action(device, action, params=None):
+    if not params:
+        params = []
+    topic = 'da.%s.%s' % (device, action)
+    connection = amqp.Connection()
+    rpc = connection.rpc(queuePrefix='reactor-action')
+    return rpc.call(topic, data=params)

@@ -1,5 +1,7 @@
 import types
 
+# todo: test
+# todo: how to match data
 class Event:
 
     def __init__(self, **kw):

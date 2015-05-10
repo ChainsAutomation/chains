@@ -1,6 +1,7 @@
 import unittest
-from chains.reactor.worker import Context, RuleSet
-from chains.reactor.definition import Event
+from chains.reactor.worker.context import Context
+from chains.reactor.worker.ruleset import RuleSet
+from chains.reactor.definition.event import Event
 from chains.reactor.state import State
 from chains.common import log
 import rule1, rule2, rule3
