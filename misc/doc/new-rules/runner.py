@@ -11,9 +11,9 @@ class Context:
         self.state = {'timer.hour.data.value': 17} # todo.. this is just a test
         self.id = id
 
-# Reactor
-# Holds all RuleSets and passes events from AMQP to them
-class Reactor:
+# RuleSet
+# Holds all RuleInstacess and passes events from AMQP to them
+class RuleSet:
 
     def __init__(self, rules):
         self.sets = []
@@ -21,20 +21,20 @@ class Reactor:
         for rule in rules:
             maxCount += 1 # test
             context = Context(id=maxCount)
-            self.sets.append(RuleSet(rule, maxCount, context))
+            self.sets.append(RuleInstaces(rule, maxCount, context))
 
-    # Pass incoming events to all RuleSets
+    # Pass incoming events to all RuleInstacess
     def onEvent(self, event):
         debug("===============================================")
-        debug("Reactor: event occurred: %s" % event)
+        debug("RuleSet: event occurred: %s" % event)
         debug("===============================================")
         for s in self.sets:
             s.onEvent(event)
             
-# RuleSet
+# RuleInstaces
 # 
 # List of instances for a single rule
-# F.ex. if rule A has maxCount=2, then the RuleSet for rule A
+# F.ex. if rule A has maxCount=2, then the RuleInstaces for rule A
 # has a list of 2 instances of RuleRunner for rule A.
 # 
 # Starts out with 0 instances and each time the first event in rule
@@ -42,7 +42,7 @@ class Reactor:
 # 
 # All incoming events are passed to all active RuleRunner instances.
 #
-class RuleSet:
+class RuleInstaces:
 
     def __init__(self, rule, maxCount, context):
 
@@ -76,7 +76,7 @@ class RuleSet:
             runner.onEvent(event)
 
     def debug(self, msg, data=None):
-        debug("RuleSet: #%s: %s" % (self.context.id, msg), data)
+        debug("RuleInstaces: #%s: %s" % (self.context.id, msg), data)
     
             
 # RuleRunner
@@ -146,17 +146,17 @@ if __name__ == '__main__':
     import time
     from rule1 import rule as rule1
     from rule2 import rule as rule2
-    reactor = Reactor([rule1,rule2])
+    ruleset = RuleSet([rule1,rule2])
     time.sleep(1)
-    reactor.onEvent(Event(device='tellstick',key='switch-2')) # block!
+    ruleset.onEvent(Event(device='tellstick',key='switch-2')) # block!
     time.sleep(1)
-    reactor.onEvent(Event(device='tellstick',key='lamp-3'))
+    ruleset.onEvent(Event(device='tellstick',key='lamp-3'))
     time.sleep(1)
-    reactor.onEvent(Event(device='lirc',key='phillips',data={"value":"BTN_1"}))
+    ruleset.onEvent(Event(device='lirc',key='phillips',data={"value":"BTN_1"}))
     time.sleep(1)
-    reactor.onEvent(Event(device='tellstick',key='switch-2')) # block!
+    ruleset.onEvent(Event(device='tellstick',key='switch-2')) # block!
     time.sleep(1)
-    reactor.onEvent(Event(device='tellstick',key='lamp-3'))
+    ruleset.onEvent(Event(device='tellstick',key='lamp-3'))
     time.sleep(1)
-    reactor.onEvent(Event(device='lirc',key='phillips',data={"value":"BTN_1"}))
+    ruleset.onEvent(Event(device='lirc',key='phillips',data={"value":"BTN_1"}))
     
