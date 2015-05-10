@@ -37,20 +37,28 @@ class TestRuleInstances(unittest.TestCase):
         self.assertEqual(len(inst.runners), 2)
 
     def test_When_all_events_are_matched_The_runner_is_removed(self):
-        pass # todo: not implemented in RuleInstances yet
+        inst = RuleInstances('rule2', rule2, 1, self.context)
+        self.assertEqual(len(inst.runners), 0)
+        inst.onEvent(Event(device='tellstick', key='switch-1'))
+        self.assertEqual(len(inst.runners), 1)
+        inst.onEvent(Event(device='tellstick', key='switch-2'))
+        time.sleep(0.1)
+        self.assertEqual(len(inst.runners), 0)
 
     def test_When_event_occurs_They_are_passed_to_runner(self):
         inst = RuleInstances('rule2', rule2, 1, self.context)
-        self.assertFalse( self.context.test.has_key('event1-seen') )
-        self.assertFalse( self.context.test.has_key('event2-seen') )
+        self.assertFalse( self.context.test.has_key('event-2.1-seen') )
+        self.assertFalse( self.context.test.has_key('event-2.2-seen') )
 
         inst.onEvent(Event(device='tellstick', key='switch-1'))
-        inst.runners[0].wait()
-        self.assertTrue( self.context.test.has_key('event1-seen') )
-        self.assertFalse( self.context.test.has_key('event2-seen') )
+        if len(inst.runners) > 0:
+            inst.runners[0].wait()
+        self.assertTrue( self.context.test.has_key('event-2.1-seen') )
+        self.assertFalse( self.context.test.has_key('event-2.2-seen') )
 
         inst.onEvent(Event(device='tellstick', key='switch-2'))
-        inst.runners[0].wait()
-        self.assertTrue( self.context.test.has_key('event1-seen') )
-        self.assertTrue( self.context.test.has_key('event2-seen') )
+        if len(inst.runners) > 0:
+            inst.runners[0].wait()
+        self.assertTrue( self.context.test.has_key('event-2.1-seen') )
+        self.assertTrue( self.context.test.has_key('event-2.2-seen') )
 

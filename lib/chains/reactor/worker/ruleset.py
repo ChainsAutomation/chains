@@ -1,21 +1,18 @@
+from chains.common import log
+from chains.reactor.worker.ruleinstances import RuleInstances
 
 # RuleSet
-# Holds all RuleInstacess and passes events from AMQP to them
+# Holds all RuleInstancess and passes events from AMQP to them
 class RuleSet:
 
-    def __init__(self, rules):
+    def __init__(self, rules, context):
         self.sets = []
-        maxCount = 0 
-        for rule in rules:
-            maxCount += 1 # test
-            context = Context(id=maxCount)
-            self.sets.append(RuleInstaces(rule, maxCount, context))
+        for rule, config in rules:
+            self.sets.append(RuleInstances(config['id'], rule, config['maxCount'], context))
 
-    # Pass incoming events to all RuleInstacess
+    # Pass incoming events to all RuleInstancess
     def onEvent(self, event):
-        debug("===============================================")
-        debug("RuleSet: event occurred: %s" % event)
-        debug("===============================================")
+        log.debug("RuleSet: event occurred: %s" % event)
         for s in self.sets:
             s.onEvent(event)
             

@@ -15,7 +15,7 @@ import threading
 #
 class RuleRunner:
 
-    def __init__(self, id, context, rule):
+    def __init__(self, id, context, rule, parentOnComplete):
 
         self.id         = id
         self.isComplete = False
@@ -26,11 +26,15 @@ class RuleRunner:
         self.event      = None
         self.thread     = None
         self.rule       = rule.rule(self.context)
+        self.onComplete = []
 
         try:
-            self.onComplete = rule.onComplete
+            self.onComplete.append( (rule.onComplete, [self.context]) )
         except AttributeError:
-            self.onComplete = None
+            pass
+
+        if parentOnComplete:
+            self.onComplete.append( (parentOnComplete, [self]) )
 
         self.getNext()
 
@@ -56,7 +60,8 @@ class RuleRunner:
         self.event = None
         self.isComplete = True
         if self.onComplete:
-            self.onComplete(self.context)
+            for callback, args in self.onComplete:
+                callback(*args)
 
     # Go to next event in rule
     def getNext(self):
