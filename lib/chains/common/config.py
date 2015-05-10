@@ -139,6 +139,11 @@ class CoreConfig(BaseConfig):
             self._loaded = True
 
     def makeDefaultConfig(self, path):
+
+        dir = _os.path.dirname(path)
+        if not _os.path.exists(dir):
+            _os.makedirs(dir)
+
         file = open(path, 'w')
 
         c = _ConfigParser.ConfigParser()
