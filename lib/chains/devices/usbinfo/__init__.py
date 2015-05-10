@@ -82,7 +82,7 @@ class USBInfoDevice(chains.device.Device):
                 }
             }
             devdict[devkey].update(devconf)
-            devdict[devkey].update('interfaces': self._get_all_interfaces(dev))
+            devdict[devkey].update({'interfaces': self._get_all_interfaces(dev)})
             return devdict
 
     def _get_all_interfaces(self, dev):

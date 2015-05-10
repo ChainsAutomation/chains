@@ -1,7 +1,7 @@
 import chains.device
 from chains.common import log
 import datetime
-import scapy.all import *
+from scapy.all import *
 
 class ProximitynetDevice(chains.device.Device):
 
