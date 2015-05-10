@@ -3,7 +3,7 @@ from chains.reactor.worker import Context, RuleRunner
 from chains.reactor.definition import Event
 from chains.reactor.state import State
 from chains.common import log
-import rule1, rule2
+import rule1, rule2, rule3
 import time
 
 class TestRuleRunner(unittest.TestCase):
@@ -147,6 +147,34 @@ class TestRuleRunner(unittest.TestCase):
         runner.wait()
 
         self.assertTrue( self.context.test.has_key('complete') )
+
+    def test_When_rule_is_busy_It_does_not_process_events(self):
+
+        runner = RuleRunner('rule3', self.context, rule3)
+
+        # At this point, rule is waiting for events, so this event is processed
+        runner.onEvent(Event(device='tellstick', key='switch-1'))
+
+        # At this point, "action" from step 1 is running, and it takes 0.3 sec
+        # so the event we send now should be ignored since rule is busy running action
+        runner.onEvent(Event(device='tellstick', key='switch-2'))
+
+        # Wait for action (step 1) to complete
+        runner.wait()
+
+        # Conclusion: Rule should have processed first event but not second
+        self.assertTrue( self.context.test.has_key('event1-seen') )
+        self.assertFalse( self.context.test.has_key('event2-seen') )
+
+        # At this point rule is waiting for events again, so if we send
+        # event 2 again now, it should be processed
+        runner.onEvent(Event(device='tellstick', key='switch-2'))
+        runner.wait()
+
+        self.assertTrue( self.context.test.has_key('event1-seen') )
+        self.assertTrue( self.context.test.has_key('event2-seen') )
+    
+
 
 if __name__ == '__main__':
     unittest.main()
