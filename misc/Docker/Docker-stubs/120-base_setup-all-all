@@ -1,6 +1,6 @@
 ENV MYPASSWORD chains
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y git wget curl libudev1 libudev-dev python-software-properties software-properties-common openssh-server supervisor subversion zsh pypy python-pip python-dev cython libusb-1.0-0 libusb-1.0-0-dev rrdtool python-rrdtool cec-utils libcec-dev
+RUN apt-get install -y git wget curl libudev1 libudev-dev python-software-properties software-properties-common openssh-server supervisor subversion zsh pypy python-pip python-dev cython libusb-1.0-0 libusb-1.0-0-dev rrdtool python-rrdtool cec-utils libcec-dev tcpdump
 #RUN pip install zeroconf psutil
 RUN pip install zeroconf psutil falcon uWSGI hidapi irc Phidgets scapy cec
 # Set root password
