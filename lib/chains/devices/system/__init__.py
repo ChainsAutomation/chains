@@ -3,7 +3,7 @@ from chains.common import log
 
 import os
 import datetime
-import timr
+import time
 import psutil as ps
 import platform as pf
 
