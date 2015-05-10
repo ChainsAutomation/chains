@@ -1,4 +1,6 @@
-            
+from chains.common import log
+from chains.reactor.worker.rulerunner import RuleRunner
+
 # RuleInstances
 # 
 # List of instances for a single rule
@@ -12,17 +14,16 @@
 #
 class RuleInstances:
 
-    def __init__(self, rule, maxCount, context):
+    def __init__(self, id, rule, maxCount, context):
 
+        self.id       = id
         self.maxCount = maxCount  # number of paralell instances allowed
         self.rule     = rule      # the rule definition (generator) itself
         self.runners  = []        # active rule runners
         self.context  = context
+        self.event    = next(rule.rule(None)) # need first event to know when to spawn runners
 
-        # We need the first event in rule, so we copy it
-        # to avoid wrecking the generator
-        blueprint = copy.copy(rule) # no need, since () ?
-        self.event = next(blueprint(None))
+        self.debug('Init RuleInstances')
 
 
     def onEvent(self, event):
@@ -33,8 +34,8 @@ class RuleInstances:
 
             if len(self.runners) < self.maxCount:
                 self.debug("spawn new runner since count is %s < maxCount %s" % (len(self.runners), self.maxCount))
-                rule = copy.copy(self.rule) # no need, since () ?
-                runner = RuleRunner(rule, self.context)
+                id = '%s-%s' % (self.id, len(self.runners))
+                runner = RuleRunner(id, self.context, self.rule)
                 self.runners.append(runner)
             else:
                 self.debug("do not spawn new runner since count is %s < maxCount %s" % (len(self.runners), self.maxCount))
@@ -44,5 +45,9 @@ class RuleInstances:
             runner.onEvent(event)
 
     def debug(self, msg, data=None):
-        debug("RuleInstances: #%s: %s" % (self.context.id, msg), data)
+        msg = "RuleInstances: #%s: %s" % (self.id, msg)
+        if data:
+            log.debug(msg, data)
+        else:
+            log.debug(msg)
     
