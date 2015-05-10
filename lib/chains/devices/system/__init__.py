@@ -131,7 +131,7 @@ class SystemDevice(Device):
         nics = {}
         niclist = ps.net_io_counters(pernic=True)
         for nic in niclist:
-            nics.update({nic: {})
+            nics.update({nic: {}})
             for name in niclist[nic]._fields:
                 nics[nic].update({name: getattr(niclist[nic], name)})
         return nics
