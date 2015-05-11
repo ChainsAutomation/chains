@@ -1,6 +1,5 @@
 import types
 
-# todo: how to match data
 class Event:
 
     def __init__(self, device='*', key='*', data='*'):
