@@ -31,9 +31,9 @@ While most home automation software focuses on supporting a single piece of hard
 * Network proximity
 * Raspberry Pi (GPIOs and camera)
 * CEC (Raspberry Pi and Pulse Eight usb-adapter)
-* Mouse
+* Mouse (usb, buttons and direction)
 * USB-info
-* Keyboard
+* Keyboard (usb, click, release, modifiers)
 
 **In development:**
 * OneWire
