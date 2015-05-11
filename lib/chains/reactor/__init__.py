@@ -9,8 +9,14 @@ from chains.reactor import config
 class Reactor(AmqpDaemon):
 
     def __init__(self, id):
+
         log.info('Starting reactor')
+
+	self.ruleset = None
+	self.state   = None
+
         AmqpDaemon.__init__(self, 'reactor', id)
+
         self.state   = State()
         context      = Context(self.state)
         self.ruleset = RuleSet(config.getData(), context)
@@ -62,7 +68,7 @@ class Reactor(AmqpDaemon):
     def action_reloadRules(self):
         reload(config)
         del self.ruleset
-        self.ruleset = RuleSet(config.getData())
+        self.ruleset = RuleSet(config.getData(), self.context)
 
     def action_getState(self, key=None):
         return self.state.get(key)
