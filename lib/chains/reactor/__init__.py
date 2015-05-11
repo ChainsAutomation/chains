@@ -1,15 +1,25 @@
 from chains.common import log, utils
 from chains.common.amqp import AmqpDaemon, runWithSignalHandler
-from chains.reactor import state, worker, dynamicArgs
-import chains.reactor.rules.config
+from chains.reactor.state import State
+from chains.reactor.worker.ruleset import RuleSet
+from chains.reactor.worker.context import Context
+from chains.reactor.definition.event import Event
+from chains.reactor import config
 
 class Reactor(AmqpDaemon):
 
     def __init__(self, id):
+
         log.info('Starting reactor')
+
+	self.ruleset = None
+	self.state   = None
+
         AmqpDaemon.__init__(self, 'reactor', id)
-        self.state = state.State()
-        self.worker = worker.Worker(self)
+
+        self.state   = State()
+        context      = Context(self.state)
+        self.ruleset = RuleSet(config.getData(), context)
 
     def run(self):
         self.sendOnlineEvent()
@@ -17,53 +27,48 @@ class Reactor(AmqpDaemon):
         self.sendOfflineEvent()
 
     def getConsumeKeys(self):
-        # todo: here we should get just the keys we need?
         keys = AmqpDaemon.getConsumeKeys(self)
-        keys.append('de.#')
+        keys.append('de.#') # Listen for all device events
         return keys
 
     def onMessage(self, topic, data, correlationId):
         try:
             topic = topic.split('.')
             try:
-                if self.worker:
-                    self.worker.onEvent(data)
+                if self.state:
+                    self.state.set('.'.join(topic[1:]), data)
             except Exception, e:
                 log.error(utils.e2str(e))
             try:
-                if self.state:
-                    self.state.set('.'.join(topic[1:]), data)
+                if self.ruleset:
+                    self.ruleset.onEvent(Event(
+                        device = data['device'],
+                        key    = data['key'],
+                        data   = data['data']
+                    ))
             except Exception, e:
                 log.error(utils.e2str(e))
         except Exception, e:
             log.error(utils.e2str(e))
 
-    def resolveArgs(self, args, state):
-        return dynamicArgs.resolveArgs(args, state, self.state)
-
     def action_getEnabledRules(self):
-        return chains.reactor.rules.config.getEnabledNames()
+        return config.getEnabledNames()
         
     def action_getAvailableRules(self):
-        return chains.reactor.rules.config.getAvailableNames()
+        return config.getAvailableNames()
 
     def action_enableRule(self, rule):
-        chains.reactor.rules.config.enable(rule)
+        config.enable(rule)
         self.action_reloadRules()
 
     def action_disableRule(self, rule):
-        chains.reactor.rules.config.disable(rule)
+        config.disable(rule)
         self.action_reloadRules()
 
     def action_reloadRules(self):
-        reload(chains.reactor.rules.config)
-        self.worker = worker.Worker(self)
-
-    def action_getActiveRule(self, id):
-        return self.worker.get(id)
-
-    def action_listActiveRules(self, rule=None):
-        return self.worker.list(rule)
+        reload(config)
+        del self.ruleset
+        self.ruleset = RuleSet(config.getData(), self.context)
 
     def action_getState(self, key=None):
         return self.state.get(key)
@@ -74,9 +79,20 @@ class Reactor(AmqpDaemon):
     def action_delState(self, key=None):
         return self.state.delete(key)
 
+    """ needs l0ve, or deprecate...
+
+    def action_getActiveRule(self, id):
+        return self.worker.get(id)
+
+    def action_listActiveRules(self, rule=None):
+        return self.worker.list(rule)
+
+    """
+
 def main(id):
     log.setFileName('reactor-%s' % id)
     runWithSignalHandler(Reactor(id))
 
 if __name__ == '__main__':
-    main(utils.getHostName())
+    log.setLevel('debug')
+    main('master')

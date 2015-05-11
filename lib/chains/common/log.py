@@ -2,6 +2,7 @@
 
 import logging, logging.handlers
 from chains.common import config
+import types, json, os
 
 
 level  = None
@@ -25,6 +26,8 @@ def getLevel():
     return level
 
 def setFileName(name):
+    if not os.path.exists(config.get('logdir')):
+        os.makedirs(config.get('logdir'))
     setFilePath( config.get('logdir') + '/' + name + '.log' )
 
 def setFilePath(path):
@@ -33,18 +36,35 @@ def setFilePath(path):
     logger.addHandler(fileHandler)
     logger.removeHandler(consoleHandler)
 
-def notice(o):
-    logger.debug(o)
-def debug(o):
-    logger.debug(o)
-def info(o):
-    logger.info(o)
-def warn(o):
-    logger.warn(o)
-def error(o):
-    logger.error(o)
-def query(q, a):
-    raise Exception('deprecated')
+def notice(*args):
+    msg = formatMessage(args)
+    logger.debug(msg)
+def debug(*args):
+    msg = formatMessage(args)
+    logger.debug(msg)
+def info(*args):
+    msg = formatMessage(args)
+    logger.info(msg)
+def warn(*args):
+    msg = formatMessage(args)
+    logger.warn(msg)
+def error(*args):
+    msg = formatMessage(args)
+    logger.error(msg)
+
+def formatMessage(args):
+    result = []
+    for arg in args:
+        result.append(formatMessageItem(arg))
+    return ' '.join(result)
+
+def formatMessageItem(arg):
+    if type(arg) == types.InstanceType:
+        return '%s' % arg.__dict__
+    elif type(arg) in [types.StringType, types.UnicodeType]:
+        return arg
+    else:
+        return json.dumps(arg)
 
 
 # can pass f.ex. __name__ to getLogger() to get per-module logmsgs,

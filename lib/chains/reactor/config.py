@@ -2,6 +2,9 @@ import chains.common.config as config
 from chains.common import ParameterException, ChainsException
 import os
 
+# todo: tests
+# todo: cleanup
+
 def enable(rule):
     if not rule:
         raise ParameterException('Missing rule')
@@ -47,20 +50,8 @@ def getData(module=None):
         reload(pkg2)
         mod = getattr(pkg2, modname)
         reload(mod)
-        try: data = getattr(mod, 'rules')
-        except AttributeError: raise AttributeError('rules_enabled/%s must contain a "rules" list' % modname)
-        #if data: ret += data
-        nextid = 1
-        if data:
-            for chain in data:
-                if chain[0][0] != 'c':
-                    chain2 = [('c',{'id':'noid2-%s'%nextid})]
-                    nextid += 1
-                    for x in chain:
-                        chain2.append(x)
-                    chain = chain2
-                chain[0][1]['module'] = modname
-                ret.append(chain)
+        conf = { 'id': modname, 'maxCount': 1 } # todo: config in rule with maxCount etc
+        ret.append( (mod, conf) )
     return ret
 
 
@@ -175,7 +166,6 @@ class RuleAlreadyDisabledException(ChainsException):
         self.rule = rule
 
 
-
 if __name__ == '__main__':
 
     #try: disable('event_log')
@@ -191,6 +181,7 @@ if __name__ == '__main__':
     for r in getData():
         print '  %s' % (r,)
 
+    """
     print ''
     print 'enable rule: event_log'
     enable('event_log')
@@ -210,3 +201,4 @@ if __name__ == '__main__':
     print 'disable rule: event_log'
     disable('event_log')
     print ''
+    """
