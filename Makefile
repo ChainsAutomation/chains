@@ -1,13 +1,9 @@
 .PHONY: test
 
 deps:
-	set +e
-	apt-get install -y python-amqplib
-	ec=$?
-	set -e
-	if [ $ec -ne 0 ]; then
-	    easy_install amqplib
-	fi
+    sudo apt-get install -qqy python-pip python-amqplib
+    sudo /usr/bin/pip install pytest
+    sudo easy_install amqplib
 
 test: deps
 	PYTHONPATH=lib/ /usr/local/bin/py.test test/
