@@ -103,29 +103,21 @@ Some devices are able to do things as well as report `events` these are called a
 A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light control device could have actions like LightOn, LightOff and AllOff.
 
 ###Rule
-A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic. Example in pseudo code:
-```
-if event('open_door')
-   action(all_lights_on) 
-   and
-   action(play_radio)
-```
+A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic. 
+
 The simplest rules can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available.
 
 ####Example
 ```python
-from chains.reactor.rules.definition import *
-
-rules = [
-   [
-        cc(id='when-pir-on', info='When PIR-on event. Turn on light'),
-        evt('86f7e47fb6994d4c927d1fc4323e9002', 'lamp-3', '*', target='lamp3'), # lamp-3 is a PIR-sensor
-        iff('$lamp3.data.value', '255'),
-        iff('$State.99d04731e29e49cabefc32378661c297.minute.data.hour', '16', '>'),
-        iff('$State.99d04731e29e49cabefc32378661c297.minute.data.hour', '18', '<'),
-        act('tellstick', 'on', ['1'])
-   ]
-]
+def rule(context):
+   # wait for 'switch-2' event sent from 'mydevice'
+   yield Event(device='mydevice', key='switch-2')
+   # run action 'power_off' on device 'other_device'
+   Action(device='other_device', action='power_off')
+   # and so on
+   Action(...)
+   yield Event(...)
+   Action(...)
 ```
 
 #Development
