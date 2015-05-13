@@ -1,10 +1,11 @@
 .PHONY: test
 
 deps:
-	sudo apt-get install -qqy python-pip python-amqplib
-	sudo /usr/bin/pip install pytest
-	sudo easy_install amqplib
+	sudo apt-get install -qqy python-pip
+	sudo /usr/bin/pip install pytest amqplib
 
-
-test: deps
+test:
 	PYTHONPATH=lib/ /usr/local/bin/py.test test/
+
+travis: deps test
+	echo "Running travis"
