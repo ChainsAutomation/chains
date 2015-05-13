@@ -1,7 +1,7 @@
-[![Build Status](https://img.shields.io/travis/ChainsAutomation/chains.svg)]()
+[![Build Status](https://img.shields.io/travis/ChainsAutomation/chains.svg)](https://travis-ci.org/ChainsAutomation/chains)
 [![GitHub forks](https://img.shields.io/github/forks/ChainsAutomation/chains.svg)]()
 [![GitHub stars](https://img.shields.io/github/stars/ChainsAutomation/chains.svg)]()
-[![IRC](https://img.shields.io/badge/freenode-%23chains-red.svg)]()
+[![IRC](https://img.shields.io/badge/freenode-%23chains-blue.svg)](http://webchat.freenode.net/?channels=chains)
 #Chains
 
 Chains is a home automation system.
