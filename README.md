@@ -91,7 +91,7 @@ A `device` is a program that controls something in chains, usually a piece of ha
 Example devices: PhilipsHue, onewire, timer, pushover.
 
 ###Service
-A service is a specific piece of functionality exposed on a `device`. A single device be able to do several `actions` and report several `events`. We call these "sub-devices" services. E.g. "the bluetooth device exposes an Obex service"
+A service is a specific piece of functionality exposed on a `device`. A single device may be able to do several `actions` and report several `events`. We call these "sub-devices" services. E.g. "the bluetooth device exposes an Obex service"
 
 ##What are events, actions and rules?
 
