@@ -389,7 +389,7 @@ class AmqpDaemon:
         actionPrefix = self.getActionPrefix()
         heartBeatRequestPrefix = self.getHeartBeatRequestPrefix()
         while not self._shutdown:
-            log.debug('Waiting for messages')
+            log.notice('Waiting for messages')
             try:
                 topic, data, correlationId = self.consumer.get()
             except socket.error, e:
@@ -412,7 +412,7 @@ class AmqpDaemon:
             if self._shutdown:
                 log.info('Not handeling topic: %s because self._shutdown = True' % (topic,))
             else:
-                log.debug('Handeling topic: %s' % topic)
+                log.notice('Handeling topic: %s' % topic)
                 tmp = topic.split('.')
                 handle = False
                 if tmp[0] == actionPrefix and len(tmp) > 1:
@@ -432,7 +432,7 @@ class AmqpDaemon:
                     self.sendHeartBeatResponse()
                 else:
                     self.onMessage(topic, data, correlationId)
-                log.debug('Handeled topic: %s' % topic)
+                log.notice('Handeled topic: %s' % topic)
         log.info('Exited listen() loop - self._shutdown = %s' % self._shutdown)
 
     def runAction(self, key, data):
@@ -467,7 +467,7 @@ class AmqpDaemon:
 
     def sendHeartBeatEvent(self, data):
         topic = '%s.%s' % (self.getHeartBeatResponsePrefix(), self.id)
-        log.debug('sendHeartBeat: %s = %s' % (topic, data))
+        log.notice('sendHeartBeat: %s = %s' % (topic, data))
         self.producer.put(topic, data)
 
     def sendHeartBeatResponse(self):

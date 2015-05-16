@@ -33,7 +33,7 @@ class RuleInstances:
         if event.match(self.event):
 
             if len(self.runners) < self.maxCount:
-                self.debug("spawn new runner since count is %s < maxCount %s" % (len(self.runners), self.maxCount))
+                self.info("spawn new runner since count is %s < maxCount %s" % (len(self.runners), self.maxCount))
                 id = '%s-%s' % (self.id, len(self.runners))
                 runner = RuleRunner(id, self.context, self.rule, self.onRunnerComplete)
                 self.runners.append(runner)
@@ -57,4 +57,11 @@ class RuleInstances:
             log.debug(msg, data)
         else:
             log.debug(msg)
+    
+    def info(self, msg, data=None):
+        msg = "RuleInstances: #%s: %s" % (self.id, msg)
+        if data:
+            log.info(msg, data)
+        else:
+            log.info(msg)
     

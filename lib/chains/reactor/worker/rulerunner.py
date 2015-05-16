@@ -47,8 +47,9 @@ class RuleRunner:
             return
 
         # If event matches what we're waiting for, iterate to next step in rule
-        self.debug('Event acted upon:', event)
+        self.debug('Event match attempt:', event)
         if event.match(self.event):
+            self.info('Event matched:', event)
             self.event = None # While running actions, we're not waiting for events
             self.thread = threading.Thread(target=self.getNext) # Don't block when running actions
             self.thread.daemon = True
@@ -56,7 +57,7 @@ class RuleRunner:
 
     # Called once the rule is complete
     def complete(self):
-        self.debug('Rule completed')
+        self.info('Rule completed')
         self.event = None
         self.isComplete = True
         if self.onComplete:
@@ -81,5 +82,8 @@ class RuleRunner:
 
     def debug(self, msg, data=None):
         log.debug("RuleRunner: #%s: %s" % (self.id, msg), data)
+
+    def info(self, msg, data=None):
+        log.info("RuleRunner: #%s: %s" % (self.id, msg), data)
 
 

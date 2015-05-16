@@ -11,7 +11,7 @@ logger = None
 def setLevel(_level):
     if not logger: return
     levels = {
-        'notice': logging.DEBUG,
+        'notice': 5,
         'debug': logging.DEBUG,
         'info': logging.INFO,
         'warn': logging.WARNING,
@@ -38,7 +38,8 @@ def setFilePath(path):
 
 def notice(*args):
     msg = formatMessage(args)
-    logger.debug(msg)
+    #logger.debug(msg)
+    logger.log(5, 'NOTICE: %s' % msg) 
 def debug(*args):
     msg = formatMessage(args)
     logger.debug(msg)
