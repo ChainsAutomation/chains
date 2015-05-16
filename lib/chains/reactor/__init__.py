@@ -18,8 +18,8 @@ class Reactor(AmqpDaemon):
         AmqpDaemon.__init__(self, 'reactor', id)
 
         self.state   = State()
-        context      = Context(self.state)
-        self.ruleset = RuleSet(config.getData(), context)
+        self.context = Context(self.state)
+        self.ruleset = RuleSet(config.getData(), self.context)
 
     def run(self):
         self.sendOnlineEvent()
