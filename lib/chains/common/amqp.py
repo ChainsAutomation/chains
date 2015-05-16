@@ -259,16 +259,17 @@ class Rpc(Channel):
         # these should be exclsive or they don't auto-delete for some reason
         self.queue_declare(exclusive=True)
         for key in keys:
-            log.debug('Listen to: %s' % key)
+            log.notice('Listen to: %s' % key)
             self.ch.queue_bind(self.queue, self.exchange, key)
         self.deliveryTag = None
         self.correlationId = None
         self.response = None
 
     def _callback(self, msg):
-        log.debug('RPC-CALL: CALLBACK %s = %s' % (msg.routing_key, msg.body))
+        log.notice('RPC-CALL: callback seen: %s = %s' % (msg.routing_key, msg.body))
         res = None
         if len(msg.routing_key) > 1 and msg.routing_key[1] in ['r','x'] and msg.properties.has_key('correlation_id') and msg.properties['correlation_id'] == self.correlationId:
+	    log.notice('RPC-CALL: callback matched: %s = %s' % (msg.routing_key, msg.body))
             self.response = msg
             res = True
         else:
@@ -278,7 +279,7 @@ class Rpc(Channel):
         return res
 
     def call(self, key, data=None, timeout=5, block=None):
-        log.debug('RPC-CALL: %s = %s' % (key, data))
+        log.debug('RPC-CALL: execute %s = %s' % (key, data))
         if block == None:
             block = True
 
@@ -305,7 +306,7 @@ class Rpc(Channel):
 
         if not block:
             return
-        log.debug('RPC-CALL: ...wait response...')
+        log.notice('RPC-CALL: wait response')
 
         startTime = time.time()
         while self.response is None:
@@ -321,16 +322,15 @@ class Rpc(Channel):
             else:
                 self.ch.wait()
 
-        log.debug('RPC-CALL: finished waiting')
+        log.notice('RPC-CALL: finished waiting')
         try:
             body = json.decode(self.response.body)
         except Exception, e:
             raise Exception("%s - for raw response: %s" % (e, self.response.body))
         tmp = self.response.routing_key.split('.')
-        log.debug('RPC-CALL: response topic = %s' % tmp)
         if tmp[0][1] == 'x': # todo: use constants
             raise RemoteException(body)
-        log.debug('RPC-CALL: return %s' % body)
+        log.debug('RPC-CALL: respone %s = %s' % (self.response.routing_key, body))
         return body
 
 class AmqpDaemon:

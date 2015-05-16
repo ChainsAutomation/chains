@@ -14,7 +14,7 @@ class RuleSet:
 
     # Pass incoming events to all RuleInstancess
     def onEvent(self, event):
-        log.debug("RuleSet: event occurred: %s" % event)
+        log.notice("RuleSet: event occurred: %s" % event)
         for s in self.sets:
             s.onEvent(event)
             
