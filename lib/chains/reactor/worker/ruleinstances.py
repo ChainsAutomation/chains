@@ -47,6 +47,10 @@ class RuleInstances:
     def onRunnerComplete(self, runner):
         self.runners.remove(runner)
 
+    def wait(self):
+        for runner in self.runners:
+            runner.wait()
+
     def debug(self, msg, data=None):
         msg = "RuleInstances: #%s: %s" % (self.id, msg)
         if data:
