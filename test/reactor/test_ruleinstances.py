@@ -43,7 +43,7 @@ class TestRuleInstances(unittest.TestCase):
         inst.onEvent(Event(device='tellstick', key='switch-1'))
         self.assertEqual(len(inst.runners), 1)
         inst.onEvent(Event(device='tellstick', key='switch-2'))
-        time.sleep(0.1)
+        inst.wait()
         self.assertEqual(len(inst.runners), 0)
 
     def test_When_event_occurs_They_are_passed_to_runner(self):
