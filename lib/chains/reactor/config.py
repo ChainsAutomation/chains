@@ -146,6 +146,7 @@ def _dirRules(dir):
     ret = []
     for f in os.listdir(dir):
         if f == '__init__.py': continue
+        if f == 'ruleconfig.py': continue
         tmp = f.split('.')
         ext = tmp.pop()
         if ext != 'py': continue
