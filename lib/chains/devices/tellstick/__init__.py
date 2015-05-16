@@ -1,5 +1,6 @@
 import chains.device, copy, re, td, Queue, time
 from chains.common import log
+import time
 
 # using: https://bitbucket.org/davka003/pytelldus/src
 
@@ -13,23 +14,13 @@ class TellstickDevice(chains.device.Device):
         self.repeatedEventLastTime = {}
         self.states                = {}
 
-        log.info('Initializing td')
+        self.eventCallbackId = None
+        self.sensorCallbackId = None
 
-        td.init( defaultMethods = td.TELLSTICK_TURNON | td.TELLSTICK_TURNOFF | td.TELLSTICK_BELL | td.TELLSTICK_TOGGLE | td.TELLSTICK_DIM | td.TELLSTICK_LEARN )
-        #td.debug = True
-
-        log.info('Registering device event handler')
-        td.registerDeviceEvent(self.deviceEventCallback)
-
-        log.info('Registering sensor event handler')
-        td.registerSensorEvent(self.sensorEventCallback)
-        #td.registerRawDeviceEvent(...) # if we want to support ALL recvd signals. noisy!
-
-        log.info('Initializing complete')
+        self.openTelldus()
 
     def onShutdown(self):
-        # Try to close libtelldus cleanly
-        td.close()
+        self.closeTelldus()
 
     def action_dim(self, id, level):
         '''
@@ -110,6 +101,11 @@ class TellstickDevice(chains.device.Device):
                'value': self.states.get('lamp-%s' % id)
            })
         return result
+
+    def action_tdreset(self):
+        self.closeTelldus()
+        time.sleep(1)
+        self.openTelldus()
 
     # Note about dimming and external controllers:
     #
@@ -227,4 +223,39 @@ class TellstickDevice(chains.device.Device):
         aliases = self.config.data('alias')
         if aliases and aliases.has_key(key):
             return aliases[key]
+
+    def openTelldus(self):
+
+        log.info('Opening telldus')
+
+        td.init( defaultMethods = td.TELLSTICK_TURNON | td.TELLSTICK_TURNOFF | td.TELLSTICK_BELL | td.TELLSTICK_TOGGLE | td.TELLSTICK_DIM | td.TELLSTICK_LEARN )
+        #td.debug = True
+
+        log.info('Registering device event handler')
+        self.deviceCallbackId = td.registerDeviceEvent(self.deviceEventCallback)
+
+        log.info('Registering sensor event handler')
+        self.sensorCallbackId = td.registerSensorEvent(self.sensorEventCallback)
+        #td.registerRawDeviceEvent(...) # if we want to support ALL recvd signals. noisy!
+
+        log.info('Initializing complete')
+
+    def closeTelldus(self):
+
+        log.info('Closing telldus')
+
+        try:
+            td.unregisterCallback(self.deviceCallbackId)
+        except:
+            log.warn('ignored error unregistering device callback')
+
+        try:
+            td.unregisterCallback(self.sensorCallbackId)
+        except:
+            log.warn('ignored error unregistering sensor callback')
+
+        try:
+            td.close()
+        except:
+            log.warn('ignored error closing td')
 

@@ -497,8 +497,20 @@ def disconnectTellStickController(vid, pid, serial):
 #int tdRegisterControllerEvent( TDControllerEvent eventFunction, void *context);
 #int tdSendRawCommand(const char *command, int reserved);    
 
-
 if __name__ == '__main__':
+    def cb(data,controllerId,callbackId):
+        print 'RawDeviceEvent'
+        print '  data:', data
+        print '  controllerId:', controllerId
+        print '  callbackId:', callbackId
+        print '  context:', context
+
+    registerRawDeviceEvent(cb)
+    import time
+    while True:
+        time.sleep(0.5)
+
+if __name__ == 'x__main__':
     import time
 
     init(defaultMethods = TELLSTICK_TURNON | TELLSTICK_TURNOFF | TELLSTICK_BELL | TELLSTICK_TOGGLE | TELLSTICK_DIM | TELLSTICK_LEARN)
