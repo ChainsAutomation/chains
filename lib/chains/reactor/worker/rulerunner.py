@@ -74,6 +74,12 @@ class RuleRunner:
         # No more events? Then we're done.
         except StopIteration:
             self.complete()
+        # Hm, unsure if this works.
+        # There are definitively at least some cases where thread can die
+        # without us noticing. So make sure code in Action() is ok.
+        except Exception, e:
+            log.error("Rule crashed:", e)
+            self.complete() 
 
     # Wait for action-thread to complete (used for tests)
     def wait(self):
@@ -85,5 +91,3 @@ class RuleRunner:
 
     def info(self, msg, data=None):
         log.info("RuleRunner: #%s: %s" % (self.id, msg), data)
-
-
