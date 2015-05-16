@@ -87,9 +87,21 @@ class PhilipsHueDevice(chains.device.Device):
         address = self.config.get('address')
         username = self.config.get('username')
         if not address:
-            raise Exception('Must configure address = <ip-of-hue-bridge> under [main] in config')
+            raise Exception('Must configure address = <ip> or "auto" under [main] in config')
         if not username:
             raise Exception('Must configure username = <username-for-hue-bridge> under [main] in config')
+        if address == 'auto':
+            from chains.devices.philipshue import discovery
+            info = discovery.discover()
+            if info:
+                info = info[0] # todo: handle multiple bridges? 
+            if info and info.has_key('internalipaddress'):
+                address = info['internalipaddress']
+                log.info('discovered bridge-address: %s' % address)
+            else:
+                log.warn('could not find bridge-address by auto-discovery')
+        else:
+            log.info('got bridge-address from config: %s' % address)
         return (address, username)
 
     def getLight(self, id):
