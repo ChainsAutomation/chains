@@ -8,4 +8,8 @@ def Action(device, action, params=None):
     topic = 'da.%s.%s' % (device, action)
     connection = amqp.Connection()
     rpc = connection.rpc(queuePrefix='reactor-action')
-    return rpc.call(topic, data=params)
+    result = rpc.call(topic, data=params)
+    try: rpc.close()
+    except: pass
+    try: connection.close()
+    except: pass
