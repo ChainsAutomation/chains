@@ -40,8 +40,11 @@ class TestRuleInstances(unittest.TestCase):
     def test_When_all_events_are_matched_The_runner_is_removed(self):
         inst = RuleInstances('rule2', rule2, 1, self.context)
         self.assertEqual(len(inst.runners), 0)
+
         inst.onEvent(Event(device='tellstick', key='switch-1'))
+        inst.wait()
         self.assertEqual(len(inst.runners), 1)
+
         inst.onEvent(Event(device='tellstick', key='switch-2'))
         inst.wait()
         self.assertEqual(len(inst.runners), 0)
