@@ -57,9 +57,15 @@ class PhilipsHueDevice(chains.device.Device):
             self.getLight(id).effect = 'none'
 
     def action_state(self, id, state):
-        self.getLight(id).on = True
-        for key in state:
-            setattr(light, key, state[key])
+        light = self.getLight(id)
+        light.on = True
+        keys = ['bri','sat','hue']
+        for key in keys:
+            try:
+                value = state[key]
+            except AttributeError:
+                continue
+            setattr(light, key, value)
 
     def action_list(self):
         '''
