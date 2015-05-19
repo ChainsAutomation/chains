@@ -131,11 +131,19 @@ class Channel:
                     try:
                         self.ch.queue_unbind(self.queueName, self.exchange, key)
                     except Exception, e:
-                        log.info('Ignore fail to unbind queue %s from %s for %s: %s' % (self.queueName, self.exchange, key, e))
+                        # don't pollute log if is not found
+                        isNotFound = False
+                        try:
+                            if e.args[0] == 404:
+                                isNotFound = True
+                        except:
+                            pass
+                        if not isNotFound:
+                            log.info('Ignore fail to unbind queue %s from %s for %s: %s' % (self.queueName, self.exchange, key, e))
             try:
                 self.ch.queue_delete(queue=self.queueName)
             except Exception, e:
-                log.info('Ignore fail to delete queue: %s' % e)
+                log.debug('Ignore fail to delete queue: %s' % e)
             try:
                 self.ch.close()
             except Exception, e:
