@@ -4,7 +4,7 @@ from chains.reactor.worker.rulerunner import RuleRunner
 from chains.reactor.definition.event import Event
 from chains.reactor.state import State
 from chains.common import log
-import rule1, rule2, rule3
+import rule1, rule2, rule3, rule4
 import time
 
 class TestRuleRunner(unittest.TestCase):
@@ -45,6 +45,16 @@ class TestRuleRunner(unittest.TestCase):
         runner.onEvent(Event(device='tellstick', key='switch-3'))
         runner.wait()
         self.assertFalse(runner.isComplete)
+
+    def test_When_event_is_matched_The_yield_returns_the_event(self):
+        runner = RuleRunner('rule4', self.context, rule4, None)
+        self.assertFalse( self.context.test.has_key('matched-event') )
+        runner.onEvent(Event(device='tellstick', key='switch-1', data={'value':'xyz', 'other': 'foo'}))
+        runner.wait()
+        self.assertTrue( self.context.test.has_key('matched-event') )
+        self.assertEqual( self.context.test['matched-event'].key,           'switch-1' )
+        self.assertEqual( self.context.test['matched-event'].data['value'], 'xyz' )
+        self.assertEqual( self.context.test['matched-event'].data['other'], 'foo' )
 
     # More complex tests where rule has multiple events,
     # checks value in state, and runs callback on complete
