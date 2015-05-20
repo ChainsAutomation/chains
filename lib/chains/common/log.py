@@ -64,6 +64,11 @@ def formatMessageItem(arg):
         return '%s' % arg.__dict__
     elif type(arg) in [types.StringType, types.UnicodeType]:
         return arg
+    elif type(arg) == types.ListType:
+        result = []
+        for item in arg:
+            result.append(formatMessageItem(item))
+        return json.dumps(result)
     else:
         return json.dumps(arg)
 
