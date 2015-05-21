@@ -142,13 +142,42 @@ class BtoothDevice(chains.device.Device):
         return self.getPresentDeviceCount(isGuest=False)
 
     def getBluetoothDevices(self):
-        try:
-            return bluetooth.discover_devices(flush_cache=True)
-        # This happens from time to time, and we don't want to die because of it:
-        # BluetoothError: error communicating with local bluetooth adapter
-        except bluetooth.BluetoothError,e:
-            log.warn('BluetoothError ignored: %s' % e)
-            return []
+        log.debug('Getting bluetooth devices')
+        result = []
+
+        if self.config.getBool('discover'):
+            log.debug('Using devices_discover() to find devices')
+            try:
+                for addr in bluetooth.discover_devices(flush_cache=True):
+                    log.debug('Found device: %s' % addr)
+                    result.append(addr)
+            # This happens from time to time, and we don't want to die because of it:
+            # BluetoothError: error communicating with local bluetooth adapter
+            except bluetooth.btcommon.BluetoothError,e:
+                log.warn('BluetoothError ignored: %s' % e)
+        else:
+            log.debug('Not configured to use devices_discover() to find devices')
+
+        if self.config.getBool('lookup'):
+            log.debug('Using lookup_name() to find devices')
+            try:
+                for addr in self.guests:
+                    name = bluetooth.lookup_name(addr)
+                    if name:
+                        log.debug('Found device: %s' % addr)
+                        result.append(addr)
+                    else:
+                        log.debug('Did not find device: %s' % addr)
+            # This happens from time to time, and we don't want to die because of it:
+            # BluetoothError: error communicating with local bluetooth adapter
+            except bluetooth.btcommon.BluetoothError,e:
+                log.warn('BluetoothError ignored: %s' % e)
+        else:
+            log.debug('Not configured to use lookup_name() to find devices')
+
+        log.debug('Finished getting blueooth devices')
+
+        return result
 
     def guestsToState(self):
         for mac, nick in self.guests.iteritems():
