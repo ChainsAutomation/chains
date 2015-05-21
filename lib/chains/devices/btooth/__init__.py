@@ -73,17 +73,17 @@ class BtoothDevice(chains.device.Device):
         name = self.state[address]['name']
         nick = self.state[address]['nick']
 
-        type = 'unknown'
-        key  = address
+        known = False
+        key   = address
         if address in self.guests:
-            type = 'guest'
-            key  = nick
+            known = True
+            key   = nick
 
         self.sendEvent('presence-%s' % key, {
             'address': address,
             'name':    name,
             'nick':    nick,
-            'type':    type,
+            'known':   known,
             'value':   True
         })
 
@@ -93,17 +93,17 @@ class BtoothDevice(chains.device.Device):
         self.state[address]['present'] = False
         self.state[address]['time'] = time.time()
 
-        type = 'unknown'
-        key  = address
+        known = False
+        key   = address
         if address in self.guests:
-            type = 'guest'
-            key  = nick
+            known = True
+            key   = nick
 
         self.sendEvent('presence-%s' % key, {
             'address': address,
             'name':    name,
             'nick':    nick,
-            'type':    type,
+            'known':   known,
             'value':   False
         })
 
