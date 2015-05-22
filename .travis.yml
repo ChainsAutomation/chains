@@ -12,7 +12,7 @@ before_install:
   - sudo chmod +x /usr/sbin/policy-rc.d
 
 install:
-  - sudo curl -sSL https://get.docker.com/ubuntu | sh
+  - sudo curl -sSL https://get.docker.com/ubuntu | sudo sh
   - sudo apt-get -qqy install lxc slirp
   - sudo sudo usermod -aG docker "$USER"
   - git clone git://github.com/cptactionhank/sekexe
