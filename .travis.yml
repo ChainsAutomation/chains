@@ -8,13 +8,12 @@ env:
     - SLIRP_PORTS=$(seq 2375 2500)
 
 before_install:
-  - sudo curl -sSL https://get.docker.com/ | sh
   - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
   - sudo chmod +x /usr/sbin/policy-rc.d
 
 install:
-  - sudo apt-get -qqy update
-  - sudo apt-get -qqy install lxc lxc-docker-1.6.0 slirp
+  - sudo curl -sSL https://get.docker.com/ubuntu | sh
+  - sudo apt-get -qqy install lxc slirp
   - sudo sudo usermod -aG docker "$USER"
   - git clone git://github.com/cptactionhank/sekexe
 
