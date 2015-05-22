@@ -70,29 +70,20 @@ class BtoothDevice(chains.device.Device):
                 name = 'Unknown'
             self.state[address]['name'] = name
 
-        name = self.state[address]['name']
-        nick = self.state[address]['nick']
-
-        known = False
-        key   = address
-        if address in self.guests:
-            known = True
-            key   = nick
-
-        self.sendEvent('presence-%s' % key, {
-            'address': address,
-            'name':    name,
-            'nick':    nick,
-            'known':   known,
-            'value':   True
-        })
+        self.sendDeviceChange(address, True)
 
     def onDeviceLeft(self, address):
-        name = self.state[address]['name']
-        nick = self.state[address]['nick']
+
         self.state[address]['present'] = False
         self.state[address]['time'] = time.time()
 
+        self.sendDeviceChange(address, False)
+
+    def sendDeviceChange(self, address, value):
+
+        name = self.state[address]['name']
+        nick = self.state[address]['nick']
+
         known = False
         key   = address
         if address in self.guests:
@@ -104,8 +95,30 @@ class BtoothDevice(chains.device.Device):
             'name':    name,
             'nick':    nick,
             'known':   known,
-            'value':   False
+            'value':   value
         })
+
+        present = 0
+        away    = 0
+        some    = False
+
+        for address, nick in self.guests.iteritems():
+            state = self.state.get(address)
+            if state and state['present']:
+                present += 1
+            else:
+                away += 1
+
+        if present > 0:
+            some = True
+
+        self.sendEvent('presence-summary', {
+            'present': present,
+            'away':    away,
+            'value':   some
+        })
+
+        log.info('foo')
 
     def getBluetoothDevices(self):
         log.debug('Getting bluetooth devices')
