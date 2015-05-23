@@ -38,9 +38,10 @@ usb_iproto_map = {
 }
 
 
-def find_types(**args):
+def find_types(**kwargs):
     global usb_iclass_map
     global usb_iproto_map
+    dev = usb.core.find(find_all=True, **kwargs)
     all_info = "All USB devices:\n"
     types = {}
     dev_desc = {}
@@ -66,12 +67,11 @@ def find_types(**args):
                 }
                 types.setdefault(bclass, {})
                 types[bclass].setdefault(bproto, []).append(dev_desc)
-                # types.setdefault(bproto, []).append(dev_desc)
     return types
 
 
 def find_mouse(**kwargs):
-    types = find_types(**args)
+    types = find_types(**kwargs)
     if 'HID' in types:
         if 'mouse' in types['HID']:
             return types['HID']['mouse']
@@ -84,4 +84,12 @@ def find_keyboard(**kwargs):
         if 'keyboard' in types['HID']:
             return types['HID']['keyboard']
     return False
+
+def find_joystick(**kwargs):
+    types = find_types(**kwargs)
+    if 'HID' in types:
+        if 'mouse' in types['HID']:
+            return types['HID']['mouse']
+    return False
+
 
