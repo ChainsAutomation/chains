@@ -37,6 +37,18 @@ usb_iproto_map = {
     },
 }
 
+usb_devices = {
+    (0x16c0, 0x05df): [
+        {'type': 'relay', 'name': 'USBRelay'},
+    ],
+    (0x045e, 0x028e): [
+        {'type': 'joystick', 'name': 'Xbox360 controller'},
+    ],
+    (0x046d, 0xc21f): [
+        {'type': 'joystick', 'name': 'Logitech F710 controller'},
+    ],
+}
+
 
 def find_types(**kwargs):
     global usb_iclass_map
@@ -55,7 +67,7 @@ def find_types(**kwargs):
                     if interface.bInterfaceProtocol in usb_iproto_map[bclass]:
                         bproto = usb_iproto_map[bclass][interface.bInterfaceProtocol]
                     else:
-                        bproto = unknown
+                        bproto = 'unknown'
                 dev_desc = {
                     'bus': device.bus,
                     'class': bclass,
@@ -85,11 +97,18 @@ def find_keyboard(**kwargs):
             return types['HID']['keyboard']
     return False
 
+
+def find_relay(**kwargs):
+    types = find_types(**kwargs)
+    if 'HID' in types:
+        if 'relay' in types['HID']:
+            return types['HID']['relay']
+    return False
+
+
 def find_joystick(**kwargs):
     types = find_types(**kwargs)
     if 'HID' in types:
         if 'mouse' in types['HID']:
-            return types['HID']['mouse']
+            return types['HID']['joystick']
     return False
-
-
