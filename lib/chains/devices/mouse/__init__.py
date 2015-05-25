@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 import chains.device
 # from chains.common import log
+from chains.common import usb as cusb
 import sys
 import usb.core
 import usb.util
@@ -49,7 +50,9 @@ class MouseDevice(chains.device.Device):
         self.vendorid = int(self.config.get('vendorid'))
         self.productid = int(self.config.get('productid'))
         if not self.vendorid or not self.productid:
-            sys.exit('Device needs vendor id and product id to work')
+            mousedevs = cusb.find_mouse()
+            if not mousedevs:
+                sys.exit('Device needs vendor id and product id to work')
         # ## vendor and product ids
         self.dev = usb.core.find(idVendor=self.vendorid, idProduct=self.productid)
         # TODO: probe for right interface when usb unit has multiple interfaces
