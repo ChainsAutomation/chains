@@ -37,6 +37,7 @@ While most home automation software focuses on supporting a single piece of hard
 * Mouse (usb, buttons and direction)
 * USB-info
 * Keyboard (usb, click, release, modifiers)
+* Sonos
 
 **In development:**
 * OneWire
