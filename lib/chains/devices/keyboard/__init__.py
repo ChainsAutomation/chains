@@ -82,9 +82,13 @@ class KeyboardDevice(chains.device.Device):
                     # print key_stat
                     cur_state = data
                     self.sendEvent(key_stat['keyevent'], key_stat)
+                    if key_stat['keycode'] == 44 and key_stat['keyevent'] == 'click':
+                        word = "".join(cur_line).rsplit(' ', 1)[0]
+                        if len(word) > 0:
+                            self.sendEvent('word', word)
                     # if key is enter, send line as well
                     # TODO: limit line to X chars
-                    if key_stat['keycode'] == 40:
+                    if key_stat['keycode'] == 40 and key_stat['keyevent'] == 'click':
                         self.sendEvent('line', "".join(cur_line))
                         cur_line = []
                     else:
