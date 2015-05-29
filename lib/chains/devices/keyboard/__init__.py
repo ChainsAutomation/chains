@@ -73,6 +73,7 @@ class KeyboardDevice(chains.device.Device):
             # claim the device
             usb.util.claim_interface(self.dev, self.interface)
         cur_state = array('B', [0, 0, 0, 0, 0, 0, 0, 0])
+        cur_line = []
         while not self._shutdown:
             try:
                 data = self.dev.read(self.endpoint.bEndpointAddress, self.endpoint.wMaxPacketSize)
@@ -81,12 +82,13 @@ class KeyboardDevice(chains.device.Device):
                     # print key_stat
                     cur_state = data
                     self.sendEvent(key_stat['keyevent'], key_stat)
-                    # TODO: support sending line ended with return/enter
-                    # 
-                    # check if enter, if enter and line not empty, send line
-                    # if not line_start:
-                    #    line_start = datetime.now()
-                    # line.append(data)
+                    # if key is enter, send line as well
+                    # TODO: limit line to X chars
+                    if key_stat['keycode'] == 40:
+                        self.sendEvent('line', "".join(cur_line))
+                        cur_line = []
+                    else:
+                        cur_line.append(key_stat['active_key'])
             except usb.core.USBError as e:
                 data = None
                 if e.args == ('Operation timed out',):
