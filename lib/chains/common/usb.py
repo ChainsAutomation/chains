@@ -39,13 +39,13 @@ usb_iproto_map = {
 
 usb_devices = {
     (0x16c0, 0x05df): [
-        {'type': 'relay', 'name': 'USBRelay'},
+        {'type': 'relay', 'name': 'usbrelay'},
     ],
     (0x045e, 0x028e): [
-        {'type': 'joystick', 'name': 'Xbox360 controller'},
+        {'type': 'joystick', 'name': 'xbox360'},
     ],
     (0x046d, 0xc21f): [
-        {'type': 'joystick', 'name': 'Logitech F710 controller'},
+        {'type': 'joystick', 'name': 'f710',  # Logitech F710 controller
     ],
 }
 
