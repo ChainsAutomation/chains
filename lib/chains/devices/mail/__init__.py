@@ -137,7 +137,7 @@ class MailDevice(Device):
         try:
             server.sendmail(from_addr, [to_addr], msg.as_string())
         except:
-            log("Sending mail failed")
+            log.error("Sending mail failed")
 
     def action_checkmail(self):
         '''
