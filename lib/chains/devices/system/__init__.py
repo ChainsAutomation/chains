@@ -10,7 +10,7 @@ import platform as pf
 class SystemDevice(Device):
 
     def onInit(self):
-        self.interval = int(self.config.get('interval')) or 10
+        self.interval = self.config.getInt('interval') or 60
         log.info('SystemDevice interval is: ')
         log.info(self.interval)
 
