@@ -75,16 +75,17 @@ class SystemDevice(Device):
 
     def _get_meminfo(self):
         """ gather memory info into a dictionary for sendEvent """
+        usage = ps.phymem_usage()
         meminfo = {
             'mem_percent': ps.phymem_usage().percent,
-            'mem_free': int(ps.phymem_usage().free / (1024 * 1024)),
-            'mem_used': int(ps.phymem_usage().used / (1024 * 1024)),
-            'mem_available': int(ps.phymem_usage().available / (1024 * 1024)),
-            'mem_total': int(ps.phymem_usage().total / (1024 * 1024)),
-            'mem_active': int(ps.phymem_usage().active / (1024 * 1024)),
-            'mem_buffer': int(ps.phymem_usage().buffers / (1024 * 1024)),
-            'mem_cached': int(ps.phymem_usage().cached / (1024 * 1024)),
-            'mem_inactive': int(ps.phymem_usage().inactive / (1024 * 1024)),
+            'mem_free': self._try_get_mem_attr(usage, 'free'),
+            'mem_used': self._try_get_mem_attr(usage, 'used'),
+            'mem_available': self._try_get_mem_attr(usage, 'available'),
+            'mem_total': self._try_get_mem_attr(usage, 'total'),
+            'mem_active': self._try_get_mem_attr(usage, 'active'),
+            'mem_buffer': self._try_get_mem_attr(usage, 'buffers'),
+            'mem_cached': self._try_get_mem_attr(usage, 'cached'),
+            'mem_inactive': self._try_get_mem_attr(usage, 'inactive'),
         }
         return meminfo
 
@@ -92,17 +93,17 @@ class SystemDevice(Device):
         """ gather cpu info into a dictionary for sendEvent """
         cpu = ps.cpu_times()
         cpuinfo = {
-            'cpu_percent': ps.cpu_percent(),  # set interval=1?0.5?
-            'cpu_user': cpu.user,
-            'cpu_nice': cpu.nice,
-            'cpu_system': cpu.system,
-            'cpu_idle': cpu.idle,
-            'cpu_iowait': cpu.iowait,
-            'cpu_irq': cpu.irq,
-            'cpu_softirq': cpu.softirq,
-            'cpu_guest': cpu.guest,
-            'cpu_guest_nice': cpu.guest_nice,
-            'cpu_steal': cpu.steal,
+            'cpu_percent':    ps.cpu_percent(),  # set interval=1?0.5?
+            'cpu_user':       self._try_get_attr(cpu, 'user'),
+            'cpu_nice':       self._try_get_attr(cpu, 'nice'),
+            'cpu_system':     self._try_get_attr(cpu, 'system'),
+            'cpu_idle':       self._try_get_attr(cpu, 'idle'),
+            'cpu_iowait':     self._try_get_attr(cpu, 'iowait'),
+            'cpu_irq':        self._try_get_attr(cpu, 'irq'),
+            'cpu_softirq':    self._try_get_attr(cpu, 'softirq'),
+            'cpu_guest':      self._try_get_attr(cpu, 'guest'),
+            'cpu_guest_nice': self._try_get_attr(cpu, 'guest_nice'),
+            'cpu_steal':      self._try_get_attr(cpu, 'steal'),
         }
         return cpuinfo
 
@@ -141,9 +142,26 @@ class SystemDevice(Device):
     def _get_netinfo(self):
         """ gather neetwork info into a dictionary for sendEvent """
         nics = {}
-        niclist = ps.net_io_counters(pernic=True)
+        try:
+            niclist = ps.net_io_counters(pernic=True)
+        except AttrbuteError:
+            niclist = ps.network_io_counters(pernic=True)
         for nic in niclist:
             nics.update({nic: {}})
             for name in niclist[nic]._fields:
                 nics[nic].update({name: getattr(niclist[nic], name)})
         return nics
+
+    def _try_get_attr(self, obj, attr):
+        try:
+            return getattr(obj, attr)
+        except AttributeError:
+            return None
+
+    def _try_get_mem_attr(self, obj, attr):
+        value = None
+        try:
+            value = getattr(obj, attr)
+        except AttributeError:
+            return None
+        return int(value / (1024 * 1024))
