@@ -11,7 +11,7 @@ class SystemDevice(Device):
 
     def onInit(self):
         self.interval = int(self.config.get('interval')) or 10
-        log.info('SystemDevice interval is %s') % self.interval
+        log.info('SystemDevice interval is %d') % self.interval
 
     def onStart(self):
         """ start loop """
