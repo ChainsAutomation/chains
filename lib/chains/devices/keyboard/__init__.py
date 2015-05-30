@@ -53,6 +53,12 @@ class KeyboardDevice(chains.device.Device):
         self.interval = int(self.config.get('interval'))
         if not self.interval:
             self.interval = 10  # seconds
+        self.max_word = int(self.config.get('max_word'))
+        if not self.max_word:
+            self.max_word = 50  # seconds
+        self.max_line = int(self.config.get('max_line'))
+        if not self.max_line:
+            self.max_line = 250  # seconds
         self.vendorid = int(self.config.get('vendorid'))
         self.productid = int(self.config.get('productid'))
         if not self.vendorid or not self.productid:
@@ -73,6 +79,7 @@ class KeyboardDevice(chains.device.Device):
             # claim the device
             usb.util.claim_interface(self.dev, self.interface)
         cur_state = array('B', [0, 0, 0, 0, 0, 0, 0, 0])
+        cur_line = ""
         while not self._shutdown:
             try:
                 data = self.dev.read(self.endpoint.bEndpointAddress, self.endpoint.wMaxPacketSize)
@@ -81,12 +88,20 @@ class KeyboardDevice(chains.device.Device):
                     # print key_stat
                     cur_state = data
                     self.sendEvent(key_stat['keyevent'], key_stat)
-                    # TODO: support sending line ended with return/enter
-                    # 
-                    # check if enter, if enter and line not empty, send line
-                    # if not line_start:
-                    #    line_start = datetime.now()
-                    # line.append(data)
+                    # Check for special key presses (space, newline)
+                    if key_stat['keyevent'] == 'click':
+                        # Check for special key presses (space, newline)
+                        if key_stat['keycode'] == 44 or key_stat['keycode'] == '40':  # space / newline
+                            word = cur_line.rsplit(' ', 1)[0]
+                            if word:
+                                self.sendEvent('word', word[-self.max_word:])
+                            if key_stat['keycode'] == 40:  # newline
+                                self.sendEvent('line', cur_line[-self.max_line:])
+                                cur_line = ""
+                            if key_stat['keycode'] == '44':
+                                cur_line += key_stat['active_key']
+                        else:
+                            cur_line += key_stat['active_key']
             except usb.core.USBError as e:
                 data = None
                 if e.args == ('Operation timed out',):

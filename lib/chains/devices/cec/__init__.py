@@ -13,8 +13,8 @@ class CECDevice(Device):
             sys.exit('No CEC adapters found')
         else:
             self.adapter = self.adapters[0]
-            log('Found adapter(s): %s' % str(self.adapters))
-            log('Using adapter %s' % self.adapter)
+            log.info('Found adapter(s): %s' % str(self.adapters))
+            log.info('Using adapter %s' % self.adapter)
             self.sendEvent('current_adapter', {'id': 0})
         cec.init(self.adapter)
         # Device config
@@ -107,5 +107,5 @@ class CECDevice(Device):
         elif not dev.is_on:
             dev.power_on()
         else:
-            log('powertoggle failed because power status could not be determined')
+            log.warn('powertoggle failed because power status could not be determined')
 

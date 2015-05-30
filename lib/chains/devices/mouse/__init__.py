@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 import chains.device
-# from chains.common import log
+from chains.common import log
+from chains.common import usb as cusb
 import sys
 import usb.core
 import usb.util
@@ -48,14 +49,23 @@ class MouseDevice(chains.device.Device):
             self.interval = 600  # milliseconds
         self.vendorid = int(self.config.get('vendorid'))
         self.productid = int(self.config.get('productid'))
-        if not self.vendorid or not self.productid:
-            sys.exit('Device needs vendor id and product id to work')
+        self.search_params = {}
+        if self.vendorid and self.productid:
+            self.search_params.update({'idVendor': self.vendorid, 'idProduct': self.productid})
+            mousedevs = cusb.find_mouse(self.search_params)
+        else:
+            mousedevs = cusb.find_mouse()
+        if not mousedevs:
+            log.error("Can't find mouse device")
+            sys.exit("Can't find mouse device")
+        # Use first matching mouse
+        mouse = mousedevs[0]
         # ## vendor and product ids
-        self.dev = usb.core.find(idVendor=self.vendorid, idProduct=self.productid)
-        # TODO: probe for right interface when usb unit has multiple interfaces
-        # use the first interface/endpoint
-        self.interface = 0
-        self.endpoint = self.dev[0][(0, 0)][0]
+        self.dev = usb.core.find(address=mouse['address'], bus=mouse['bus'])
+        self.interface = mouse['interface']
+        # use the first endpoint
+        # dev[configuration][(interface, alt_config)][endpoint]
+        self.endpoint = self.dev[mouse['configuration']][(mouse['interface'], 0)][0]
 
     def onStart(self):
         # move_start = False
