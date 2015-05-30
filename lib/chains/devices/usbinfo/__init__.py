@@ -10,16 +10,14 @@ class USBInfoDevice(chains.device.Device):
 
     def onInit(self):
         # ## Device config
-        self.interval = int(self.config.get('interval'))
-        if not self.interval:
-            self.interval = 60
+        self.interval = self.config.getInt('interval') or 60
 
     def onStart(self):
         while not self._shutdown:
             devs = self._get_all_devices()
             self._send_usbtree(devs)
-            self._send_all_devices()
-            time.sleep(float(self.interval))
+            self._send_all_devices(devs)
+            time.sleep(self.interval)
 
     def action_update_device(self, bus, address):
         '''
