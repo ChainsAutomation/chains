@@ -44,9 +44,7 @@ class MouseDevice(chains.device.Device):
             array('B', [1, 0, 1, 0, 0, 0, 0]), 'right',
         ]
         # ## Device config
-        self.interval = int(self.config.get('interval'))
-        if not self.interval:
-            self.interval = 600  # milliseconds
+        self.interval = int(self.config.get('interval')) or 600 # milliseconds
         self.vendorid = int(self.config.get('vendorid'))
         self.productid = int(self.config.get('productid'))
         self.search_params = {}
@@ -54,6 +52,7 @@ class MouseDevice(chains.device.Device):
             self.search_params.update({'idVendor': self.vendorid, 'idProduct': self.productid})
             mousedevs = cusb.find_mouse(self.search_params)
         else:
+            log.warn("No config, using first found mouse device")
             mousedevs = cusb.find_mouse()
         if not mousedevs:
             log.error("Can't find mouse device")

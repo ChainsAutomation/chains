@@ -1,9 +1,10 @@
 #!/usr/bin/python2
 import chains.device
-# from chains.common import log
+from chains.common import log
 import sys
 import usb.core
 import usb.util
+from chains.common import usb as cusb
 from array import array
 # from datetime import datetime, timedelta
 
@@ -50,25 +51,30 @@ class KeyboardDevice(chains.device.Device):
             128: 'super_right',  # Right super
         }
         # ## Device config
-        self.interval = int(self.config.get('interval'))
-        if not self.interval:
-            self.interval = 10  # seconds
-        self.max_word = int(self.config.get('max_word'))
-        if not self.max_word:
-            self.max_word = 50  # seconds
-        self.max_line = int(self.config.get('max_line'))
-        if not self.max_line:
-            self.max_line = 250  # seconds
+        self.interval = int(self.config.get('interval')) or 10
+        self.max_word = int(self.config.get('max_word')) or 50
+        self.max_line = int(self.config.get('max_line')) or 250
         self.vendorid = int(self.config.get('vendorid'))
         self.productid = int(self.config.get('productid'))
-        if not self.vendorid or not self.productid:
-            sys.exit('Device needs vendor id and product id to work')
+
+        self.search_params = {}
+        if self.vendorid and self.productid:
+            self.search_params.update({'idVendor': self.vendorid, 'idProduct': self.productid})
+            kbdevs = cusb.find_keyboard(self.search_params)
+        else:
+            log.warn("No config, using first found keyboard device")
+            kbdevs = cusb.find_keyboard()
+        if not kbdevs:
+            log.error("Can't find keyboard device")
+            sys.exit("Can't find keyboard device")
+        # Use first matching keyboard
+        keyboard = kbdevs[0]
         # ## vendor and product ids
-        self.dev = usb.core.find(idVendor=self.vendorid, idProduct=self.productid)
-        # TODO: probe for right interface when usb unit (hid/0x1) has multiple interfaces
-        # use the first interface/endpoint
-        self.interface = 0
-        self.endpoint = self.dev[0][(0, 0)][0]
+        self.dev = usb.core.find(address=keyboard['address'], bus=keyboard['bus'])
+        self.interface = keyboard['interface']
+        # use the first endpoint
+        # dev[configuration][(interface, alt_config)][endpoint]
+        self.endpoint = self.dev[keyboard['configuration']][(keyboard['interface'], 0)][0]
 
     def onStart(self):
         # line_start = False
