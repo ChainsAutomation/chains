@@ -55,7 +55,7 @@ class SonosDevice(chains.device.Device):
             return False
         zone.clear_queue()
         zone.add_to_queue(playlist)
-        zone.play()
+        zone.play_from_queue(0)
 
     def action_volume(self, volume, zone=None):
         zone = self.getZone(zone)
