@@ -8,21 +8,12 @@ class RPiDevice(chains.device.Device):
 
     def onInit(self):
         self.datadir = self.config.getDataDir()
-        self.interval = self.config.get('interval')
-        if not self.interval:
-            self.interval = 60
-        self.model_version = self.config.get('model_version')
-        if not self.model_version:
-            self.model_version = 2
-        self.model_type = self.config.get('model_type')
-        if not self.model_type:
-            self.model_version = 'b'
+        self.interval = self.config.getInt('interval') or 60
+        self.model_version = self.config.getInt('model_version') or 2
+        self.model_type = self.config.get('model_type') or 'b'
 
-    def onStart(self):
-        last = {}
-        while not self._shutdown:
-            t = datetime.datetime.now()
-            time.sleep(self.interval)
+    # TODO: control gpio
+    # def action_gpio(self, ... )
 
     def action_camled(self, action):
         '''
@@ -52,7 +43,7 @@ class RPiDevice(chains.device.Device):
         camera.capture(self.datadir + '/image.jpg')
         # sendevent picture captured with filename 
 
-    def action_camcapture(self, vidname='video.h264', length=10):
+    def action_videorecord(self, vidname='video.h264', length=10):
         '''
         Record a video using the rpi camera
         @param  vidname  string  Use the video filename
