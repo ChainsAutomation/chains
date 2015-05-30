@@ -11,14 +11,14 @@ class SystemDevice(Device):
 
     def onInit(self):
         self.interval = int(self.config.get('interval')) or 10
-        log('SystemDevice interval is %s') % self.interval
+        log.info('SystemDevice interval is %s') % self.interval
 
     def onStart(self):
         """ start loop """
         # let user defined how often to update data
-        log('SystemDevice main loop starting')
+        log.info('SystemDevice main loop starting')
         while not self._shutdown:
-            log('Main loop running')
+            log.info('Main loop running')
             self.action_cpuinfo()
             self.action_meminfo()
             self.action_netinfo()
@@ -40,7 +40,7 @@ class SystemDevice(Device):
     def action_cpuinfo(self):
         """ Get cpu information """
         cpuinfo = self._get_cpuinfo()
-        self.sendEvent('cpu', sysinfo)
+        self.sendEvent('cpu', cpuinfo)
 
     def action_userprocinfo(self):
         """ Get user and process information """
@@ -91,7 +91,7 @@ class SystemDevice(Device):
         """ gather cpu info into a dictionary for sendEvent """
         cpu = ps.cpu_times()
         cpuinfo = {
-            'cpu_percent': ps.cpu_percent(), # set interval=1?0.5?
+            'cpu_percent': ps.cpu_percent(),  # set interval=1?0.5?
             'cpu_user': cpu.user,
             'cpu_nice': cpu.nice,
             'cpu_system': cpu.system,
@@ -146,4 +146,3 @@ class SystemDevice(Device):
             for name in niclist[nic]._fields:
                 nics[nic].update({name: getattr(niclist[nic], name)})
         return nics
-
