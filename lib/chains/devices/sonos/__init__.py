@@ -35,12 +35,51 @@ class SonosDevice(chains.device.Device):
 
     def action_stop(self, zone=None):
         zone = self.getZone(zone)
-        zone.play()
+        zone.stop()
 
     def action_playUri(self, uri, zone=None):
         zone = self.getZone(zone)
         zone.play_uri(uri)
 
+    def action_playPlaylist(self, name, zone=None):
+        zone = self.getZone(zone)
+        playlists = zone.get_sonos_playlists()
+        if not playlists:
+            return False
+        found = None
+        for playlist in playlists:
+            if playlist.title.lower().strip() == name.lower().strip():
+                found = playlist
+                break
+        if not found:
+            return False
+        zone.clear_queue()
+        zone.add_to_queue(playlist)
+        zone.play()
+
     def action_volume(self, volume, zone=None):
         zone = self.getZone(zone)
         zone.volume = int(volume)
+
+    def action_getTrackInfo(self, zone=None):
+        zone = self.getZone(zone)
+        info = zone.get_current_track_info()
+        del info['metadata']
+        return info
+
+    def action_getTrackMetaData(self, zone=None):
+        zone = self.getZone(zone)
+        info = zone.get_current_track_info()
+        return info['metadata']
+
+    def action_getTrackUri(self, zone=None):
+        zone = self.getZone(zone)
+        info = zone.get_current_track_info()
+        if not info:
+            return None
+        return info.get('uri')
+
+    def action_clearQueue(self, zone=None):
+        zone = self.getZone(zone)
+        zone.clear_queue()
+

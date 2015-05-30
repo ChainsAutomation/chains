@@ -334,7 +334,7 @@ class Rpc(Channel):
         try:
             body = json.decode(self.response.body)
         except Exception, e:
-            raise Exception("%s - for raw response: %s" % (e, self.response.body))
+            raise Exception("json decoding error: %s - for raw response: %s" % (e, self.response.body))
         tmp = self.response.routing_key.split('.')
         if tmp[0][1] == 'x': # todo: use constants
             raise RemoteException(body)
