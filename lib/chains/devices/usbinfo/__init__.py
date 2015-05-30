@@ -56,38 +56,38 @@ class USBInfoDevice(chains.device.Device):
 
     def _get_device(self, dev):
         log.info('Running _get_device')
-            devdict = {}
-            devkey = "%03d:%03d" % (dev.bus, dev.address)
-            devdict.update({devkey: {
-                'bLength': dev.bLength,
-                'bDescriptorType': dev.bDescriptorType,
-                'bcdUSB': dev.bcdUSB,
-                'bDeviceClass': dev.bDeviceClass,
-                'bDeviceSubClass': dev.bDeviceSubClass,
-                'bDeviceProtocol': dev.bDeviceProtocol,
-                'bMaxPacketSize0': dev.bMaxPacketSize0,
-                'idVendor': dev.idVendor,
-                'idProduct': dev.idProduct,
-                'bcdDevice': dev.bcdDevice,
-                'iManufacturer': dev.iManufacturer,
-                'iProduct': dev.iProduct,
-                'iSerialNumber': dev.iSerialNumber,
-                'bNumConfigurations': dev.bNumConfigurations,
-            }})
-            devconf = {
-                'conf': {
-                    'bLength': dev[0].bLength,
-                    'bDescriptorType': dev[0].bDescriptorType,
-                    'wTotalLength': dev[0].wTotalLength,
-                    'bNumInterfaces': dev[0].bNumInterfaces,
-                    'bConfigurationValue': dev[0].bConfigurationValue,
-                    'bmAttributes': dev[0].bmAttributes,
-                    'bMaxPower': dev[0].bMaxPower
-                }
+        devdict = {}
+        devkey = "%03d:%03d" % (dev.bus, dev.address)
+        devdict.update({devkey: {
+            'bLength': dev.bLength,
+            'bDescriptorType': dev.bDescriptorType,
+            'bcdUSB': dev.bcdUSB,
+            'bDeviceClass': dev.bDeviceClass,
+            'bDeviceSubClass': dev.bDeviceSubClass,
+            'bDeviceProtocol': dev.bDeviceProtocol,
+            'bMaxPacketSize0': dev.bMaxPacketSize0,
+            'idVendor': dev.idVendor,
+            'idProduct': dev.idProduct,
+            'bcdDevice': dev.bcdDevice,
+            'iManufacturer': dev.iManufacturer,
+            'iProduct': dev.iProduct,
+            'iSerialNumber': dev.iSerialNumber,
+            'bNumConfigurations': dev.bNumConfigurations,
+        }})
+        devconf = {
+            'conf': {
+                'bLength': dev[0].bLength,
+                'bDescriptorType': dev[0].bDescriptorType,
+                'wTotalLength': dev[0].wTotalLength,
+                'bNumInterfaces': dev[0].bNumInterfaces,
+                'bConfigurationValue': dev[0].bConfigurationValue,
+                'bmAttributes': dev[0].bmAttributes,
+                'bMaxPower': dev[0].bMaxPower
             }
-            devdict[devkey].update(devconf)
-            devdict[devkey].update({'interfaces': self._get_all_interfaces(dev[0])})  # dev[0] since we only check first configuration
-            return devdict
+        }
+        devdict[devkey].update(devconf)
+        devdict[devkey].update({'interfaces': self._get_all_interfaces(dev[0])})  # dev[0] since we only check first configuration
+        return devdict
 
     def _get_all_interfaces(self, dev):
         log.info('Running _get_all_interfaces')
