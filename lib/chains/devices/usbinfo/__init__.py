@@ -91,7 +91,7 @@ class USBInfoDevice(chains.device.Device):
 
     def _get_interface(self, inter):
         iface = {
-            inter.bInterfaceNumber: {
+            str(inter.bInterfaceNumber): {
                 'bLength': inter.bLength,
                 'bDescriptorType': inter.bDescriptorType,
                 'bInterfaceNumber': inter.bInterfaceNumber,
@@ -114,7 +114,7 @@ class USBInfoDevice(chains.device.Device):
 
     def _get_endpoint(self, endp):
         endpoint = {
-            endp.bEndpointAddress: {
+            str(endp.bEndpointAddress): {
                 'bLength': endp.bLength,
                 'bDescriptorType': endp.bDescriptorType,
                 'bEndpointAddress': endp.bEndpointAddress,
