@@ -56,7 +56,7 @@ class MouseDevice(chains.device.Device):
         else:
             mousedevs = cusb.find_mouse()
         if not mousedevs:
-            log("Can't find mouse device")
+            log.error("Can't find mouse device")
             sys.exit("Can't find mouse device")
         # Use first matching mouse
         mouse = mousedevs[0]
