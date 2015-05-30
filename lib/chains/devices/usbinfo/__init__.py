@@ -80,13 +80,13 @@ class USBInfoDevice(chains.device.Device):
                 }
             }
             devdict[devkey].update(devconf)
-            devdict[devkey].update({'interfaces': self._get_all_interfaces(dev)})
+            devdict[devkey].update({'interfaces': self._get_all_interfaces(dev[0])})  # dev[0] since we only check first configuration
             return devdict
 
     def _get_all_interfaces(self, dev):
         data = {}
         for inter in dev:
-            data.update(self._get_interface(inter))
+            data.update(self._get_interface(inter))  # Get only first configuration
         return data
 
     def _get_interface(self, inter):
