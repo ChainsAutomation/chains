@@ -26,7 +26,7 @@ class USBInfoDevice(chains.device.Device):
         @param  address  int  Address number
         '''
         log.info('Running action_update_device')
-        self._get_dev_path(self, bus, address)
+        self._get_dev_path(bus, address)
 
     def _send_usbtree(self, usbtree):
         log.info('Running _send_usbtree')
@@ -39,7 +39,7 @@ class USBInfoDevice(chains.device.Device):
 
     def _send_device(self, bus, address):
         log.info('Running _send_device')
-        dev = self._get_dev_path(self, bus, address)
+        dev = self._get_dev_path(bus, address)
         devkey = "%03d:%03d" % (bus, address)
         self.sendEvent(devkey, dev)
 
@@ -86,14 +86,15 @@ class USBInfoDevice(chains.device.Device):
             }
         }
         devdict[devkey].update(devconf)
-        devdict[devkey].update({'interfaces': self._get_all_interfaces(dev[0])})  # dev[0] since we only check first configuration
+        # dev[0] since we only check first configuration
+        devdict[devkey].update({'interfaces': self._get_all_interfaces(dev[0])})
         return devdict
 
     def _get_all_interfaces(self, dev):
         log.info('Running _get_all_interfaces')
         data = {}
         for inter in dev:
-            data.update(self._get_interface(inter))  # Get only first configuration
+            data.update(self._get_interface(inter))
         return data
 
     def _get_interface(self, inter):
