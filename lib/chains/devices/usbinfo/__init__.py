@@ -117,11 +117,10 @@ class USBInfoDevice(chains.device.Device):
             endp.bEndpointAddress: {
                 'bLength': endp.bLength,
                 'bDescriptorType': endp.bDescriptorType,
-                'wTotalLength': dev[0].wTotalLength,
-                'bNumInterfaces': dev[0].bNumInterfaces,
-                'bConfigurationValue': dev[0].bConfigurationValue,
-                'bmAttributes': dev[0].bmAttributes,
-                'bMaxPower': dev[0].bMaxPower
+                'bEndpointAddress': endp.bEndpointAddress,
+                'bmAttributes': endp.bmAttributes,
+                'wMaxPacketSize': endp.wMaxPacketSize,
+                'bInterval': endp.bInterval,
             }
         }
         return endpoint
