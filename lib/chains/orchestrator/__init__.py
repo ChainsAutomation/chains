@@ -276,18 +276,12 @@ class Orchestrator(amqp.AmqpDaemon):
         classFile         = '%s/%s.conf' % (classDir, instanceData['main']['class'])
         classConfig       = self.loadConfigFile(classFile)
         classData         = self.configParserToDict(classConfig)
-        data              = self.mergeDictionaries(classData, instanceData)
-
-        data['online']    = False
-        data['heartbeat'] = 0
-
-        hasChanges = False
+        hasChanges        = False
 
         if not instanceData['main'].get('id'):
             id = self.generateUuid()
             instanceData['main']['id'] = id
             instanceConfig.set('main', 'id', id)
-            data['main']['id'] = id
             hasChanges = True
 
         if not instanceData['main'].get('name'):
@@ -296,10 +290,21 @@ class Orchestrator(amqp.AmqpDaemon):
             instanceConfig.set('main', 'name', name)
             hasChanges = True
 
+        if not instanceData['main'].get('manager'):
+            manager = 'master'
+            instanceData['main']['manager'] = manager
+            instanceConfig.set('main', 'manager', manager)
+            hasChanges = True
+
         if hasChanges:
             instanceFile = open(path, 'w')
             instanceConfig.write(instanceFile)
             instanceFile.close()
+
+        data              = self.mergeDictionaries(classData, instanceData)
+
+        data['online']    = False
+        data['heartbeat'] = 0
 
         if isReload and self.data['device'].has_key( data['main']['id'] ):
 
