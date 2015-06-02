@@ -16,19 +16,13 @@ class PushoverDevice(Device):
         #  TODO: optionally set default values for these in config
         self.pushurl = 'https://api.pushover.net/1/messages.json'
 
-        self.message = self.config.get('message')
-        if not self.message:
-            self.message = "Chains calling!"
+        self.message = self.config.get('message') or "Chains calling!"
         self.targetdevice = self.config.get('targetdevice')
         self.title = self.config.get('title')
         self.url = self.config.get('url')
         self.urltitle = self.config.get('urltitle')
-        self.priority = self.config.get('priority')
-        if not self.priority:
-            self.priority = 1 # "-2" no notification, -1 quiet notification, 1 - high priority, 2 requires confirmation by user
-        self.sound = self.config.get('sound')
-        if not self.sound:
-            self.sound = "bike" # https://pushover.net/api#sounds
+        self.priority = self.config.getInt('priority') or 1  # "-2" no notification, -1 quiet notification, 1 - high priority, 2 requires confirmation by user
+        self.sound = self.config.get('sound') or "bike" # https://pushover.net/api#sounds
         # self.timestamp, override servers timestamp, not needed as far as i can see
 
     def onStart(self):
