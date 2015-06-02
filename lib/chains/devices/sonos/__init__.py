@@ -57,9 +57,18 @@ class SonosDevice(chains.device.Device):
         zone.add_to_queue(playlist)
         zone.play_from_queue(0)
 
-    def action_volume(self, volume, zone=None):
+    def action_setVolume(self, volume, zone=None):
         zone = self.getZone(zone)
         zone.volume = int(volume)
+
+    def action_getVolume(self, zone=None):
+        zone = self.getZone(zone)
+        return zone.volume
+
+    def action_modifyVolume(self,amount, zone=None):
+        zone = self.getZone(zone)
+        amount = int(amount)
+        zone.volume += amount
 
     def action_getTrackInfo(self, zone=None):
         zone = self.getZone(zone)
@@ -82,4 +91,23 @@ class SonosDevice(chains.device.Device):
     def action_clearQueue(self, zone=None):
         zone = self.getZone(zone)
         zone.clear_queue()
+
+    def action_join(self, slaveZone, masterZone=None):
+        slaveZone = self.getZone(slaveZone)
+        masterZone = self.getZone(masterZone)
+        slaveZone.join(masterZone)
+
+    def action_unjoin(self, slaveZone):
+        slaveZone = self.getZone(slaveZone)
+        slaveZone.unjoin()
+
+    def action_list(self):
+        result = []
+        for zone in self.zones:
+            #result.append({
+            #    'name': zone.player_name,
+            #    'id':   zone.uid
+            #})
+            result.append(zone.get_speaker_info())
+        return result
 
