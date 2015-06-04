@@ -56,6 +56,13 @@ redirect_stderr=true
 #user=chainsuser
 priority=999
 
+[program:chains-webapi]
+command=uwsgi --enable-threads --http :8000 --wsgi-file /srv/chains/lib/chains/devices/webapi/__init__.py --callable app --master --processes 1 -l 50 -L
+autostart=false
+autorestart=true
+redirect_stderr=true
+priority=999
+
 [program:telldusd]
 command=/usr/sbin/telldusd --nodaemon
 autostart=false
@@ -69,7 +76,7 @@ autorestart=true
 priority=5
 
 [group:chains]
-programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-publishd
+programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-publishd,chains-webapi
 priority=999
 
 [group:system]
