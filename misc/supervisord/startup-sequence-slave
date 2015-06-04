@@ -36,4 +36,5 @@ supervisorctl start chains:chains-zeroconf-discoverd
 # wait a few seconds for rabbit to have started properly
 sleep 3
 supervisorctl start chains:chains-manager
+supervisorctl start chains:chains-webapi
 
