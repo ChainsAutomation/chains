@@ -43,4 +43,5 @@ sleep 3
 supervisorctl start chains:chains-orchestrator
 supervisorctl start chains:chains-reactor
 supervisorctl start chains:chains-manager
+supervisorctl start chains:chains-webapi
 

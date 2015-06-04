@@ -9,16 +9,12 @@
 # | MsgSize | Control | Data [0] | Data [1] | Data [2] | ... | Data [N] | Checksum |
 # |_________|_________|__________|__________|__________|_____|__________|__________|
 #
+# MsgSize:
+# Header, ID, Category, Page, Function, Length
 
-import serial
+cmds = {
 
-ser = serial.Serial(
-    port='COM1',
-    baudrate=9600,
-    parity=serial.PARITY_ODD,
-    stopbits=serial.STOPBITS_ONE,
-    bytesize=serial.EIGHTBITS
-)
+}
 
 def checksum(bytearr):
     """  Takes an array of bytes and XOR's them  """
@@ -27,13 +23,32 @@ def checksum(bytearr):
         cur = cur ^ item
     return cur
 
+
 def prep_msg(cmd_arr):
-    cmd_arr.insert(0, len(cmd_arr) + 2)
+    cmd_arr.insert(0, 0xA6) # Header
+    cmd_arr.insert(1, 0x01) # Monitor ID: 0x00 -> 0xFF
+    cmd_arr.insert(2, 0x00) # Category: Fixed @ 0x00
+    cmd_arr.insert(3, 0x00) # Page: Fixed @ 0x00
+    cmd_arr.insert(4, 0x00) # Function: Fixed @ 0x00
+    cmd_arr.insert(5, 0) # length of array not including msgsize/header part
+    cmd_arr.insert(6, 0x01) # Control: Fixed @ 0x01
+    cmd_arr.insert(5, len(cmd_arr) - 5) # update length when done
     cmd_arr.append(checksum(cmd_arr))
     return cmd_arr
 
 
 if __name__ == '__main__':
-    for index, val in enumerate(prep_msg([0x01, 0xa2, 0x00])):
-        print "byte %d : %s" % (index, hex(val))
-
+    import serial
+    command = prep_msg([0x18, 0x01])
+    for index, val in enumerate(command):
+       print "byte %d : %s" % (index, hex(val))
+    ser = serial.Serial(
+        port='/dev/ttyUSB0',
+        baudrate=9600,
+        parity=serial.PARITY_NONE,
+        stopbits=serial.STOPBITS_ONE,
+        bytesize=serial.EIGHTBITS
+    )
+    ser.write(command)
+    data_raw = ser.readline()
+    print data_raw
