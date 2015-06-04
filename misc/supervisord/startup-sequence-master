@@ -36,7 +36,6 @@ fi
 supervisorctl start system:rabbitmq
 # supervisorctl start system:sshd
 supervisorctl start system:telldusd
-supervisorctl start system:static-server
 supervisorctl start chains:chains-zeroconf-publishd
 # wait a few seconds for rabbit to have started properly
 sleep 3
