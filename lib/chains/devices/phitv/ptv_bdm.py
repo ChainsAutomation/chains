@@ -1,4 +1,4 @@
-# Physical Specifications
+# Physical Specifications:
 # 1. Baud Rate:1200, 2400, 4800, 9600 (default), 19200, 38400, 57600
 # 2. Data bits: 8
 # 3. Parity: None
@@ -12,9 +12,6 @@
 # MsgSize:
 # Header, ID, Category, Page, Function, Length
 
-cmds = {
-
-}
 
 def checksum(bytearr):
     """  Takes an array of bytes and XOR's them  """
@@ -26,6 +23,7 @@ def checksum(bytearr):
 
 def prep_msg(cmd_arr):
     cmd_arr.insert(0, 0xA6) # Header
+    #cmd_arr.insert(1, 0x01) # Monitor ID: 0x00 -> 0xFF
     cmd_arr.insert(1, 0x01) # Monitor ID: 0x00 -> 0xFF
     cmd_arr.insert(2, 0x00) # Category: Fixed @ 0x00
     cmd_arr.insert(3, 0x00) # Page: Fixed @ 0x00
@@ -39,9 +37,12 @@ def prep_msg(cmd_arr):
 
 if __name__ == '__main__':
     import serial
-    command = prep_msg([0x18, 0x01])
+    import sicp
+    print sicp.CMD
+    command = prep_msg(bytearray([0x18, 0x01]))
     for index, val in enumerate(command):
        print "byte %d : %s" % (index, hex(val))
+    print command
     ser = serial.Serial(
         port='/dev/ttyUSB0',
         baudrate=9600,
@@ -49,6 +50,15 @@ if __name__ == '__main__':
         stopbits=serial.STOPBITS_ONE,
         bytesize=serial.EIGHTBITS
     )
-    ser.write(command)
-    data_raw = ser.readline()
-    print data_raw
+    ser.flushInput()
+    ser.flushOutput()
+    cmd_status = False
+    while True:
+        if cmd_status == False:
+            ser.write(command)
+            cmd_status = True
+        data_raw = ser.read()
+        print int(data_raw)
+    ser.close()
+    # data_raw = ser.readline()
+    # print str(data_raw)
