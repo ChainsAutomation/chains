@@ -22,7 +22,7 @@ if [ ! -f /chains-configured ]; then
         if [[ ${ARCH} == 'armv7l' ]]; then
             echo "container is RPi"
             cp /srv/chains/misc/Docker/chains-config/default-devices-slave/* /etc/chains/devices/
-            cp /srv/chains/misc/Docker/chains-config/default-devices-rpi/* /etc/chains/devices/
+            cp /srv/chains/misc/Docker/chains-config/default-devices-rpi-slave/* /etc/chains/devices/
         fi
     fi
     touch /chains-configured

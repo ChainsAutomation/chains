@@ -8,7 +8,7 @@ if [ ! -f /chains-configured ]; then
     echo "First run, installing default configs"
     mkdir -p /etc/chains/devices
     if [ ! -f /etc/chains/chains.conf ]; then
-        cp /srv/chains/misc/examples/etc-master/chains.conf /etc/chains/
+        cp /srv/chains/misc/Docker/chains-config/chains.conf-master /etc/chains/
     fi
     if [ ! -f /etc/chains/amqp.conf ]; then
         cp /srv/chains/misc/Docker/chains-config/amqp.conf /etc/chains/
@@ -25,7 +25,7 @@ if [ ! -f /chains-configured ]; then
         if [[ ${ARCH} == 'armv7l' ]]; then
             echo "container is RPi"
             cp /srv/chains/misc/Docker/chains-config/default-devices-master/* /etc/chains/devices/
-            cp /srv/chains/misc/Docker/chains-config/default-devices-rpi/* /etc/chains/devices/
+            cp /srv/chains/misc/Docker/chains-config/default-devices-rpi-master/* /etc/chains/devices/
         fi
     fi
     touch /chains-configured
