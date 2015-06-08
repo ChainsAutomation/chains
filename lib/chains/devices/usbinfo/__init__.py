@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 import chains.device
 from chains.common import log
+from chains.common import usb as cusb
 import usb.core
 import usb.util
 import time
@@ -86,6 +87,8 @@ class USBInfoDevice(chains.device.Device):
             }
         }
         devdict[devkey].update(devconf)
+        usb_strings = cusb.device_strings(dev)
+        devdict[devkey].update(usb_strings)
         # dev[0] since we only check first configuration
         devdict[devkey].update({'interfaces': self._get_all_interfaces(dev[0])})
         return devdict

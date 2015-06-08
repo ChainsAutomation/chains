@@ -45,7 +45,7 @@ usb_devices = {
         {'type': 'joystick', 'name': 'xbox360'},
     ],
     (0x046d, 0xc21f): [
-        {'type': 'joystick', 'name': 'f710',  # Logitech F710 controller
+        {'type': 'joystick', 'name': 'f710'},  # Logitech F710 controller
     ],
 }
 
@@ -82,6 +82,27 @@ def find_types(**kwargs):
     return types
 
 
+def device_strings(dev):
+    usb_str = {
+        'manufacturer_name' = 'unknown'
+        'product_name' = 'unknown'
+        'serialnumber' = 'unkmown'
+    }
+    try:
+        if dev._manufacturer is None:
+            dev._manufacturer = usb.util.get_string(dev, dev.iManufacturer)
+            usb_str['manufacturer_name'] = dev._manufacturer
+        if dev._product is None:
+            dev._product = usb.util.get_string(dev, dev.iProduct)
+            usb_str['product_name'] = dev._product
+        if dev._serial_number is None
+            dev._serial_number = usb.util.get_string(dev, dev.iSerialNumber)
+            usb_str['serialnumber'] = dev._serial_number
+    except:
+        pass
+    return usb_str
+
+
 def find_mouse(**kwargs):
     types = find_types(**kwargs)
     if 'HID' in types:
@@ -109,6 +130,6 @@ def find_relay(**kwargs):
 def find_joystick(**kwargs):
     types = find_types(**kwargs)
     if 'HID' in types:
-        if 'mouse' in types['HID']:
+        if 'joystick' in types['HID']:
             return types['HID']['joystick']
     return False
