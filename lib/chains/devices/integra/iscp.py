@@ -11,7 +11,7 @@
 #CMDS[topic_index][2][cmd_index][3] : command models support
 #CMDS[topic_index][2][cmd_index][3][model_index] : model support
 
-
+from collections import OrderedDict
 try:
     from . import iscp_codes
 except:
@@ -19,8 +19,8 @@ except:
 
 
 def model_cmds(model):
-    topic_desc = {}
-    m_cmds = {}
+    topic_desc = OrderedDict()
+    m_cmds = OrderedDict()
     for index, group in enumerate(iscp_codes.MODELS):
         if model in group:
             mindex = index
@@ -42,9 +42,24 @@ def model_cmds(model):
     return (topic_desc, m_cmds)
 
 if __name__ == '__main__':
-    from pprint import pprint
+    # from pprint import pprint
+    import sys
+    import serial
     topic_desc, cmds = model_cmds('TX-SR705')
     # pprint(cmds)
     for cmd in cmds:
         print cmd + ' : ' + topic_desc[cmd]
     # pprint(cmds['PWR'])
+    ser_dev = sys.argv[1]
+    do_cmds = sys.argv[2:]
+    ser = serial.Serial(port=ser_dev,
+                        baudrate=9600,
+                        timeout=0,
+                        bytesize=serial.EIGHTBITS,
+                        parity=serial.PARITY_NONE,
+                        stopbits=serial.STOPBITS_ONE,
+                        )
+    for c in do_cmds:
+        ser.write("!" + c + '\r\n')
+        ret_val = ser.readline()
+    ser.close()
