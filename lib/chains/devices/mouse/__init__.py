@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 import chains.device
 from chains.common import log
-from chains.common import usb as cusb
+from chains.common import cusb
 import sys
 import usb.core
 import usb.util

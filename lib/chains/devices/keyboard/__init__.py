@@ -4,7 +4,7 @@ from chains.common import log
 import sys
 import usb.core
 import usb.util
-from chains.common import usb as cusb
+from chains.common import cusb
 from array import array
 # from datetime import datetime, timedelta
 

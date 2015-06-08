@@ -77,6 +77,7 @@ def find_types(**kwargs):
                     'configuration': cindex,
                     'interface': interface.bInterfaceNumber
                 }
+                dev_desc.update(device_strings(dev))
                 types.setdefault(bclass, {})
                 types[bclass].setdefault(bproto, []).append(dev_desc)
     return types
@@ -95,7 +96,7 @@ def device_strings(dev):
         if dev._product is None:
             dev._product = usb.util.get_string(dev, dev.iProduct)
             usb_str['product_name'] = dev._product
-        if dev._serial_number is None
+        if dev._serial_number is None:
             dev._serial_number = usb.util.get_string(dev, dev.iSerialNumber)
             usb_str['serialnumber'] = dev._serial_number
     except:
