@@ -77,13 +77,14 @@ def find_types(**kwargs):
                     'configuration': cindex,
                     'interface': interface.bInterfaceNumber
                 }
-                dev_desc.update(device_strings(dev))
+                dev_desc.update(device_strings(device.bus, device.address))
                 types.setdefault(bclass, {})
                 types[bclass].setdefault(bproto, []).append(dev_desc)
     return types
 
 
-def device_strings(dev):
+def device_strings(bus, address):
+    dev = usb.core.find(bus=bus, address=address)
     usb_str = {
         'manufacturer_name': 'unknown',
         'product_name': 'unknown',

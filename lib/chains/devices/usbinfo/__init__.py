@@ -87,7 +87,7 @@ class USBInfoDevice(chains.device.Device):
             }
         }
         devdict[devkey].update(devconf)
-        usb_strings = cusb.device_strings(dev)
+        usb_strings = cusb.device_strings(dev.bus, dev.address)
         devdict[devkey].update(usb_strings)
         # dev[0] since we only check first configuration
         devdict[devkey].update({'interfaces': self._get_all_interfaces(dev[0])})
