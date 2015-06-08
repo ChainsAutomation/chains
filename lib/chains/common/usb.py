@@ -84,9 +84,9 @@ def find_types(**kwargs):
 
 def device_strings(dev):
     usb_str = {
-        'manufacturer_name' = 'unknown'
-        'product_name' = 'unknown'
-        'serialnumber' = 'unkmown'
+        'manufacturer_name': 'unknown'
+        'product_name': 'unknown'
+        'serialnumber': 'unkmown'
     }
     try:
         if dev._manufacturer is None:
