@@ -144,25 +144,24 @@ class CoreConfig(BaseConfig):
         if not _os.path.exists(dir):
             _os.makedirs(dir)
 
-        file = open(path, 'w')
+        with open(path, 'w') as file:
 
-        c = _ConfigParser.ConfigParser()
-        c.add_section('main')
-        c.add_section('manager')
-        c.set('main', 'confdir', '/etc/chains')
-        c.set('main', 'datadir', '/srv/chains/data')
-        c.set('main', 'bindir', '/srv/chains/bin')
-        c.set('main', 'logdir', '/var/log/chains')
-        c.set('main', 'sharedir', '/srv/chains/share')
-        c.set('main', 'rundir', '/var/run/chains')
-        c.set('main', 'libdir', '/srv/chains/lib/chains')
-        c.set('main', 'rulesdir', '/etc/chains')
-        c.set('main', 'loglevel', 'warn')
-        c.set('main', 'heartbeat', '5')
-        c.set('manager', 'id', '{hostname}')
+            c = _ConfigParser.ConfigParser()
+            c.add_section('main')
+            c.add_section('manager')
+            c.set('main', 'confdir', '/etc/chains')
+            c.set('main', 'datadir', '/srv/chains/data')
+            c.set('main', 'bindir', '/srv/chains/bin')
+            c.set('main', 'logdir', '/var/log/chains')
+            c.set('main', 'sharedir', '/srv/chains/share')
+            c.set('main', 'rundir', '/var/run/chains')
+            c.set('main', 'libdir', '/srv/chains/lib/chains')
+            c.set('main', 'rulesdir', '/etc/chains')
+            c.set('main', 'loglevel', 'warn')
+            c.set('main', 'heartbeat', '5')
+            c.set('manager', 'id', '{hostname}')
 
-        c.write(file)
-        file.close()
+            c.write(file)
 
 
 class ConnectionConfig(BaseConfig):

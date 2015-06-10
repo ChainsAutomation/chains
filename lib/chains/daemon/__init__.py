@@ -18,9 +18,8 @@ class Daemon:
     def fork(self):
 
         if os.path.exists(self.pidFile):
-            f = open(self.pidFile, 'r')
-            pid = int(f.read())
-            f.close()
+            with open(self.pidFile, 'r') as f:
+                pid = int(f.read())
             # @todo: is this a good way to check if process is alive?
             try:
                 os.getpgid(pid)

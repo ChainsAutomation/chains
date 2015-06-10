@@ -297,9 +297,8 @@ class Orchestrator(amqp.AmqpDaemon):
             hasChanges = True
 
         if hasChanges:
-            instanceFile = open(path, 'w')
-            instanceConfig.write(instanceFile)
-            instanceFile.close()
+            with open(path, 'w') as instanceFile:
+                instanceConfig.write(instanceFile)
 
         data              = self.mergeDictionaries(classData, instanceData)
 

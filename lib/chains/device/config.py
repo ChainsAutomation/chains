@@ -166,15 +166,13 @@ def ensureUuid(deviceId):
     file = getUuidFile(deviceId)
     uuid = None
     if os.path.exists(file):
-        fp   = open(file, 'r')
-        uuid = fp.read()
-        fp.close()
+        with open(file, 'r') as fp:
+            uuid = fp.read()
     if uuid:
         return uuid
     uuid = uuid.uuid4().hex
-    fp = open(file, 'w')
-    fp.write(uuid)
-    fp.close()
+    with open(file, 'w') as fp:
+        fp.write(uuid)
     return uuid
 
 

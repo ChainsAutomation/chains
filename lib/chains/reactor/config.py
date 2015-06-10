@@ -138,9 +138,8 @@ def _makeDirWithInitFile(p):
         os.makedirs(p)
     initf = '%s/__init__.py' % p
     if not os.path.exists(initf):
-        fp = open(initf, 'w')
-        fp.write('')
-        fp.close()
+        with open(initf, 'w') as fp:
+            fp.write('')
 
 def _dirRules(dir):
     ret = []

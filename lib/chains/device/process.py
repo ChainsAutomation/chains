@@ -144,18 +144,16 @@ def getPid(deviceId):
     pidFile = getPidFile(deviceId)
     if not os.path.exists(pidFile):
         return None
-    fp = open(pidFile, 'r')
-    pid = fp.read().strip()
-    fp.close()
+    with open(pidFile, 'r') as fp:
+        pid = fp.read().strip()
     if pid:
         return int(pid)
     return None
 
 def setPid(deviceId, pid):
     pidFile = getPidFile(deviceId)
-    fp = open(pidFile, 'w')
-    fp.write('%s'%pid)
-    fp.close()
+    with open(pidFile, 'w') as fp:
+        fp.write('%s' % pid)
 
 def delPid(deviceId):
     pidFile = getPidFile(deviceId)

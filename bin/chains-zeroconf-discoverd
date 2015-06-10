@@ -42,15 +42,14 @@ class ChainsFinder:
             # print('Writing config file...')
 
             self.ensureParentDirs(self.cfgpath)
-            cfgfile = open(self.cfgpath, 'w')
+            with open(self.cfgpath, 'w') as cfgfile:
 
-            Config = ConfigParser.ConfigParser()
-            Config.add_section('main')
-            Config.set('main', 'host', z_addr)
-            Config.set('main', 'port', z_port)
+                Config = ConfigParser.ConfigParser()
+                Config.add_section('main')
+                Config.set('main', 'host', z_addr)
+                Config.set('main', 'port', z_port)
 
-            Config.write(cfgfile)
-            cfgfile.close()
+                Config.write(cfgfile)
 
             print('Config file written')
         else:

@@ -4,9 +4,8 @@ from chains.commandline import describe
 import sys
 
 def log(msg):
-    fp = open('/tmp/jazz','a')
-    fp.write('%s\n' % msg)
-    fp.close()
+    with open('/tmp/jazz','a') as fp:
+        fp.write('%s\n' % msg)
 
 def returnItems(values):
     print ' '.join(values)
