@@ -4,3 +4,6 @@ CMD = {
         0x01: 'Get the software label and version information of the platform ',
     }
 }
+
+CMD2 = {
+}

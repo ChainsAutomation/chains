@@ -25,6 +25,7 @@ def prep_msg(cmd_arr):
 
 
 if __name__ == '__main__':
+    import sicp_codes_bdl
     for index, val in enumerate(prep_msg([0x01, 0xa2, 0x00])):
         print "byte %d : %s" % (index, hex(val))
 

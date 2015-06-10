@@ -61,11 +61,11 @@ def prep_msg(cmd_arr):
 
 if __name__ == '__main__':
     import serial
-    import sicp
+    import sicp_codes_bdm.py
     import binascii
     # print sicp.CMD
-    command = prep_msg(bytearray([0x18, 0x01]))
-    # command = prep_msg(bytearray([0x19]))
+    # command = prep_msg(bytearray([0x18, 0x01]))  # Power off
+    command = prep_msg(bytearray([0x19]))  # Power status
     for index, val in enumerate(command):
        print "byte %d : %s" % (index, hex(val))
     # print command
@@ -83,17 +83,18 @@ if __name__ == '__main__':
     ser.write(command)
     while True:
         for ch in ser.read():
-            print int(ch.encode('hex'),16)
+            # print int(ch.encode('hex'),16)
             # print "So far: " + binascii.hexlify(resp)
             if len(resp) < 6:
                 resp.append(ch)
-            elif len(resp) < resp[4] + 4:
+            elif len(resp) < resp[4] + 4:  # Length field reached, total length not reached
                 resp.append(ch)
-            elif len(resp) == resp[4] + 4:  # End of message
+            elif len(resp) == resp[4] + 4:  # End of response
                 resp.append(ch)
                 print "got complete response:" + binascii.hexlify(resp)
                 print_response(resp)
-                check_response(resp)
+                if check_response(resp):
+                    print "Checksum works out"
                 resp = bytearray([])
             else:
                 resp = bytearray([])  # something went wrong, clearing
