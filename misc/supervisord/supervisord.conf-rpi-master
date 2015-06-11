@@ -70,12 +70,6 @@ autostart=false
 autorestart=true
 priority=5
 
-[program:static-server]
-command=/usr/bin/http-server /srv/chains/data -r -p 8888
-autostart=false
-autorestart=true
-priority=5
-
 [group:chains]
 programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-publishd,chains-webapi
 priority=999
