@@ -14,3 +14,16 @@ GET_CMDS = {
         ),
     ]
 }
+
+CMDS = [
+    ['Command Name', 'Command Desc', 'Command Value (hex)',
+        [
+            (  # DATA[1] goes  here
+                (data1_variant1), (data1_variant2), (data1_variant3), ('cmd', {types_info}, 'desc')
+            ),
+            (
+                (data2_variant1), (data2_variant2), (data2_variant3)
+            ),
+        ],
+    ],
+]
