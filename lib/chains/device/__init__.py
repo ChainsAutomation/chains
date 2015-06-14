@@ -164,7 +164,7 @@ class Device(AmqpDaemon):
     def onInit(self):
         '''
         Initialize device
-        
+
         Any initialization tasks that DO NOT BLOCK
         forever should be implemented here.
 

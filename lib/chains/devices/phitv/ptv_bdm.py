@@ -5,7 +5,7 @@
 ## 4. Stop Bit: 1
 ## 5. Flow Control: None
 #
-# Header, ID, Category, Page, Function, Length
+# Header, ID, Category, Page, Function 
 #  ________________________________________________________________________________
 # | MsgSize | Control | Data [0] | Data [1] | Data [2] | ... | Data [N] | Checksum |
 # |_________|_________|__________|__________|__________|_____|__________|__________|
@@ -61,11 +61,14 @@ def prep_msg(cmd_arr):
 
 if __name__ == '__main__':
     import serial
-    import sicp_codes_bdm.py
+    import sicp_codes_bdm
     import binascii
     # print sicp.CMD
     # command = prep_msg(bytearray([0x18, 0x01]))  # Power off
-    command = prep_msg(bytearray([0x19]))  # Power status
+    # command = prep_msg(bytearray([0x18, 0x02]))  # Power on
+    # command = prep_msg(bytearray([0x19]))  # Power status
+    command = prep_msg(bytearray([0x2F]))  # Temp sensor
+    # command = prep_msg(bytearray([0x37]))  # color params
     for index, val in enumerate(command):
        print "byte %d : %s" % (index, hex(val))
     # print command
