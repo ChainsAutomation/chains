@@ -47,6 +47,9 @@ usb_devices = {
     (0x046d, 0xc21f): [
         {'type': 'joystick', 'name': 'f710'},  # Logitech F710 controller
     ],
+    (0x08ff, 0x0009): [
+        {'type': 'rfid', 'name': 'rfid_reader'},
+    ],
 }
 
 
