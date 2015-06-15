@@ -1,5 +1,5 @@
 ## Chains
 RUN mkdir -p /srv/chains && mkdir -p /var/log/chains && mkdir -p /etc/chains
 ADD misc/Docker/chains-config/chains.conf-slave /etc/chains/chains.conf
-RUN git clone https://github.com/ChainsAutomation/chains.git /srv/chains
+COPY . /srv/chains
 RUN /srv/chains/bin/chains-install-from-svn
