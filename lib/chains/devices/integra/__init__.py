@@ -38,3 +38,40 @@ class IntegraDevice(Device):
 
     def _write_cmd(self, topic, param):
         self.ser.write("!" + topic + param + '\r\n')
+
+    # Start of runAction command, from Stians pastebin example
+    def runAction(self, action, args):
+        # chains-admin device action mydevid setVolume 50
+        if action == 'setVolume':
+            serial.send('VOL=%s' % args[0])
+            return True
+        # chains-admin device action mydevid getVolume
+        elif action == 'getVolume':
+            serial.send('VOL?')
+            value = serial.recv()
+            return int(value)
+        # chains-admin device action mydevid reboot
+        elif action == 'reboot':
+            subprocess.call(['reboot'])
+            return True
+        elif action == 'describe':
+            # TODO: Generate command array for specific device:
+            return {
+                'info': 'My amazing device',
+                'actions': [
+                    {
+                        'name': 'setVolume',
+                        'info': 'Set da volume woop woop',
+                        'args': [
+                            {'info': 'Volume value.', 'default': None, 'required': True, 'key': 'volume', 'type': 'int'}
+                        ]
+                    },
+                    {
+                        'name': 'getVolume',
+                        'info': 'Get current volume',
+                        'args': []
+                    }
+                ]
+            }
+        else:
+            raise NoSuchActionException(action)
