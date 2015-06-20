@@ -12,11 +12,7 @@ COMMANDS = [
     ],
     ['Set Power State', 'Command to change the Power state of the display', 0x18,
         [
-            (  # DATA[1] goes  here
-                ('data1_variant1', 0x00, {}),
-                ('data1_variant2', 0x01, {}),
-            ),
-            (  # DATA[2] goes here
+            (  # DATA[1] goes here
                 ('Power off', 0x01, {}),
                 ('Power on', 0x02, {}),
             ),
@@ -38,6 +34,20 @@ COMMANDS = [
     ],
     ['Get User Input Control State', 'Get the lock/unlock state for All/Voume/Power', 0x1B,
         [
+        ],
+    ],
+    ['Set User Input Control State', 'Set the lock/unlock state for All/Voume/Power', 0x1A,
+        [
+            (  # DATA[1] goes  here
+                ('Remote Lock all', 0x01, {}),
+                ('Remote Lock all but volume', 0x02, {}),
+                ('Remote Lock all but power', 0x03, {}),
+            ),
+            (  # DATA[2] goes  here
+                ('Keyboard Lock all', 0x01, {}),
+                ('Keyboard Lock all but volume', 0x02, {}),
+                ('Keyboard Lock all but power', 0x03, {}),
+            ),
         ],
     ],
     ['Get Power at Cold Start', 'Get Power state at Cold Start state', 0xA4,
@@ -118,19 +128,19 @@ COMMANDS = [
     ['Set Video Paramters', 'Command sets the video parameters.', 0x32,
         [
             (  # DATA[1] goes  here
-                ('Brightness: 0-100%', 0x00, {'type': range, 'min': 0, 'max': 100, 'data': 'hex'}),
+                ('Brightness: 0-100%', 0x00, {'type': 'range', 'min': 0, 'max': 100, 'data': 'hex'}),
             ),
             (  # DATA[1] goes  here
-                ('Color: 0-100%', 0x00, {'type': range, 'min': 0, 'max': 100, 'data': 'hex'}),
+                ('Color: 0-100%', 0x00, {'type': 'range', 'min': 0, 'max': 100, 'data': 'hex'}),
             ),
             (  # DATA[1] goes  here
-                ('Contrast: 0-100%', 0x00, {'type': range, 'min': 0, 'max': 100, 'data': 'hex'}),
+                ('Contrast: 0-100%', 0x00, {'type': 'range', 'min': 0, 'max': 100, 'data': 'hex'}),
             ),
             (  # DATA[1] goes  here
-                ('Sharpness: 0-100%', 0x00, {'type': range, 'min': 0, 'max': 100, 'data': 'hex'}),
+                ('Sharpness: 0-100%', 0x00, {'type': 'range', 'min': 0, 'max': 100, 'data': 'hex'}),
             ),
             (  # DATA[1] goes  here
-                ('Tint/Hue: 0-100%', 0x00, {'type': range, 'min': 0, 'max': 100, 'data': 'hex'}),
+                ('Tint/Hue: 0-100%', 0x00, {'type': 'range', 'min': 0, 'max': 100, 'data': 'hex'}),
             ),
         ],
     ],
@@ -292,6 +302,9 @@ COMMANDS = [
     ],
     ['Get Misc Info', 'Command requests the display to report from miscellaneous information parameters', 0x0F,
         [
+            (  # DATA[1] goes  here
+                ('Operating hours', 0x02, {}),
+            ),
         ],
     ],
     ['Get Smart Power', 'Command requests the display to get the specified Power Saving Mode.', 0xDE,
@@ -308,10 +321,13 @@ COMMANDS = [
             ),
         ],
     ],
-    ['Set Video Alignment', 'Command requests the display to make auto adjustment on VGA input source.', 0xA2,
+    ['Set Video Alignment', 'Command requests the display to make auto adjustment on VGA input source.', 0x70,
         [
             (  # DATA[1] goes  here
                 ('Auto Adjust', 0x40, {}),
+            ),
+            (  # DATA[2] goes  here
+                ('Static value', 0x00, {}),
             ),
         ],
     ],
@@ -327,7 +343,7 @@ COMMANDS = [
         [
         ],
     ],
-    ['Set Tiling', 'Command reports the Tiling settings.', 0x22,
+    ['Set Tiling', 'Command sets the Tiling settings.', 0x22,
         [
             (  # DATA[1] goes  here
                 ('Disable', 0x00, {}),
@@ -351,7 +367,45 @@ COMMANDS = [
         [
         ],
     ],
-    ['Set Light Sensor', 'Command to change the light sensor setting of the display.', 0x25,
+    ['Set Light Sensor', 'Command to change the light sensor setting of the display.', 0x24,
+        [
+            (  # DATA[1] goes  here
+                ('Off', 0x00, {}),
+                ('On', 0x01, {}),
+            ),
+        ],
+    ],
+    ['Get OSD Rotation', 'Command requests the display to report its current OSD rotation status', 0x27,
+        [
+        ],
+    ],
+    ['Set OSD Rotation', 'Command requests the display to set the OSD rotation', 0x26,
+        [
+            (  # DATA[1] goes  here
+                ('Off', 0x00, {}),
+                ('On', 0x01, {}),
+            ),
+        ],
+    ],
+    ['Get MEMC Effect', 'Command requests the display to report its current MEMC effect status', 0x29,
+        [
+        ],
+    ],
+    ['Get MEMC Effect', 'Command requests the display to report its current MEMC effect status', 0x28,
+        [
+            (  # DATA[1] goes  here
+                ('Off', 0x00, {}),
+                ('Low', 0x01, {}),
+                ('Medium', 0x02, {}),
+                ('High', 0x03, {}),
+            ),
+        ],
+    ],
+    ['Get Touch Feature', 'Command requests the display to report its current Touch Feature status', 0x1F,
+        [
+        ],
+    ],
+    ['Set Touch Feature', 'Command sets the Touch Feature', 0x1E,
         [
             (  # DATA[1] goes  here
                 ('Off', 0x00, {}),
@@ -361,13 +415,3 @@ COMMANDS = [
     ],
 ]  # End of COMMANDS array
 
-
-EX = [
-    ['Setting_desc_1', 'Ling_setting_desc', 0xA2,
-        [
-            (  # DATA[1] goes  here
-                ('data1_variant1', 0x00, {}),
-            ),
-        ],
-    ],
-]
