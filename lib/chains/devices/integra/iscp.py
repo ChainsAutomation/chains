@@ -11,10 +11,13 @@
 #CMDS[topic_index][2][cmd_index][3] : command models support
 #CMDS[topic_index][2][cmd_index][3][model_index] : model support
 
+import time
 from collections import OrderedDict
 try:
+    # Importing when used as a module
     from . import iscp_codes
 except:
+    # Importing when used as a cli program
     import iscp_codes
 
 
@@ -42,7 +45,7 @@ def model_cmds(model):
     return (topic_desc, m_cmds)
 
 if __name__ == '__main__':
-    # from pprint import pprint
+    from pprint import pprint
     import sys
     import serial
     topic_desc, cmds = model_cmds('TX-SR705')
@@ -54,12 +57,15 @@ if __name__ == '__main__':
     do_cmds = sys.argv[2:]
     ser = serial.Serial(port=ser_dev,
                         baudrate=9600,
-                        timeout=0,
+                        timeout=0.05,
                         bytesize=serial.EIGHTBITS,
                         parity=serial.PARITY_NONE,
                         stopbits=serial.STOPBITS_ONE,
                         )
     for c in do_cmds:
-        ser.write("!" + c + '\r\n')
+        print "Writing: !1" + c + "\\r\\n"
+        ser.write("!1" + c + '\r\n')
         ret_val = ser.readline()
+        print ret_val
+        time.sleep(0.5)
     ser.close()
