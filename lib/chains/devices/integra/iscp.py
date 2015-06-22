@@ -28,14 +28,16 @@ def model_cmds(model):
         if model in group:
             mindex = index
             break
-    topics = iscp_codes.CMDS
-    for topic in topics:
+    # topics = iscp_codes.CMDS
+    # for topic in topics:
+    for topic in iscp_codes.CMDS:
         topic_desc.update({topic[0]: topic[1]})
         if topic[0] not in m_cmds:
-            m_cmds.update({topic[0]: {}})
+            # Keep subcommands ordered:
+            m_cmds.update({topic[0]: OrderedDict()})
         for cmd in topic[2]:
             if cmd[3][mindex]:  # Model is supported
-                m_cmds[topic[0]].update({cmd[0]: {'description': cmd[1], 'type': cmd[3]}})
+                m_cmds[topic[0]].update({cmd[0]: {'description': cmd[1], 'type': cmd[2]}})
         if not m_cmds[topic[0]]:
             # print "Empty topic: %s" % topic[0]
             del m_cmds[topic[0]]
@@ -52,6 +54,10 @@ if __name__ == '__main__':
     # pprint(cmds)
     for cmd in cmds:
         print cmd + ' : ' + topic_desc[cmd]
+        for subcmd in cmds[cmd]:
+            print '\t' + subcmd + ': ' + cmds[cmd][subcmd]['description']
+            if cmds[cmd][subcmd]['type']:
+                pprint(cmds[cmd][subcmd]['type'], indent=12)
     # pprint(cmds['PWR'])
     ser_dev = sys.argv[1]
     do_cmds = sys.argv[2:]
@@ -67,5 +73,5 @@ if __name__ == '__main__':
         ser.write("!1" + c + '\r\n')
         ret_val = ser.readline()
         print ret_val
-        time.sleep(0.5)
+        # time.sleep(0.5)
     ser.close()
