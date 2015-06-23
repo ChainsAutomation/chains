@@ -16,13 +16,13 @@ class IntegraDevice(Device):
         self.model = self.config.get('model')
         self.ser_dev = self.config.get('serial')
         if self.ser_dev and self.model:
-            self.cmds = iscp.model_cmds(self.model)
+            self.topics, self.cmds = iscp.model_cmds(self.model)
         else:
             log.error('Device needs serial device and model to work.')
             sys.exit(1)
         self.ser = serial.Serial(port=self.ser_dev,
                                  baudrate=9600,
-                                 timeout=0,
+                                 timeout=0.05,  # 50ms reponse time according to spec
                                  bytesize=serial.EIGHTBITS,
                                  parity=serial.PARITY_NONE,
                                  stopbits=serial.STOPBITS_ONE,
@@ -37,23 +37,17 @@ class IntegraDevice(Device):
             time.sleep(0.1)
 
     def _write_cmd(self, topic, param):
-        self.ser.write("!" + topic + param + '\r\n')
+        self.ser.write("!1" + topic + param + '\r\n')
 
     # Start of runAction command, from Stians pastebin example
     def runAction(self, action, args):
-        # chains-admin device action mydevid setVolume 50
-        if action == 'setVolume':
-            serial.send('VOL=%s' % args[0])
-            return True
-        # chains-admin device action mydevid getVolume
-        elif action == 'getVolume':
-            serial.send('VOL?')
-            value = serial.recv()
-            return int(value)
-        # chains-admin device action mydevid reboot
-        elif action == 'reboot':
-            subprocess.call(['reboot'])
-            return True
+        if action[:3] in self.topics:
+        command = False
+            if action[3:] in self.cmds[action[:3]]:
+                if not self.cmds[action[:3]][action[3:]]['type']
+                    command = action
+                else:
+                    command = iscp.check_cmd(action[:3], args[0], self.cmds[action[:3]][action[3:]]['type'])
         elif action == 'describe':
             # TODO: Generate command array for specific device:
             return {
@@ -75,3 +69,7 @@ class IntegraDevice(Device):
             }
         else:
             raise NoSuchActionException(action)
+        if not command:
+            raise NoSuchActionException(action)
+        self._write_cmd(command)
+

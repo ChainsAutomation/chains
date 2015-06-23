@@ -116,11 +116,11 @@ MODELS = [
 
 # TODO needed data for functionality:
 ## Verify command / parameter
+### pad / data parameters
 ## Describe command / parameter
-### pad / data parameters not needed, expanded on running command
+### pad / data parameters not needed, expanded when running command
 
 # TODO types:
-## Padded range (15) - default range type
 ## Prefix'ed and signed range + 00 + 2 step (prefix + signed_range?)
 ## IFV ?
 ## Only negative signed range
@@ -128,6 +128,15 @@ MODELS = [
 ## Empty/noarg type
 ## String-type
 ## HTS
+# DONE types:
+## Padded range (15) - default range type
+
+# TODO misc
+## Change to bitmask for storing model support instead of large array (result of csv parsing)
+### Check: Memory usage of current version
+### Pro: Smaller file size/memory usage
+###Con: Harder to edit in support for new models
+### Alternative: create new file with bitmasks by parsing the current version
 
 CMDS = [
     ["PWR", "System Power Command", [
