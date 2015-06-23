@@ -46,6 +46,45 @@ def model_cmds(model):
             pass
     return (topic_desc, m_cmds)
 
+    def check_cmd(cmd, param, ctype):
+        # TODO: prefix, hex-type hex(myint)[2:].upper()
+        prefix = ''
+        if 'prefix' in ctype:
+            prefix = ctype['prefix']
+        if ctype['type'] == 'range':
+            if not ctype['min'] <= int(param) <= ctype['max']:
+                return False
+            else:
+                neg = False
+                if param < 0:
+                    neg = True
+                    param = abs(param)
+                # convert to hex without 0x if data is hex
+                if ctype['data'] == 'hex':
+                    param = hex(param)[2:].upper()
+                # Default unsigned, padded range:
+                if 'rtype' not in ctype:
+                    return cmd + prefix + str(param).zfill(ctype['pad'])
+                if ctype['rtype'] == 'signed':
+                    if int(param) == 0:
+                        return cmd + '00'
+                    elif neg:
+                        return cmd + prefix + '-' + str(param)
+                else:
+                    return False
+        elif ctype['type'] == 'string':
+            if not ctype['min'] <= len(param) <= ctype['max']:
+                return False
+            else:
+                return cmd + prefix + str(param)
+        elif ctype['type'] == '':
+            pass
+        elif ctype['type'] == 'noarg':
+            return cmd
+        else:
+            # undefined type
+            return False
+
 if __name__ == '__main__':
     from pprint import pprint
     import sys
@@ -72,6 +111,6 @@ if __name__ == '__main__':
         print "Writing: !1" + c + "\\r\\n"
         ser.write("!1" + c + '\r\n')
         ret_val = ser.readline()
-        print ret_val
+        print "\'" + ret_val + "\'"
         # time.sleep(0.5)
     ser.close()

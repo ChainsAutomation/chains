@@ -31,13 +31,16 @@ class IntegraDevice(Device):
     def onStart(self):
         log('IntegraDevice starting.')
         while not self._shutdown:
+            # TODO: check for self.command variable, and run command here
+            # rather than from runAction()?
             line = self.ser.readline()
             if line:
                 self.sendEvent(line[1:4], {'value': line[4:]})
+            # TODO: sleep probably not needed?
             time.sleep(0.1)
 
-    def _write_cmd(self, topic, param):
-        self.ser.write("!1" + topic + param + '\r\n')
+    def _write_cmd(self, command):
+        self.ser.write("!1" + command + '\r\n')
 
     # Start of runAction command, from Stians pastebin example
     def runAction(self, action, args):
@@ -47,7 +50,16 @@ class IntegraDevice(Device):
                 if not self.cmds[action[:3]][action[3:]]['type']
                     command = action
                 else:
+                    # At this point we know that action[3:] is a placeholder for args[0]
+                    # Since no commands take more than one arg, always args[0]
                     command = iscp.check_cmd(action[:3], args[0], self.cmds[action[:3]][action[3:]]['type'])
+        elif action == 'raw':
+            command = self._write_cmd(action[:3] + action[3:64])
+        # TODO: this?
+        # elif action == 'multi':
+        #     for arg in args:
+        #         # do something with each arg
+        #         pass
         elif action == 'describe':
             # TODO: Generate command array for specific device:
             return {
