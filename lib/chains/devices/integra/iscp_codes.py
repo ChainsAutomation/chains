@@ -114,6 +114,8 @@ MODELS = [
     ["TX-NR5010"],
 ]
 
+# TODO missing Zone2+
+## Parse xls other sheets 
 # TODO needed data for functionality:
 ## Verify commands / parameters
 ### pad / data parameters
