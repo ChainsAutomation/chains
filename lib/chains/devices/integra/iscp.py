@@ -52,7 +52,8 @@ def model_cmds(model):
         if 'prefix' in ctype:
             prefix = ctype['prefix']
         if ctype['type'] == 'range':
-            if not ctype['min'] <= int(param) <= ctype['max']:
+            param = int(param)
+            if not ctype['min'] <= param <= ctype['max']:
                 return False
             else:
                 neg = False
@@ -62,14 +63,18 @@ def model_cmds(model):
                 # convert to hex without 0x if data is hex
                 if ctype['data'] == 'hex':
                     param = hex(param)[2:].upper()
+                if 'pad' in ctype:
+                    param = str(param).zfill(ctype['pad'])
                 # Default unsigned, padded range:
                 if 'rtype' not in ctype:
-                    return cmd + prefix + str(param).zfill(ctype['pad'])
+                    return cmd + prefix + param
                 if ctype['rtype'] == 'signed':
-                    if int(param) == 0:
-                        return cmd + '00'
+                    if param == "0":
+                        return cmd + prefix + '00'
                     elif neg:
-                        return cmd + prefix + '-' + str(param)
+                        return cmd + prefix + '-' + param
+                    else:
+                        return cmd + prefix + '+' + param
                 else:
                     return False
         elif ctype['type'] == 'string':
@@ -77,8 +82,6 @@ def model_cmds(model):
                 return False
             else:
                 return cmd + prefix + str(param)
-        elif ctype['type'] == '':
-            pass
         elif ctype['type'] == 'noarg':
             return cmd
         else:
