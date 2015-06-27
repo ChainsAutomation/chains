@@ -38,10 +38,10 @@ While most home automation software focuses on supporting a single piece of hard
 * USB-info
 * Keyboard (usb, click, release, modifiers)
 * Sonos
+* Integra and Onkyo receivers
 
 **In development:**
 * OneWire
-* Onkyo receiver control
 * Spotify
 * mpd
 * xmms2
