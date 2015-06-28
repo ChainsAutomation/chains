@@ -8,6 +8,11 @@ class PhiTVDevice(Device):
     """Device implementing rs232 control on philips TVs and monitors"""
 
     def onInit(self):
+        self.model = self.config.get('model') or "monitor"
+        if model == "monitor":
+            import ptv_bdm as ptv
+        elif self.model == "publicdisp":
+            import ptv_bdl as ptv
         self.port = self.config.get('port') or "/dev/ttyUSB0"
         self.ser = serial.Serial(
             port=self.port,
