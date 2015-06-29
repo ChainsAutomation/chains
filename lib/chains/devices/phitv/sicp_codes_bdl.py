@@ -1,3 +1,7 @@
+MODELS = [
+    "bdl4221",
+]
+
 COMMANDS = [
     ['Get Platform and Version Labels', 'Request the SICP version', 0xA2,
         [
