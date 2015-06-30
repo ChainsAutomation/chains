@@ -54,7 +54,7 @@ class IntegraDevice(Device):
                     # Since no commands take more than one arg, always args[0]
                     command = iscp.check_cmd(action[:3], args[0], self.cmds[action[:3]][action[3:]]['type'])
         elif action == 'raw':
-            command = self._write_cmd(action[:3] + action[3:64])
+            command = self._write_cmd(args[0])
         # TODO: this?
         # elif action == 'multi':
         #     for arg in args:
