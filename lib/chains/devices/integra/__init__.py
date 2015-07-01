@@ -20,6 +20,24 @@ class IntegraDevice(Device):
         else:
             log.error('Device needs serial device and model to work.')
             sys.exit(1)
+        self.act_desc = {
+                'info': 'Integra/Onkyo model %s' % self.model,
+                'actions': []
+        }
+        for cmd in self.cmds:
+            for subcmd in cmd:
+                newcmd = {
+                    'name': cmd + subcmd,
+                    'info': self.cmds[cmd][subcmd]['description'],
+                    'args': [
+                    ]
+
+                }
+                if self.cmds[cmd][subcmd]['type']:
+                    # {'info': 'Volume value.', 'default': None, 'required': True, 'key': 'volume', 'type': 'int'}
+                    # newcmd['args'].append(array_like above)
+                    pass # TODO: add info about arg
+                self.act_desc['actions'].append(newcmd)
         self.ser = serial.Serial(port=self.ser_dev,
                                  baudrate=9600,
                                  timeout=0.05,  # 50ms reponse time according to spec
@@ -61,24 +79,7 @@ class IntegraDevice(Device):
         #         # do something with each arg
         #         pass
         elif action == 'describe':
-            # TODO: Generate command array for specific device:
-            return {
-                'info': 'My amazing device',
-                'actions': [
-                    {
-                        'name': 'setVolume',
-                        'info': 'Set da volume woop woop',
-                        'args': [
-                            {'info': 'Volume value.', 'default': None, 'required': True, 'key': 'volume', 'type': 'int'}
-                        ]
-                    },
-                    {
-                        'name': 'getVolume',
-                        'info': 'Get current volume',
-                        'args': []
-                    }
-                ]
-            }
+            return self.act_desc
         else:
             raise NoSuchActionException(action)
         if not command:
