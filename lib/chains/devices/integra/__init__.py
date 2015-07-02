@@ -31,12 +31,11 @@ class IntegraDevice(Device):
                     'info': self.cmds[cmd][subcmd]['description'],
                     'args': [
                     ]
-
                 }
-                if self.cmds[cmd][subcmd]['type']:
-                    # {'info': 'Volume value.', 'default': None, 'required': True, 'key': 'volume', 'type': 'int'}
-                    # newcmd['args'].append(array_like above)
-                    pass # TODO: add info about arg
+                if 'type' in self.cmds[cmd][subcmd]:
+                    param = self._type_desc(self.cmds[cmd][subcmd]['type'])
+                    if param:
+                        newcmd['args'].append(param)
                 self.act_desc['actions'].append(newcmd)
         self.ser = serial.Serial(port=self.ser_dev,
                                  baudrate=9600,
@@ -59,6 +58,21 @@ class IntegraDevice(Device):
 
     def _write_cmd(self, command):
         self.ser.write("!1" + command + '\r\n')
+
+    def _type_desc(self, tdesc):
+        # Create dict like this:
+        # {'info': 'Volume value.', 'default': None, 'required': True, 'key': 'volume', 'type': 'int'}
+        # TODO: Figure out info, get from main cmd?
+        arg_dict = {'info': '', 'default': None, 'required': True}
+        if tdesc['type'] == 'noarg':
+            return None
+        elif tdesc['type'] == 'string':
+            arg_dict.update({'type': 'string'})
+        elif tdesc['type'] == 'range':
+            arg_dict.update({'type': 'int(min=%d, max=%d)' % (tdesc['min'], tdesc['max']) })
+        else:
+            return None
+        return arg_dict
 
     # Start of runAction command, from Stians pastebin example
     def runAction(self, action, args):
