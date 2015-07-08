@@ -46,47 +46,47 @@ def model_cmds(model):
             pass
     return (topic_desc, m_cmds)
 
-    def check_cmd(cmd, param, ctype):
-        # TODO: prefix, hex-type hex(myint)[2:].upper()
-        prefix = ''
-        if 'prefix' in ctype:
-            prefix = ctype['prefix']
-        if ctype['type'] == 'range':
-            param = int(param)
-            if not ctype['min'] <= param <= ctype['max']:
-                return False
-            else:
-                neg = False
-                if param < 0:
-                    neg = True
-                    param = abs(param)
-                # convert to hex without 0x if data is hex
-                if ctype['data'] == 'hex':
-                    param = hex(param)[2:].upper()
-                if 'pad' in ctype:
-                    param = str(param).zfill(ctype['pad'])
-                # Default unsigned, padded range:
-                if 'rtype' not in ctype:
-                    return cmd + prefix + param
-                if ctype['rtype'] == 'signed':
-                    if param == "0":
-                        return cmd + prefix + '00'
-                    elif neg:
-                        return cmd + prefix + '-' + param
-                    else:
-                        return cmd + prefix + '+' + param
-                else:
-                    return False
-        elif ctype['type'] == 'string':
-            if not ctype['min'] <= len(param) <= ctype['max']:
-                return False
-            else:
-                return cmd + prefix + str(param)
-        elif ctype['type'] == 'noarg':
-            return cmd
-        else:
-            # undefined type
+def check_cmd(cmd, param, ctype):
+    # TODO: prefix, hex-type hex(myint)[2:].upper()
+    prefix = ''
+    if 'prefix' in ctype:
+        prefix = ctype['prefix']
+    if ctype['type'] == 'range':
+        param = int(param)
+        if not ctype['min'] <= param <= ctype['max']:
             return False
+        else:
+            neg = False
+            if param < 0:
+                neg = True
+                param = abs(param)
+            # convert to hex without 0x if data is hex
+            if ctype['data'] == 'hex':
+                param = hex(param)[2:].upper()
+            if 'pad' in ctype:
+                param = str(param).zfill(ctype['pad'])
+            # Default unsigned, padded range:
+            if 'rtype' not in ctype:
+                return cmd + prefix + param
+            if ctype['rtype'] == 'signed':
+                if param == "0":
+                    return cmd + prefix + '00'
+                elif neg:
+                    return cmd + prefix + '-' + param
+                else:
+                    return cmd + prefix + '+' + param
+            else:
+                return False
+    elif ctype['type'] == 'string':
+        if not ctype['min'] <= len(param) <= ctype['max']:
+            return False
+        else:
+            return cmd + prefix + str(param)
+    elif ctype['type'] == 'noarg':
+        return cmd
+    else:
+        # undefined type
+        return False
 
 if __name__ == '__main__':
     from pprint import pprint
