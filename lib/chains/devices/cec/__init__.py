@@ -109,3 +109,40 @@ class CECDevice(Device):
         else:
             log.warn('powertoggle failed because power status could not be determined')
 
+    # TODO: find correct cec code for volume commands
+    def action_volume_mute(self, cecdev=None):
+        '''
+        Mute CEC device
+        @param  adapter  int  CEC device ID
+        '''
+        if not cecdev:
+            cecdev = self.cur_device
+        dev = cec.Device(cecdev)
+        if dev.is_on:
+            dev.mute()
+
+    # TODO: find correct cec code for volume commands
+    def action_volume_up(self, cecdev=None):
+        '''
+        Sound volume up on CEC device
+        @param  adapter  int  CEC device ID
+        '''
+        if not cecdev:
+            cecdev = self.cur_device
+        dev = cec.Device(cecdev)
+        if dev.is_on:
+            dev.volume_up()
+
+    # TODO: find correct cec code for volume commands
+    def action_volume_mute(self, cecdev=None):
+        '''
+        Sound volume down on CEC device
+        @param  adapter  int  CEC device ID
+        '''
+        if not cecdev:
+            cecdev = self.cur_device
+        dev = cec.Device(cecdev)
+        if dev.is_on:
+            dev.volume_down()
+
+
