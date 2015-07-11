@@ -18,6 +18,24 @@ def check_cmd(cmd, param):
         # undefined type
         return False
 
+def power_on():
+    pass
+
+def power_off():
+    pass
+
+def v12_trigger():
+    pass
+
+def output_set():
+    pass
+
+def pip_set_output():
+    pass
+
+def pip_toggle():
+    pass
+
 if __name__ == '__main__':
     from pprint import pprint
     import sys
