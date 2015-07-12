@@ -1,6 +1,5 @@
 #!/usr/bin/python2
 
-                self.sendEvent(line[1:4], {'value': line[4:]})
 import sys
 import time
 

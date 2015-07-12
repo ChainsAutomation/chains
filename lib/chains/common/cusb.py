@@ -30,6 +30,7 @@ usb_iproto_map = {
     'MassStorage': {
     },
     'Hub': {
+        0: 'full_speed',
     },
     'Data': {
     },
@@ -52,18 +53,20 @@ usb_devices = {
     ],
 }
 
-# TODO: 'unknown' type is broken, returns several interface of eac type is broken, returns msveral interface of each
+
 def find_types(**kwargs):
     global usb_iclass_map
     global usb_iproto_map
     dev = usb.core.find(find_all=True, **kwargs)
-    # all_info = "All USB devices:\n"
+    all_info = "All USB devices:\n"
     types = {}
     dev_desc = {}
     for device in dev:
-        # all_info += str(device) + '\n'
+        #all_info += str(device) + '\n'
         for cindex, configuration in enumerate(device):
+            # print 'Configuration: %d' % cindex
             for interface in configuration:
+                # print interface.__dict__
                 bclass = 'unknown'
                 bproto = 'unknown'
                 if interface.bInterfaceClass in usb_iclass_map:
@@ -81,9 +84,13 @@ def find_types(**kwargs):
                     'configuration': cindex,
                     'interface': interface.bInterfaceNumber
                 }
+                # Add device strings to interface description
                 dev_desc.update(device_strings(device.bus, device.address))
                 types.setdefault(bclass, {})
+                # Adding interface to full list
+                # print dev_desc
                 types[bclass].setdefault(bproto, []).append(dev_desc)
+    #print all_info
     return types
 
 
@@ -147,3 +154,12 @@ def find_joystick(**kwargs):
         if 'joystick' in types['HID']:
             return types['HID']['joystick']
     return False
+
+if __name__ == '__main__':
+    from pprint import pprint
+    import sys
+    # in_img = sys.argv[1]
+    # act = sys.argv[2]
+    pprint(find_types())
+    pprint(find_mouse())
+
