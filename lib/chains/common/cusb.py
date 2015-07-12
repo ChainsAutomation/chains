@@ -52,25 +52,26 @@ usb_devices = {
     ],
 }
 
-
+# TODO: 'unknown' type is broken, returns several interface of eac type is broken, returns msveral interface of each
 def find_types(**kwargs):
     global usb_iclass_map
     global usb_iproto_map
     dev = usb.core.find(find_all=True, **kwargs)
-    all_info = "All USB devices:\n"
+    # all_info = "All USB devices:\n"
     types = {}
     dev_desc = {}
     for device in dev:
-        all_info += str(device) + '\n'
+        # all_info += str(device) + '\n'
         for cindex, configuration in enumerate(device):
             for interface in configuration:
                 bclass = 'unknown'
+                bproto = 'unknown'
                 if interface.bInterfaceClass in usb_iclass_map:
                     bclass = usb_iclass_map[interface.bInterfaceClass]
                     if interface.bInterfaceProtocol in usb_iproto_map[bclass]:
                         bproto = usb_iproto_map[bclass][interface.bInterfaceProtocol]
-                    else:
-                        bproto = 'unknown'
+                    #else:
+                    #    bproto = 'unknown'
                 dev_desc = {
                     'bus': device.bus,
                     'class': bclass,
@@ -87,6 +88,14 @@ def find_types(**kwargs):
 
 
 def device_strings(bus, address):
+    """ Returns dictionary with device strings:
+
+    usb_str = {
+        'manufacturer_name': 'unknown',
+        'product_name': 'unknown',
+        'serialnumber': 'unkmown',
+    }
+    """
     dev = usb.core.find(bus=bus, address=address)
     usb_str = {
         'manufacturer_name': 'unknown',
