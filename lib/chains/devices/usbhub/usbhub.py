@@ -1,6 +1,10 @@
 import sys
 import usb
 
+# Stuff pulled from usb-ctrl.py
+# unfortunately it no longer works with the new pyusb
+# Testing it out in the __name__ == __main__ section
+
 USB_RT_HUB              =       (usb.TYPE_CLASS | usb.RECIP_DEVICE)
 USB_RT_PORT             =       (usb.TYPE_CLASS | usb.RECIP_OTHER)
 USB_PORT_FEAT_RESET     =       4
@@ -26,6 +30,7 @@ if __name__ == '__main__':
 
     desc = None
 
+    # the below needs to be changed to the new pyusb library
     desc = dev.controlMsg(requestType = USB_DIR_IN | USB_RT_HUB,
                          request = usb.REQ_GET_DESCRIPTOR,
                          value = usb.DT_HUB << 8,
