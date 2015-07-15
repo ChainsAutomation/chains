@@ -4,11 +4,9 @@ MODELS = [
 ]
 
 CMDS = [
-        'power_on',
-        'power_off',
+    ["pow", "System Power Command", [
+        ["on", "Power on", {}, ],
+        ["off", "Power off", {}, ],
+        ["status", "Power Status", {}, ],
+    ]],
 ]
-
-CODES = {
-         0x01: 'power_on',
-         0x02: 'power_off',
-}
