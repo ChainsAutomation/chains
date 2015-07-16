@@ -1,3 +1,14 @@
+## rs232 codes
+# Format:
+# "<CR>*command=parameter#<CR>"
+## Examples
+# power on: <CR>*pow=on#<CR>
+# power off: <CR>*pow=off#<CR>
+# power status: <CR>*pow=?#<CR>
+
+TOPICS = []
+
+
 MODELS = [
         'W6000',
         'W6500',
