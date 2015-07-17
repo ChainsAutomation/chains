@@ -1,13 +1,17 @@
+
 MODELS = [
         'W6000',
         'W6500',
 ]
 
+
+
+
 CMDS = [
     ["pow", "System Power Command", [
         ["on", "Power on", {}, ],
         ["off", "Power off", {}, ],
-        ["status", "Get Power Status", {}, ],
+        ["?", "Get Power Status", {}, ],
     ]],
     ["sour", "Source Selection", [
         ["RGB", "COMPSTER/YPbPr", {}, ],
@@ -23,6 +27,11 @@ CMDS = [
         ["usbdisplay", "USB Display", {}, ],
         ["usbreader", "USB Reaer", {}, ],
         ["?", "Get Current source", {}, ],
+    ]],
+    ["mute", "Mute Command", [
+        ["on", "Mute on", {}, ],
+        ["off", "Mute off", {}, ],
+        ["?", "Get Mute Status", {}, ],
     ]],
 
 ]
