@@ -7,26 +7,6 @@
 # power status: <CR>*pow=?#<CR>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 TOPICS = [
             ['pow', 'Power Commands'],
             ['sour', 'Source Selection'],
@@ -81,12 +61,51 @@ MODELS = [
         'W6500',
 ]
 
-CMDS = [
-        'power_on',
-        'power_off',
-]
-
-CODES = {
-         0x01: 'power_on',
-         0x02: 'power_off',
+CMDS = {
+        'pow': {},
+        'sour': {},
+        'mute': {},
+        'vol': {},
+        'micvol': {},
+        'audiosour': {},
+        'appmod': {},
+        'con': {},
+        'bri': {},
+        'color': {},
+        'sharp': {},
+        'ct': {},
+        'asp': {},
+        'zoom': {},
+        'auto': {},
+        'BC': {},
+        'pp': {},
+        'QAS': {},
+        'directpower': {},
+        'autopower': {},
+        'standbynet': {},
+        'standbymic': {},
+        'standbymnt': {},
+        'baud': {},
+        'ltim': {},
+        'ltim2': {},
+        'lampm': {},
+        'modelname': {},
+        'blank': {},
+        'freeze': {},
+        'menu': {},
+        'up': {},
+        'down': {},
+        'left': {},
+        'right': {},
+        'enter': {},
+        '3d': {},
+        'rr': {},
+        'ins': {},
+        'lpsaver': {},
+        'prjlogincode': {},
+        'broadcasting': {},
+        'amxdd': {},
+        'macaddr': {},
+        'Highaltitude': {},
 }
+
