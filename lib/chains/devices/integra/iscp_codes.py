@@ -114,6 +114,34 @@ MODELS = [
     ["TX-NR5010"],
 ]
 
+Z2_MODELS = [
+]
+
+Z3_MODELS = [
+    ["TX-NR809"],
+    ["DTR-50.3"],
+    ["TX-NR1009"],
+    ["TX-NR3009"],
+    ["TX-NR5009"],
+    ["DTR-70.3"],
+    ["DTR-80.3", "DHC-80.3"],
+    ["PR-SC5509"],
+    ["TX-NR616", "616AE(Ether)"],
+    ["DTR-30.4"],
+    ["TX-NR717(Ether)"],
+    ["DTR-40.4"],
+    ["TX-NR818/818AE"],
+    ["DTR-50.4"],
+    ["TX-NR1010"],
+    ["TX-NR3010"],
+    ["DTR-70.4"],
+    ["TX-NR5010"],
+]
+
+Z4_MODELS = [
+    ["DTR-70.4"],
+]
+
 # TODO missing Zone2+
 ## Parse xls other sheets 
 # TODO needed data for functionality:
