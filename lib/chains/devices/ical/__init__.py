@@ -86,7 +86,7 @@ class IcalHaDevice(Device):
             ],
             'serial': '1337'
         }
-  
+
 
 # TODO: timezones?
 class IcalHaReader():
@@ -108,7 +108,7 @@ class IcalHaReader():
 
         self.getconfig()
         self.reloadcals()
-        
+
     def getconfig(self):
         print "getconfig()"
         try:
@@ -261,8 +261,6 @@ class IcalHaReader():
             # self.alarms.append(newalarms)
         # print self.alarms
         #print self.caldict
-
-        
 
     def timediff(self, dateobj):
         #print 'timediff()... '
