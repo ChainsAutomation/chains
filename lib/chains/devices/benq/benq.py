@@ -1,5 +1,18 @@
 #!/usr/bin/python2
 
+### BENQ serial interface information
+# Baud rate: 115200 (Default)
+# Data length: 8 bits
+# Parity: None
+# Stop bit: 1 bit
+# Flow control: None
+#
+###
+# 
+# 
+# 
+# 
+
 import time
 from collections import OrderedDict
 import serial
