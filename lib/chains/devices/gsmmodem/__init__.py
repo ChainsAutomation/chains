@@ -206,7 +206,6 @@ class GsmModemDevice(SerialDevice):
         if self.config['main'].has_key('delsmsonrecv') and self.config['main']['delsmsonrecv'] not in ['','0']:
             log.info('Delete received sms on event sent: %s' % sms['id'])
             self.deleteSms(sms['id'])
-            
 
     def pollData(self):
         curr = self.pollDataGetCurrent()
@@ -224,7 +223,6 @@ class GsmModemDevice(SerialDevice):
         data['temperature'] = self.cmd_getTemperature()
         data['pinstatus'] = self.cmd_getPinStatus()
         return data
-                
 
     def onCommand(self, cmd, args):
         self.waitReading()
@@ -460,6 +458,6 @@ if __name__ == '__main__':
     for i in range(8):
         print i
         if i == 4:
-            o.onCommand('sendSms',['+4792489963','hallo'])
+            o.onCommand('sendSms',['+4791000000','hallo'])
         time.sleep(0.5)
 
