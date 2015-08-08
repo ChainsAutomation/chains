@@ -12,4 +12,7 @@ import time
 def pretty(jobj):
     print json.dumps(jobj, sort_keys=True, indent=4, separators=(',', ': '))
 
-
+if __name__ != '__main__':
+    pass
+else:
+    print "trying to read from docker socket"
