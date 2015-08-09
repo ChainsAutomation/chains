@@ -12,6 +12,14 @@ import time
 def pretty(jobj):
     print json.dumps(jobj, sort_keys=True, indent=4, separators=(',', ': '))
 
+def reader():
+    while True:
+        data = docker.recv(1024)
+        if not data:
+            break
+        else:
+            print '%s' % data
+
 if __name__ != '__main__':
     pass
 else:
