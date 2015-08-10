@@ -13,6 +13,8 @@ def pretty(jobj):
     print json.dumps(jobj, sort_keys=True, indent=4, separators=(',', ': '))
 
 def reader():
+    docker = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    docker.connect("/var/run/docker.sock")
     while True:
         data = docker.recv(1024)
         if not data:
