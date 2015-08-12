@@ -34,6 +34,11 @@ def container(cid):
 def reader():
     docker = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     docker.connect("/var/run/docker.sock")
+    message = 'GET /events HTTP/1.1\n\n'
+    # message = 'GET /events?since=1374067924'
+    docker.send(message)
+    # socat - UNIX-CONNECT:/var/run/docker.sock
+    # GET /events HTTP/1.1
     while True:
         data = docker.recv(1024)
         if not data:
