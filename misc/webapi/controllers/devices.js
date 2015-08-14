@@ -10,17 +10,18 @@ module.exports = function(app, route) {
 			var result = [];
 			for(var key in response) {
 
-				var value = response[key];
+				var dev = response[key];
+				var main = dev.main || {};
 				if (typeof(value) == 'function') continue;
 
 				result[result.length] = {
-					id: value.deviceId,
-					name: value.name,
-					'class': value['class'],
-					online: value.online,
-					heartbeat: value.heartbeat,
-					manager: value.manager,
-					autostart: value.autostart
+					id: key,
+					name: main.name,
+					'class': main['class'],
+					online: dev.online,
+					heartbeat: dev.heartbeat,
+					manager: main.manager,
+					autostart: main.autostart
 				};
 
 			}
