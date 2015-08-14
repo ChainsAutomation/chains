@@ -76,7 +76,7 @@ queue.on('error', function(err) {
 });
 
 queue.on('message', function(topic, message) {
-	notice('forward message:', topic);
+	notice('forward message:', topic, message);
 	try {
 		sockets.send(topic, message);
 	} catch (ex) {

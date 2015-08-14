@@ -126,7 +126,7 @@ module.exports = function(bindTopic) {
                                 	function (message, xxx, attribs) {
                                     	//self.debug('received message: ' + attribs.routingKey + ' =', message);
 										for (var key in self.onMessage) {
-											self.debug('callback: ' + key, attribs.routingKey);
+											//self.debug('callback: ' + key, attribs.routingKey);
                                         	self.onMessage[key](attribs.routingKey, message, attribs);
 										}
                                 	}

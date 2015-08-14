@@ -28,19 +28,46 @@ module.exports.rpc = function(daemonType, daemonId, command, args, callback) {
 	var status = null;
 	var requestTopic  = daemonType + 'a.' + daemonId + '.' + command;
 	var responseTopic = daemonType + 'r.' + daemonId + '.' + command;
+	var errorTopic    = daemonType + 'x.' + daemonId + '.' + command;
 
 	var correlationId = guid();
 
 	var callbackId = queue.on('message', function(topic, message, attribs){
+
 console.log('RECV:',topic,attribs.correlationId);
-		if (responseTopic == topic && attribs.correlationId == correlationId && status != 'timeout') {
+		if (attribs.correlationId != correlationId)
+			return;
+
+		var error = null;
+		if (topic == errorTopic) {
+			error = true;
+		} else if (topic == responseTopic) {
+			error = false;
+		} else {
+			return;
+		}
+
 console.log('- RECV YES');
-			console.log('chains.rpc - SUCCESS');
-			queue.off(callbackId);
-			//queue.disconnect(); // todo
-			status = 'success';
+		queue.off('message', callbackId);
+		status = 'success';
+
+		if (error) {
+console.log('ERR:',message);
+			var errorMessage = '';
+			if (message) {
+				if (typeof(message) == 'string')
+					errorMessage = message;
+				else
+					errorMessage = JSON.stringify(message);
+			} else {
+				errorMessage = 'undefined error';
+			}
+			callback(errorMessage, null);
+		} else {
 			callback(null, message);
 		}
+
+
 	});
 	//queue.setDebug(true);
 
@@ -49,7 +76,7 @@ console.log('- RECV YES');
 			if (status)
 				return;
 			console.log('chains.rpc - TIMEOUT');
-			queue.off(callbackId);
+			queue.off('message', callbackId);
 			//queue.disconnect(); // todo
 			status = 'timeout';
 			callback('Timeout', null);
