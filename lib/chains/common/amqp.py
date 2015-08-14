@@ -513,7 +513,7 @@ class AmqpDaemon:
 
     def sendActionError(self, key, data, correlationId=None):
         if isinstance(data, Exception):
-            data = utils.e2str(data)
+            data = {'error': True, 'errorMessage': utils.e2str(data)}
         topic = '%s.%s.%s' % (self.getActionErrorPrefix(), self.id, key)
         log.debug('sendActionError: %s = %s' % (topic, data))
         self.producer.put(topic, data, correlationId)
