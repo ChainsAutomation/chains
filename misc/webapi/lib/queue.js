@@ -2,7 +2,17 @@ var exchangeName    = 'chains',
     queueName       = 'chains.websockets',
     amqp            = require('amqp');
 
-module.exports = function(callback) {
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+module.exports = function(bindTopic) {
 
     var self = this;
 
@@ -10,12 +20,13 @@ module.exports = function(callback) {
     self.onClose = null;
     self.onError = null;
 	self.onReady = null;
-    self.onMessage = null;
+    self.onMessage = {};
     self.connection = null;
 	self.exchange = null;
     self.enableDebug = false;
 
     self.on = function(evt, callback) {
+		var id = guid();
         switch (evt) {
             case 'close':
                 self.onClose = callback;
@@ -27,19 +38,35 @@ module.exports = function(callback) {
 				self.onReady = callback;
 				break;
             case 'message':
-                self.onMessage = callback;
+                self.onMessage[id] = callback;
                 break;
             default:
                 throw 'no such event: ' + evt;
         }
+		return id;
     }
 
-    self.publish = function(topic, message) {
+	self.off = function(evt, id) {
+        switch (evt) {
+            case 'message':
+				delete self.onMessage[id];
+                break;
+        }
+	}
+
+    self.publish = function(topic, message, correlationId) {
         if (!self.exchange)
             throw 'not connected yet';
 		message = JSON.stringify(message);
-		self.exchange.publish(topic, message, {contentType: 'application/json'});
+		self.exchange.publish(topic, message, {contentType: 'application/json', correlationId: correlationId});
     }
+
+/* todo
+	self.disconnect = function() {
+		self.connection.disconnect();
+		delete self.connection;
+	}
+*/
 
     self.connect = function() {
 
@@ -85,9 +112,11 @@ module.exports = function(callback) {
 
                             self.debug('queue ready: ' + q.name);
 
-							q.bind(exchange,'#', function() {
+							var thisBindTopic = bindTopic || '#';
 
-								self.debug('queue bound to exchange');
+							q.bind(exchange, thisBindTopic, function() {
+
+								self.debug('queue bound to exchange with topic: ' + thisBindTopic);
 
 								if (self.onReady)
 									self.onReady();
@@ -96,8 +125,10 @@ module.exports = function(callback) {
                                 	{ ack: false },
                                 	function (message, xxx, attribs) {
                                     	//self.debug('received message: ' + attribs.routingKey + ' =', message);
-                                    	if (self.onMessage)
-                                        	self.onMessage(attribs.routingKey, message);
+										for (var key in self.onMessage) {
+											self.debug('callback: ' + key, attribs.routingKey);
+                                        	self.onMessage[key](attribs.routingKey, message, attribs);
+										}
                                 	}
                             	);
 

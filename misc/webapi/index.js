@@ -15,7 +15,14 @@ var Sockets          = require('./lib/sockets'),
     app              = express(),
 	server           = http.createServer(app),
 	queue            = new Queue(),
-	sockets          = new Sockets(server);
+	sockets          = new Sockets(server),
+	chains           = require('./lib/chains');
+
+
+// Chains
+
+chains.init(queue);
+app.chains = chains;
 
 
 // Common
@@ -69,7 +76,7 @@ queue.on('error', function(err) {
 });
 
 queue.on('message', function(topic, message) {
-	notice('forward message: ', topic);
+	notice('forward message:', topic);
 	try {
 		sockets.send(topic, message);
 	} catch (ex) {
@@ -86,7 +93,13 @@ if (enableDebug)
 
 // HTTP
 
+require('./controllers/deviceStart')(app, '/devices/:deviceId/start');
+require('./controllers/deviceStop')(app, '/devices/:deviceId/stop');
+require('./controllers/devices')(app, '/devices');
+require('./controllers/managers')(app, '/managers');
+require('./controllers/reactors')(app, '/reactors');
 require('./controllers/index')(app, '/');
+//require('./controllers/devices')(app, '/devices');
 
 
 // Start
