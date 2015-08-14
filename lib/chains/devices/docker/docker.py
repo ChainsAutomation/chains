@@ -45,14 +45,14 @@ def reader():
             break
         else:
             print '%s' % data
-            try:
-                print "json - " + str(json.loads(part))
-                if type(json.loads(part)) == int:
-                    print "status message ignoring"
-                else:
-                    container(part)
-            except ValueError, e:
-                print "non-json content: %s" % part
+            #try:
+            #    print "json - " + str(json.loads(part))
+            #    if type(json.loads(part)) == int:
+            #        print "status message ignoring"
+            #    else:
+            #        container(part)
+            #except ValueError, e:
+            #    print "non-json content: %s" % part
 
 
 if __name__ != '__main__':
