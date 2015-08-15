@@ -106,12 +106,12 @@ require('./controllers/reactorAction')(app, '/reactors/:id/:action');
 require('./controllers/reactor')(app, '/reactors/:id');
 require('./controllers/reactors')(app, '/reactors');
 
-require('./controllers/orchestratorAction')(app, '/orchestrator/:action');
-require('./controllers/orchestrator')(app, '/orchestrator');
-
 require('./controllers/deviceAction')(app, '/devices/:id/:action');
 require('./controllers/device')(app, '/devices/:id');
 require('./controllers/devices')(app, '/devices');
+
+require('./controllers/orchestratorAction')(app, '/orchestrator/:action');
+require('./controllers/orchestrator')(app, '/orchestrator');
 
 require('./controllers/index')(app, '/');
 

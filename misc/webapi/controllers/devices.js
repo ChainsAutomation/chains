@@ -7,14 +7,14 @@ module.exports = function(app, route) {
 			if (err)
 				return res.send(err, 500);
 
-			var result = [];
+			var result = {};
 			for(var key in response) {
 
 				var dev = response[key];
 				var main = dev.main || {};
 				if (typeof(value) == 'function') continue;
 
-				result[result.length] = {
+				result[key] = {
 					id: key,
 					name: main.name,
 					'class': main['class'],

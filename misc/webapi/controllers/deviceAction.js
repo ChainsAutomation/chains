@@ -2,8 +2,7 @@ module.exports = function(app, route) {
 
 	app.post(route, function(req, res) {
 
-console.log('dev act');
-        var args = [ ]; // todo: optional more params
+        var args = req.body || [];
 
 		app.chains.callDeviceAction(req.params.id, req.params.action, args, function(err, response) {
 			if (err)
