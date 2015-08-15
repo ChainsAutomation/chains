@@ -106,12 +106,17 @@ require('./controllers/reactorAction')(app, '/reactors/:id/:action');
 require('./controllers/reactor')(app, '/reactors/:id');
 require('./controllers/reactors')(app, '/reactors');
 
+require('./controllers/deviceStart')(app, '/devices/:id/start');
+require('./controllers/deviceStop')(app, '/devices/:id/stop');
 require('./controllers/deviceAction')(app, '/devices/:id/:action');
 require('./controllers/device')(app, '/devices/:id');
 require('./controllers/devices')(app, '/devices');
 
 require('./controllers/orchestratorAction')(app, '/orchestrator/:action');
 require('./controllers/orchestrator')(app, '/orchestrator');
+
+require('./controllers/state')(app, '/state/:path(*)');
+require('./controllers/state')(app, '/state');
 
 require('./controllers/index')(app, '/');
 
