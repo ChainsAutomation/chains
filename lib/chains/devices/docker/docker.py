@@ -53,6 +53,9 @@ def reader():
             #        container(part)
             #except ValueError, e:
             #    print "non-json content: %s" % part
+    print "Shutting down..."
+    docker.close()
+    print "Done"
 
 
 if __name__ != '__main__':
