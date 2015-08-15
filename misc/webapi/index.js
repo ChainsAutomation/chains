@@ -95,6 +95,7 @@ if (enableDebug)
 
 require('./controllers/deviceStart')(app, '/devices/:deviceId/start');
 require('./controllers/deviceStop')(app, '/devices/:deviceId/stop');
+require('./controllers/device')(app, '/devices/:deviceId');
 require('./controllers/devices')(app, '/devices');
 require('./controllers/managers')(app, '/managers');
 require('./controllers/reactors')(app, '/reactors');
