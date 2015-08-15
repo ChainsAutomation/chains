@@ -24,6 +24,8 @@ module.exports.rpc = function(daemonType, daemonId, command, args, callback) {
 
 	if (!queue)
 		throw 'no queue set yet';
+    if (!callback)
+        throw 'no callback';
 
 	var status = null;
 	var requestTopic  = daemonType + 'a.' + daemonId + '.' + command;
@@ -60,7 +62,7 @@ console.log('ERR:',message);
 				else
 					errorMessage = JSON.stringify(message);
 			} else {
-				errorMessage = 'undefined error';
+				errorMessage = 'undefined error in chains.js';
 			}
 			callback(errorMessage, null);
 		} else {

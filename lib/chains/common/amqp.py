@@ -607,7 +607,10 @@ class AmqpDaemon:
         return {}
 
     def action_ping(self):
-        return "pong"
+        return {"pong": True}
+
+    def action_echo(self, value):
+        return {"reply": value}
 
     def action_shutdown(self):
         '''Shut down daemon'''

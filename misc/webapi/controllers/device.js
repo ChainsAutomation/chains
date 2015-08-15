@@ -2,7 +2,7 @@ module.exports = function(app, route) {
 
 	app.get(route, function(req, res) {
 
-        var deviceId = req.params.deviceId;
+        var deviceId = req.params.id;
 
 		app.chains.callOrchestratorAction('getDevices', [], function(err, response) {
 

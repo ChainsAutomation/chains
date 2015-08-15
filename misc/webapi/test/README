@@ -1,0 +1,9 @@
+These are high level integration tests that talks to the API via HTTP.
+
+The following setup is required for tests to pass:
+
+- Full chains master-node must be running at localhost
+- Orchestrator id must be "main"
+- Reactor id must be "master"
+- Manager id must be "manager"
+- Timer device must be running, and have id "timer"

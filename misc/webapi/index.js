@@ -7,16 +7,17 @@ var host         = '0.0.0.0',
 
 // Imports & init
 
-var Sockets          = require('./lib/sockets'),
-	Queue            = require('./lib/queue'),
-	express          = require('express'),
-	http             = require('http'),
-	commander        = require('commander'),
-    app              = express(),
-	server           = http.createServer(app),
-	queue            = new Queue(),
-	sockets          = new Sockets(server),
-	chains           = require('./lib/chains');
+var Sockets           = require('./lib/sockets'),
+	Queue             = require('./lib/queue'),
+	express           = require('express'),
+    expressBodyParser = require('body-parser'),
+	http              = require('http'),
+	commander         = require('commander'),
+    app               = express(),
+	server            = http.createServer(app),
+	queue             = new Queue(),
+	sockets           = new Sockets(server),
+	chains            = require('./lib/chains');
 
 
 // Chains
@@ -91,16 +92,28 @@ if (enableDebug)
 	sockets.setDebug(true);
 
 
-// HTTP
+// Express - Setup
 
-require('./controllers/deviceStart')(app, '/devices/:deviceId/start');
-require('./controllers/deviceStop')(app, '/devices/:deviceId/stop');
-require('./controllers/device')(app, '/devices/:deviceId');
-require('./controllers/devices')(app, '/devices');
+app.use(expressBodyParser.json());
+
+// Express - Routes
+
+require('./controllers/managerAction')(app, '/managers/:id/:action');
+require('./controllers/manager')(app, '/managers/:id');
 require('./controllers/managers')(app, '/managers');
+
+require('./controllers/reactorAction')(app, '/reactors/:id/:action');
+require('./controllers/reactor')(app, '/reactors/:id');
 require('./controllers/reactors')(app, '/reactors');
+
+require('./controllers/orchestratorAction')(app, '/orchestrator/:action');
+require('./controllers/orchestrator')(app, '/orchestrator');
+
+require('./controllers/deviceAction')(app, '/devices/:id/:action');
+require('./controllers/device')(app, '/devices/:id');
+require('./controllers/devices')(app, '/devices');
+
 require('./controllers/index')(app, '/');
-//require('./controllers/devices')(app, '/devices');
 
 
 // Start
