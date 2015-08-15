@@ -7,6 +7,14 @@ module.exports = function(app, route) {
             {
                 "_links":
                 {
+                    "self": {"href": baseUrl + "/orchestrator"}
+                },
+                "id": "orchestrator",
+                "name": "Orchestrator"
+            },
+            {
+                "_links":
+                {
                     "self": {"href": baseUrl + "/devices"}
                 },
                 "id": "devices",

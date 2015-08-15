@@ -36,7 +36,6 @@ module.exports.rpc = function(daemonType, daemonId, command, args, callback) {
 
 	var callbackId = queue.on('message', function(topic, message, attribs){
 
-console.log('RECV:',topic,attribs.correlationId);
 		if (attribs.correlationId != correlationId)
 			return;
 
@@ -49,12 +48,10 @@ console.log('RECV:',topic,attribs.correlationId);
 			return;
 		}
 
-console.log('- RECV YES');
 		queue.off('message', callbackId);
 		status = 'success';
 
 		if (error) {
-console.log('ERR:',message);
 			var errorMessage = '';
 			if (message) {
 				if (typeof(message) == 'string')
@@ -77,16 +74,14 @@ console.log('ERR:',message);
 		function(){
 			if (status)
 				return;
-			console.log('chains.rpc - TIMEOUT');
+			console.error('chains.rpc: timeout');
 			queue.off('message', callbackId);
-			//queue.disconnect(); // todo
 			status = 'timeout';
 			callback('Timeout', null);
 		},
 		RPC_TIMEOUT
 	);
 
-	console.log('publish:',requestTopic, correlationId);
 	queue.publish(requestTopic, args, correlationId);
 
 }
