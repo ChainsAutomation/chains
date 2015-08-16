@@ -1,5 +1,5 @@
 
-.PHONY: test
+.PHONY: test install run
 
 test:
 	mocha --timeout 5000 test/test-api-*.js
