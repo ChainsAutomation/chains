@@ -45,6 +45,9 @@ def reader():
             break
         else:
             print '%s' % data
+            for part in parts:
+                if part.startswith('{'):
+                    container(part)
             #try:
             #    print "json - " + str(json.loads(part))
             #    if type(json.loads(part)) == int:
@@ -53,6 +56,9 @@ def reader():
             #        container(part)
             #except ValueError, e:
             #    print "non-json content: %s" % part
+        if "QUIT" == data:
+            break
+
     print "Shutting down..."
     docker.close()
     print "Done"
