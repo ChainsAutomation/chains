@@ -1,6 +1,7 @@
 from chains.device import Device
 from chains.common import log
 import requests
+from . import docker
 
 class DcokerDevice(Device):
     """Device implementing the push service on pushover.net"""
@@ -8,6 +9,13 @@ class DcokerDevice(Device):
     def onInit(self):
         # Required parameters for pushover
         self.socketpath = self.config.get('socketpath')
+        # TODO set params for dockercon
+        self.dockercon = docker.Docker()
+
+
+    def onStart(self):
+        while not self._shutdown:
+            self.dockercon.reader()
 
     def action_containers(self):
         '''
