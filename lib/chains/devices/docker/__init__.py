@@ -8,7 +8,7 @@ class DcokerDevice(Device):
 
     def onInit(self):
         # Required parameters for pushover
-        self.socketpath = self.config.get('socketpath')
+        self.socketpath = self.config.get('socketpath') or '/var/run/docker.sock'
         # TODO set params for dockercon
         self.dockercon = docker.Docker()
 
