@@ -1,6 +1,6 @@
 import Queue, threading, subprocess, json, time
-from chains import device
-import chains.device.process as deviceProcess
+from chains import service
+import chains.service.process as serviceProcess
 from chains.common import config, log, utils, ChainsException, ParameterException
 from chains.common.amqp import AmqpDaemon, runWithSignalHandler
 
@@ -9,9 +9,9 @@ class Manager(AmqpDaemon):
     Manager
 
     Responsibilities:
-        - Starting and stopping device processes
-        #- Keeping a list of enabled and available devices at this host
-        - Keeping a list of running devices at this host
+        - Starting and stopping service processes
+        #- Keeping a list of enabled and available services at this host
+        - Keeping a list of running services at this host
     """
 
     def __init__(self, id):
@@ -27,50 +27,50 @@ class Manager(AmqpDaemon):
         self.sendEvent('reconfigured', {'value': True})
 
     # =========================
-    # Devices
+    # Services
     # =========================
 
-    def action_startDevice(self, deviceConfig):
-        """ Start a new device thread on this host """
-        deviceProcess.start(deviceConfig)
+    def action_startService(self, serviceConfig):
+        """ Start a new service thread on this host """
+        serviceProcess.start(serviceConfig)
 
-    def action_stopDevice(self, deviceId):
-        """ Stop a running device thread on this host """
-        deviceProcess.stop(deviceId)
+    def action_stopService(self, serviceId):
+        """ Stop a running service thread on this host """
+        serviceProcess.stop(serviceId)
 
     '''
-    def action_enableDevice(self, deviceId):
-        """ Enable device """
-        device.config.enableDevice(deviceId)
+    def action_enableService(self, serviceId):
+        """ Enable service """
+        service.config.enableService(serviceId)
         self.sendReconfiguredEvent()
 
-    def action_disableDevice(self, deviceId):
-        """ Disable device """
-        device.config.disableDevice(deviceId)
+    def action_disableService(self, serviceId):
+        """ Disable service """
+        service.config.disableService(serviceId)
         self.sendReconfiguredEvent()
 
-    def action_getDevicesAvailable(self):
-        """ List device IDs in devices-available on this host """
-        return device.config.getAvailableDeviceList()
+    def action_getServicesAvailable(self):
+        """ List service IDs in services-available on this host """
+        return service.config.getAvailableServiceList()
 
-    def action_getDevicesEnabled(self):
-        """ List device IDs in devices-enabled on this host """
-        return device.config.getEnabledDeviceList()
+    def action_getServicesEnabled(self):
+        """ List service IDs in services-enabled on this host """
+        return service.config.getEnabledServiceList()
 
-    def action_getDevices(self):
-        available = self.action_getDevicesAvailable()
-        enabled   = self.action_getDevicesEnabled()
-        started   = self.action_getDevicesStarted()
+    def action_getServices(self):
+        available = self.action_getServicesAvailable()
+        enabled   = self.action_getServicesEnabled()
+        started   = self.action_getServicesStarted()
         result    = {}
         for id in available:
             result[id] = {'enabled': (id in enabled), 'online': (id in started)}
         return result
     '''
 
-    #def action_getDevicesStarted(self):
-    def action_getRunninDevices(self):
-        """ List device IDs for running device threads """
-        return deviceProcess.getRunningDevices().keys()
+    #def action_getServicesStarted(self):
+    def action_getRunninServices(self):
+        """ List service IDs for running service threads """
+        return serviceProcess.getRunningServices().keys()
 
 
 def main(id):

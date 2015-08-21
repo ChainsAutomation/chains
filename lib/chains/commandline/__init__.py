@@ -19,7 +19,7 @@ options:
     '''
 
 # Auto-generate help from comments in objects in commandline/commands/*
-# Follows same structure as device action comments
+# Follows same structure as service action comments
 def help():
     txt = ''
     for section in describe.getSections():
@@ -47,17 +47,17 @@ def help():
 
 def OLD_help():
     return '''
-device
-  list                                    List all devices with status (at online managers)
-  describe <deviceId>                     Describe device actions and events
-  start <deviceId>                        Start device
-  stop <deviceId>                         Stop device
-  #restart <deviceId>                     Restart device [todo]
-  #reload <deviceId>                      Reload device config [todo]
-  enable <deviceId>                       Enable device
-  disable <deviceId>                      Disable device
-  action <deviceId> <action> [args...]    Run device action
-  config <deviceId>                       Dump device config
+service
+  list                                    List all services with status (at online managers)
+  describe <serviceId>                     Describe service actions and events
+  start <serviceId>                        Start service
+  stop <serviceId>                         Stop service
+  #restart <serviceId>                     Restart service [todo]
+  #reload <serviceId>                      Reload service config [todo]
+  enable <serviceId>                       Enable service
+  disable <serviceId>                      Disable service
+  action <serviceId> <action> [args...]    Run service action
+  config <serviceId>                       Dump service config
 
 manager
   list                                    List all (online) managers
@@ -71,7 +71,7 @@ reactor
   action <reactorId> <action> [args...]   Run reactor action
 
 amqp
-  event <deviceId> <key> <value> [extra]
+  event <serviceId> <key> <value> [extra]
   rpc <topic> [data]                      Todo
   send <topic> [data]                     Todo
   recv [topics]                           Todo

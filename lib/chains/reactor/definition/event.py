@@ -2,8 +2,8 @@ import types
 
 class Event:
 
-    def __init__(self, device='*', key='*', data='*'):
-        self.device = device
+    def __init__(self, service='*', key='*', data='*'):
+        self.service = service
         self.key    = key
         self.data   = data
 
@@ -60,16 +60,16 @@ class Event:
     # but not all of d1's items must match d2's items.
     #
     # F.ex: The rule says:
-    #   yield Event(device='foo', data={'value': 2})
+    #   yield Event(service='foo', data={'value': 2})
     #
     # That should match this occuring event:
-    #   Event(device='foo', data={'value': 2, 'type': 'humidity'})
+    #   Event(service='foo', data={'value': 2, 'type': 'humidity'})
     #
     # But if the rule says:
-    #   yield Event(device='foo', data={'value': 2, 'type': 'humidity'})
+    #   yield Event(service='foo', data={'value': 2, 'type': 'humidity'})
     #
     # That should NOT match this occurring event:
-    #   Event(device='foo', data={'value': 2})
+    #   Event(service='foo', data={'value': 2})
     #
     def _matchDicts(self, d1, d2):
         for key in d2:

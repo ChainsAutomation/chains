@@ -1,11 +1,11 @@
 from chains.common import amqp
 
-def SendEvent(device, key, data):
-    topic = 'de.%s.%s' % (device, key)
+def SendEvent(service, key, data):
+    topic = 'de.%s.%s' % (service, key)
     connection = amqp.Connection()
     producer = connection.producer(queueName='reactor-sendevent')
     event = {
-        'device': device,
+        'service': service,
         'key':    key,
         'data':   data
     }

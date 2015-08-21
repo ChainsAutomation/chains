@@ -38,7 +38,7 @@ usb_iproto_map = {
     },
 }
 
-usb_devices = {
+usb_services = {
     (0x16c0, 0x05df): [
         {'type': 'relay', 'name': 'usbrelay'},
     ],
@@ -58,12 +58,12 @@ def find_types(**kwargs):
     global usb_iclass_map
     global usb_iproto_map
     dev = usb.core.find(find_all=True, **kwargs)
-    all_info = "All USB devices:\n"
+    all_info = "All USB services:\n"
     types = {}
     dev_desc = {}
-    for device in dev:
-        #all_info += str(device) + '\n'
-        for cindex, configuration in enumerate(device):
+    for service in dev:
+        #all_info += str(service) + '\n'
+        for cindex, configuration in enumerate(service):
             # print 'Configuration: %d' % cindex
             for interface in configuration:
                 # print interface.__dict__
@@ -76,16 +76,16 @@ def find_types(**kwargs):
                     #else:
                     #    bproto = 'unknown'
                 dev_desc = {
-                    'bus': device.bus,
+                    'bus': service.bus,
                     'class': bclass,
-                    'address': device.address,
-                    'product_id': device.idProduct,
-                    'vendor_id': device.idVendor,
+                    'address': service.address,
+                    'product_id': service.idProduct,
+                    'vendor_id': service.idVendor,
                     'configuration': cindex,
                     'interface': interface.bInterfaceNumber
                 }
-                # Add device strings to interface description
-                dev_desc.update(device_strings(device.bus, device.address))
+                # Add service strings to interface description
+                dev_desc.update(service_strings(service.bus, service.address))
                 types.setdefault(bclass, {})
                 # Adding interface to full list
                 # print dev_desc
@@ -94,8 +94,8 @@ def find_types(**kwargs):
     return types
 
 
-def device_strings(bus, address):
-    """ Returns dictionary with device strings:
+def service_strings(bus, address):
+    """ Returns dictionary with service strings:
 
     usb_str = {
         'manufacturer_name': 'unknown',

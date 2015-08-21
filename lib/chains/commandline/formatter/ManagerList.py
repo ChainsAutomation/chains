@@ -7,7 +7,7 @@ class FormatterManagerList(Formatter):
         fmt = '%-20s %-10s %s'
         ret = []
         ret.append( '-'*60 )
-        #ret.append( fmt % ('Manager', 'Online', 'Devices', 'Last heartbeat') )
+        #ret.append( fmt % ('Manager', 'Online', 'Services', 'Last heartbeat') )
         ret.append( fmt % ('Manager', 'Online', 'Last heartbeat') )
         ret.append( '-'*60 )
         for managerId in result:
@@ -16,7 +16,7 @@ class FormatterManagerList(Formatter):
                 values.append('Online')
             else:
                 values.append('')
-            #values.append( result[managerId]['devices'] )
+            #values.append( result[managerId]['services'] )
             if result[managerId].has_key('heartbeat'):
                 t = time.time()-float(result[managerId]['heartbeat'])
                 if t > (60*60):

@@ -490,12 +490,12 @@ class AmqpDaemon:
     def sendEvent(self, key, data):
         topic = '%s.%s.%s' % (self.getEventPrefix(), self.id, key)
         event = {'data': data}
-        # device/host + key is "smoer paa flesk" because they are
+        # service/host + key is "smoer paa flesk" because they are
         # part of topic and can be extracted from it, but keep it
         # untill there is a good reason not to (f.ex. in case
         # we should change topic logic later)
-        if self.type == 'device':
-            event['device'] = self.id
+        if self.type == 'service':
+            event['service'] = self.id
         else:
             event['host'] = self.id
         event['key'] = key
@@ -535,8 +535,8 @@ class AmqpDaemon:
     def callManagerAction(self, managerId, action, args=None):
         return self.callDaemonAction('manager', managerId, action, args=args)
 
-    def callDeviceAction(self, deviceId, action, args=None):
-        return self.callDaemonAction('device', deviceId, action, args=args)
+    def callServiceAction(self, serviceId, action, args=None):
+        return self.callDaemonAction('service', serviceId, action, args=args)
 
     def callReactorAction(self, reactorId, action, args=None):
         return self.callDaemonAction('reactor', reactorId, action, args=args)
@@ -558,7 +558,7 @@ class AmqpDaemon:
     def getDaemonTypePrefix(self, type=None):
         if not type:
             type = self.type
-        if type == 'device':
+        if type == 'service':
             return PREFIX_DEVICE
         if type == 'manager':
             return PREFIX_MANAGER
@@ -573,16 +573,16 @@ class AmqpDaemon:
             self.getHeartBeatRequestPrefix()
         ]
 
-    # Mostly (only?) used for devices, but needs to be in all AmqpDaemons since describe() is
+    # Mostly (only?) used for services, but needs to be in all AmqpDaemons since describe() is
     def onDescribe(self):
         '''
-        Describe device capabilities.
+        Describe service capabilities.
 
-        To let the system know what events the device can send,
+        To let the system know what events the service can send,
         and what actions it supports, you should implement
         this method.
 
-        This will f.ex. give you an option to run the device's
+        This will f.ex. give you an option to run the service's
         actions via the webgui and in the future, it will be
         the foundation for a nice gui for creating rules using
         drag'n'drop.
@@ -590,7 +590,7 @@ class AmqpDaemon:
         The return value should be a dict like this:
 
         {
-            'info': 'My fantastic device',
+            'info': 'My fantastic service',
             'events': ...event description...
             'actions': ...actions description...
         }
@@ -624,15 +624,15 @@ class AmqpDaemon:
         return log.getLevel()
 
     '''
-    Describe this device
+    Describe this service
 
     This is called by the master->manager to fetch
-    the description dict for this device. It will
+    the description dict for this service. It will
     again call the onDescribe() function that you
-    should implement in your device, and will try
+    should implement in your service, and will try
     to fill out and auto-generate any missing parts.
 
-    You should NOT override this method in your device,
+    You should NOT override this method in your service,
     you should rather implement onDescribe().
     '''
     def action_describe(self):
@@ -647,7 +647,7 @@ class AmqpDaemon:
         # If we've got info from subclass onDescribe, use it
         if desc.has_key('info'):
             ret['info'] = desc['info']
-        # Or try info from config (best practice) - do this in Device instead?
+        # Or try info from config (best practice) - do this in Service instead?
         #elif self.config.has('info'):
         #    ret['info'] = self.config.get('info')
         # Or indicate not info

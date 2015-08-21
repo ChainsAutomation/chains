@@ -7,6 +7,6 @@ class CommandRuleCreate(Command):
         print '#from ruleconfig import *'
         print ''
         print 'def rule(context):'
-        print '    yield Event(device="x", key="x", data={})'
-        print '    Action(device="x", action="x", params=[])'
+        print '    yield Event(service="x", key="x", data={})'
+        print '    Action(service="x", action="x", params=[])'
         return None

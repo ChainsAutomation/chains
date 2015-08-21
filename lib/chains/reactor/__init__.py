@@ -28,7 +28,7 @@ class Reactor(AmqpDaemon):
 
     def getConsumeKeys(self):
         keys = AmqpDaemon.getConsumeKeys(self)
-        keys.append('de.#') # Listen for all device events
+        keys.append('de.#') # Listen for all service events
         return keys
 
     def onMessage(self, topic, data, correlationId):
@@ -42,7 +42,7 @@ class Reactor(AmqpDaemon):
             try:
                 if self.ruleset:
                     self.ruleset.onEvent(Event(
-                        device = data['device'],
+                        service = data['service'],
                         key    = data['key'],
                         data   = data['data']
                     ))

@@ -8,7 +8,7 @@ class BaseConfig:
     Should not be used by itself but rather extended
     to create a config class for a specific thing
     (like CoreConfig for /etc/chains/chains.conf
-    and DeviceConfig for devices).
+    and ServiceConfig for services).
     '''
 
     def __init__(self, paths):
@@ -99,8 +99,8 @@ class BaseConfig:
         If backwdOverride is True (default) then only overwrite
         those keys in config that are not already set.
 
-        This means the function can be called for f.ex. device config first,
-        then for device class config, then for default device config, and
+        This means the function can be called for f.ex. service config first,
+        then for service class config, then for default service config, and
         stuff will be overridden as expected.
         '''
         if not _os.path.exists(f):

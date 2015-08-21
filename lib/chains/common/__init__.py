@@ -9,9 +9,9 @@ class NoSuchActionException(ChainsException):
         ChainsException.__init__(self, 'No such action: %s' % command)
         self.command = command
 
-class NoSuchDeviceException(ChainsException):
+class NoSuchServiceException(ChainsException):
     def __init__(self, devid):
-        ChainsException.__init__(self, 'No such device: %s' % devid)
+        ChainsException.__init__(self, 'No such service: %s' % devid)
         self.devid = devid
 
 class NoSuchActionException(ChainsException):

@@ -1,5 +1,5 @@
 from chains.common import log, utils, amqp, config
-from chains.device import config as deviceConfig
+from chains.service import config as serviceConfig
 import time, threading, ConfigParser, os, uuid
 
 class TimeoutThread(threading.Thread):
@@ -7,7 +7,7 @@ class TimeoutThread(threading.Thread):
     Thread for checking if daemons have timed out.
 
     Will periodically check last heartbeat time for
-    managers, devices, and reactors, and if it is too old,
+    managers, services, and reactors, and if it is too old,
     the item in question will be set as offline.
     '''
 
@@ -19,7 +19,7 @@ class TimeoutThread(threading.Thread):
     def run(self):
         while True:
 
-            # Run thru all types (manager, device, reactor)
+            # Run thru all types (manager, service, reactor)
             for daemonType in self.orchestrator.data:
 
                 # For each item (f.ex. for each manager)
@@ -39,7 +39,7 @@ class TimeoutThread(threading.Thread):
         item = self.orchestrator.data[type][id]
         if item['online'] == False:
 
-            if type == 'device':
+            if type == 'service':
 
                 if not item.has_key('offlineTimer'):
                     item['offlineTimer'] = time.time()
@@ -49,19 +49,19 @@ class TimeoutThread(threading.Thread):
                     if timeSinceOffline > self.orchestrator.startInterval:
                         self.orchestrator.data[type][id]['offlineTimer'] = time.time()
                         try:
-                            #self.orchestrator.action_startDevice(id)
-                            deviceId, managerId = self.orchestrator.parseDeviceParam(id)
+                            #self.orchestrator.action_startService(id)
+                            serviceId, managerId = self.orchestrator.parseServiceParam(id)
                             if self.orchestrator.isOnline('manager', managerId):
-                                log.info('Auto-start device %s after %s secs offline' % (id, timeSinceOffline))
-                                self.orchestrator.startDevice(managerId, deviceId)
+                                log.info('Auto-start service %s after %s secs offline' % (id, timeSinceOffline))
+                                self.orchestrator.startService(managerId, serviceId)
                             else:
-                                log.debug('Do not auto-start device %s since manager %s is offline' % (id,managerId))
+                                log.debug('Do not auto-start service %s since manager %s is offline' % (id,managerId))
                         except Exception, e:
-                            log.error('Error trying to autostart device %s: %s' % (id,e))
+                            log.error('Error trying to autostart service %s: %s' % (id,e))
                     else:
-                        log.debug('Do not auto-start device %s since %s secs offline is less than startinterval %s' % (id,timeSinceOffline,self.orchestrator.startInterval))
+                        log.debug('Do not auto-start service %s since %s secs offline is less than startinterval %s' % (id,timeSinceOffline,self.orchestrator.startInterval))
                 else:
-                    log.debug('Do not auto-start device %s since autostart not set in config' % (id,))
+                    log.debug('Do not auto-start service %s since autostart not set in config' % (id,))
 
             return
 
@@ -84,7 +84,7 @@ class Orchestrator(amqp.AmqpDaemon):
         amqp.AmqpDaemon.__init__(self, 'orchestrator', id)
         self.data = {
             'manager':      {},
-            'device':       {},
+            'service':       {},
             'reactor':      {},
             'orchestrator': {}
         }
@@ -92,7 +92,7 @@ class Orchestrator(amqp.AmqpDaemon):
         self.timeoutInterval = 5
         self.startInterval = 15
         self.timeoutThread = TimeoutThread(self)
-        self.loadDeviceConfigs()
+        self.loadServiceConfigs()
 
     def run(self):
         self.sendEvent('online', {'value': True})
@@ -112,7 +112,7 @@ class Orchestrator(amqp.AmqpDaemon):
         ]
 
     def prefixToType(self, prefix):
-        if prefix == amqp.PREFIX_DEVICE:       return 'device'
+        if prefix == amqp.PREFIX_DEVICE:       return 'service'
         if prefix == amqp.PREFIX_MANAGER:      return 'manager'
         if prefix == amqp.PREFIX_REACTOR:      return 'reactor'
         if prefix == amqp.PREFIX_ORCHESTRATOR: return 'orchestrator'
@@ -120,7 +120,7 @@ class Orchestrator(amqp.AmqpDaemon):
     def typeToPrefix(self, type):
         return self.getDaemonTypePrefix(type)
         '''
-        if type == 'device': return amqp.PREFIX_DEVICE
+        if type == 'service': return amqp.PREFIX_DEVICE
         if type == 'manager': return amqp.PREFIX_MANAGER
         if type == 'reactor': return amqp.PREFIX_REACTOR
         '''
@@ -145,40 +145,40 @@ class Orchestrator(amqp.AmqpDaemon):
             else:
                 log.warn('Unknown heartbeat event: %s' % (topic,))
 
-        # Device list responses
+        # Service list responses
         '''
-        elif topic[0][1] == amqp.PREFIX_ACTION_RESPONSE and topic[2] == 'getDevices':
+        elif topic[0][1] == amqp.PREFIX_ACTION_RESPONSE and topic[2] == 'getServices':
 
             managerId = topic[1]
 
-            # Remove existing devices for the manager
-            removeDevices = []
-            for deviceId in self.data['device']:
-                if not self.data['device'][deviceId].has_key('manager') or self.data['device'][deviceId]['manager'] == managerId:
-                    removeDevices.append(deviceId)
-            for deviceId in removeDevices:
-                del self.data['device'][deviceId]
+            # Remove existing services for the manager
+            removeServices = []
+            for serviceId in self.data['service']:
+                if not self.data['service'][serviceId].has_key('manager') or self.data['service'][serviceId]['manager'] == managerId:
+                    removeServices.append(serviceId)
+            for serviceId in removeServices:
+                del self.data['service'][serviceId]
 
-            # Add devices from manager reply
-            for deviceId in data:
-                if not self.data['device'].has_key(deviceId):
-                    self.data['device'][deviceId] = data[deviceId]
+            # Add services from manager reply
+            for serviceId in data:
+                if not self.data['service'].has_key(serviceId):
+                    self.data['service'][serviceId] = data[serviceId]
                 else:
-                    self.data['device'][deviceId]['online'] = data[deviceId]['online']
-                self.data['device'][deviceId]['manager'] = managerId
-            self.data['manager'][managerId]['devices'] = len(data)
+                    self.data['service'][serviceId]['online'] = data[serviceId]['online']
+                self.data['service'][serviceId]['manager'] = managerId
+            self.data['manager'][managerId]['services'] = len(data)
 
-        # Manager reconfigure events - should trigger refresh of device list
+        # Manager reconfigure events - should trigger refresh of service list
         elif topic[0][1] == amqp.PREFIX_EVENT and topic[2] == 'reconfigured':
-            newDevices = {}
-            for id in self.data['device']:
-                if self.data['device'][id]['manager'] == topic[1]:
+            newServices = {}
+            for id in self.data['service']:
+                if self.data['service'][id]['manager'] == topic[1]:
                     continue
-                newDevices[id] = self.data['device'][id]
-            self.data['device'] = newDevices
-            self.data['manager'][topic[1]]['devices'] = None
-            log.info('Ask manager %s for device list since reconfigured' % topic[1])
-            self.sendManagerAction(topic[1], 'getDevices')
+                newServices[id] = self.data['service'][id]
+            self.data['service'] = newServices
+            self.data['manager'][topic[1]]['services'] = None
+            log.info('Ask manager %s for service list since reconfigured' % topic[1])
+            self.sendManagerAction(topic[1], 'getServices')
         '''
 
     def setOnline(self, type, key, force=False):
@@ -191,7 +191,7 @@ class Orchestrator(amqp.AmqpDaemon):
         if not self.data[type].has_key(key):
             self.data[type][key] = {'online': None}
             #if type == 'manager':
-            #    self.data[type][key]['devices'] = None
+            #    self.data[type][key]['services'] = None
 
         # If not already online (or force [re-]online)
         # Set online and send online-event
@@ -200,8 +200,8 @@ class Orchestrator(amqp.AmqpDaemon):
             self.data[type][key]['online'] = True
             '''
             if type == 'manager':
-                log.info('Ask manager %s for device list since changed to online' % key)
-                self.sendManagerAction(key, 'getDevices')
+                log.info('Ask manager %s for service list since changed to online' % key)
+                self.sendManagerAction(key, 'getServices')
             '''
             eventTopic = '%s%s.%s.online' % (
                 self.typeToPrefix(type),
@@ -209,8 +209,8 @@ class Orchestrator(amqp.AmqpDaemon):
                 key
             )
             event = {'data': {'value': True}, 'key': 'online'}
-            if type == 'device':
-                event['device'] = key
+            if type == 'service':
+                event['service'] = key
             else:
                 event['host'] = key
             self.producer.put(eventTopic, event)
@@ -228,7 +228,7 @@ class Orchestrator(amqp.AmqpDaemon):
         if not self.data[type].has_key(key):
             self.data[type][key] = {'online': None}
             #if type == 'manager':
-            #    self.data[type][key]['devices'] = None
+            #    self.data[type][key]['services'] = None
 
         # If not already offline, set offline and send offline event
         if self.data[type][key]['online'] != False:
@@ -242,8 +242,8 @@ class Orchestrator(amqp.AmqpDaemon):
                 key
             )
             event = {'data': {'value': False}, 'key': 'online'}
-            if type == 'device':
-                event['device'] = key
+            if type == 'service':
+                event['service'] = key
             else:
                 event['host'] = key
             self.producer.put(eventTopic, event)
@@ -254,25 +254,25 @@ class Orchestrator(amqp.AmqpDaemon):
         except KeyError:
             return False
 
-    def reloadDeviceConfigs(self):
-        self.loadDeviceConfigs(isReload=True)
+    def reloadServiceConfigs(self):
+        self.loadServiceConfigs(isReload=True)
 
-    def loadDeviceConfigs(self, isReload=False):
-        if not isReload or not self.data.get('device'):
-            self.data['device'] = {}
-        for path in self.getDeviceConfigList():
-            self.loadDeviceConfig(path, isReload=isReload)
+    def loadServiceConfigs(self, isReload=False):
+        if not isReload or not self.data.get('service'):
+            self.data['service'] = {}
+        for path in self.getServiceConfigList():
+            self.loadServiceConfig(path, isReload=isReload)
 
-    def loadDeviceConfig(self, path, isReload=False):
+    def loadServiceConfig(self, path, isReload=False):
 
         if isReload:
-            log.info('Reload device config: %s' % path)
+            log.info('Reload service config: %s' % path)
         else:
-            log.info('Load device config: %s' % path)
+            log.info('Load service config: %s' % path)
 
         instanceConfig    = self.loadConfigFile(path)
         instanceData      = self.configParserToDict(instanceConfig)
-        classDir          = '%s/config/device-classes' % config.get('libdir')
+        classDir          = '%s/config/service-classes' % config.get('libdir')
         classFile         = '%s/%s.conf' % (classDir, instanceData['main']['class'])
         classConfig       = self.loadConfigFile(classFile)
         classData         = self.configParserToDict(classConfig)
@@ -305,16 +305,16 @@ class Orchestrator(amqp.AmqpDaemon):
         data['online']    = False
         data['heartbeat'] = 0
 
-        if isReload and self.data['device'].has_key( data['main']['id'] ):
+        if isReload and self.data['service'].has_key( data['main']['id'] ):
 
-            old               = self.data['device'][ data['main']['id'] ]
+            old               = self.data['service'][ data['main']['id'] ]
             data['online']    = old.get('online')
             data['heartbeat'] = old.get('heartbeat')
 
             if not data.get('online'):     data['online'] = False
             if not data.get('heartbeat'):  data['heartbeat'] = 0
 
-        self.data['device'][ data['main']['id'] ] = data
+        self.data['service'][ data['main']['id'] ] = data
 
     def loadConfigFile(self, path):
         conf = ConfigParser.ConfigParser()
@@ -349,9 +349,9 @@ class Orchestrator(amqp.AmqpDaemon):
 
 
 
-    def getDeviceConfigList(self):
+    def getServiceConfigList(self):
         ret = []
-        dir = '%s/devices' % config.get('confdir')
+        dir = '%s/services' % config.get('confdir')
         for file in os.listdir(dir):
             if file.split('.')[-1:][0] != 'conf':
                 continue
@@ -361,9 +361,9 @@ class Orchestrator(amqp.AmqpDaemon):
 
 
 
-    def getDeviceManager(self, deviceId):
+    def getServiceManager(self, serviceId):
         try:
-            item = self.data['device'][deviceId]
+            item = self.data['service'][serviceId]
         except KeyError:
             return None
         else:
@@ -378,11 +378,11 @@ class Orchestrator(amqp.AmqpDaemon):
     def action_getManagers(self):
         return self.data['manager']
 
-    def action_getDevices(self):
+    def action_getServices(self):
         '''
         ret = []
-        for deviceId in self.data['device']:
-            conf = self.data['device'][deviceId]
+        for serviceId in self.data['service']:
+            conf = self.data['service'][serviceId]
             main = conf.get('main')
             ret.append({
                 'id':       main.get('id'),
@@ -393,7 +393,7 @@ class Orchestrator(amqp.AmqpDaemon):
             })
         return ret
         '''
-        return self.data['device']
+        return self.data['service']
 
     def action_getReactors(self):
         return self.data['reactor']
@@ -403,13 +403,13 @@ class Orchestrator(amqp.AmqpDaemon):
         self.sendManagerAction(managerId, 'reload')
     '''
 
-    def action_getDeviceConfig(self, device):
-        deviceId, managerId = self.parseDeviceParam(device)
-        config = self.data['device'][deviceId]
+    def action_getServiceConfig(self, service):
+        serviceId, managerId = self.parseServiceParam(service)
+        config = self.data['service'][serviceId]
         return config
 
     def action_reload(self):
-        self.reloadDeviceConfigs()
+        self.reloadServiceConfigs()
 
 
     # ===================================================
@@ -417,72 +417,72 @@ class Orchestrator(amqp.AmqpDaemon):
     # @todo: use rpc so can get response result?
     # ===================================================
 
-    def action_startDevice(self, device):
-        #self.reloadDeviceConfigs()
-        deviceId, managerId = self.parseDeviceParam(device)
-        self.startDevice(managerId, deviceId)
+    def action_startService(self, service):
+        #self.reloadServiceConfigs()
+        serviceId, managerId = self.parseServiceParam(service)
+        self.startService(managerId, serviceId)
 
-    def action_stopDevice(self, device):
-        deviceId, managerId = self.parseDeviceParam(device)
-        self.sendManagerAction(managerId, 'stopDevice', [deviceId])
+    def action_stopService(self, service):
+        serviceId, managerId = self.parseServiceParam(service)
+        self.sendManagerAction(managerId, 'stopService', [serviceId])
 
-    def startDevice(self, managerId, deviceId):
-        config = self.data['device'][deviceId]
-        self.sendManagerAction(managerId, 'startDevice', [config])
+    def startService(self, managerId, serviceId):
+        config = self.data['service'][serviceId]
+        self.sendManagerAction(managerId, 'startService', [config])
 
     '''
-    def action_enableDevice(self, deviceId):
-        managerId = self.getDeviceManager(deviceId)
+    def action_enableService(self, serviceId):
+        managerId = self.getServiceManager(serviceId)
         if not managerId:
-            raise Exception('No such device: %s' % deviceId)
-        self.sendManagerAction(managerId, 'enableDevice', [deviceId])
+            raise Exception('No such service: %s' % serviceId)
+        self.sendManagerAction(managerId, 'enableService', [serviceId])
 
-    def action_disableDevice(self, deviceId):
-        managerId = self.getDeviceManager(deviceId)
+    def action_disableService(self, serviceId):
+        managerId = self.getServiceManager(serviceId)
         if not managerId:
-            raise Exception('No such device: %s' % deviceId)
-        self.sendManagerAction(managerId, 'disableDevice', [deviceId])
+            raise Exception('No such service: %s' % serviceId)
+        self.sendManagerAction(managerId, 'disableService', [serviceId])
     '''
 
 
     def generateUuid(self):
         return uuid.uuid4().hex
 
-    def parseDeviceParam(self, value):
+    def parseServiceParam(self, value):
 
-        # deviceId
-        deviceConfig = self.data['device'].get(value)
-        if deviceConfig:
-            #log.info("parseDeviceParam(1): %s => %s @ %s" % (value, value, deviceConfig['main'].get('manager')))
-            return value, deviceConfig['main'].get('manager')
+        # serviceId
+        serviceConfig = self.data['service'].get(value)
+        if serviceConfig:
+            #log.info("parseServiceParam(1): %s => %s @ %s" % (value, value, serviceConfig['main'].get('manager')))
+            return value, serviceConfig['main'].get('manager')
 
-        # managerId.deviceName
+        # managerId.serviceName
         tmp = value.split('.')
         if len(tmp) == 2:
-            managerId, deviceName = tmp
-            for deviceId in self.data['device']:
-                deviceConfig = self.data['device'][deviceId]
-                if deviceConfig['main'].get('manager') != managerId:
+            managerId, serviceName = tmp
+            for serviceId in self.data['service']:
+                serviceConfig = self.data['service'][serviceId]
+                if serviceConfig['main'].get('manager') != managerId:
                     continue
-                if deviceConfig['main'].get('name') != deviceName:
+                if serviceConfig['main'].get('name') != serviceName:
                     continue
-                #log.info("parseDeviceParam(2): %s => %s @ %s" % (value, deviceId, managerId))
-                return deviceId, managerId
+                #log.info("parseServiceParam(2): %s => %s @ %s" % (value, serviceId, managerId))
+                return serviceId, managerId
 
-        # deviceName
-        deviceName = value
+        # serviceName
+        serviceName = value
         items      = []
-        for deviceId in self.data['device']:
-            deviceConfig = self.data['device'][deviceId]
-            if deviceConfig.get('main').get('name') == deviceName:
-                items.append(deviceConfig)
+        for serviceId in self.data['service']:
+            serviceConfig = self.data['service'][serviceId]
+            if serviceConfig.get('main').get('name') == serviceName:
+                items.append(serviceConfig)
         if len(items) == 1:
-            deviceConfig = items[0]
-            #log.info("parseDeviceParam(3): %s => %s @ %s" % (value,deviceConfig['main'].get('id'), deviceConfig['main'].get('manager')))
-            return deviceConfig['main'].get('id'), deviceConfig['main'].get('manager')
+            serviceConfig = items[0]
+            #log.info("parseServiceParam(3): %s => %s @ %s" % (value,serviceConfig['main'].get('id'), serviceConfig['main'].get('manager')))
+            return serviceConfig['main'].get('id'), serviceConfig['main'].get('manager')
 
         # not found
-        raise Exception('No such device: %s' % value)
+        raise Exception('No such service: %s' % value)
 
 
 
