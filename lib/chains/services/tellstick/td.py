@@ -81,11 +81,11 @@ TELLSTICK_ERROR_PERMISSION_DENIED =      -2
 TELLSTICK_ERROR_DEVICE_NOT_FOUND =       -3
 TELLSTICK_ERROR_METHOD_NOT_SUPPORTED =   -4
 TELLSTICK_ERROR_COMMUNICATION =          -5
-TELLSTICK_ERROR_CONNECTING_device =     -6
+TELLSTICK_ERROR_CONNECTING_SERVICE =     -6
 TELLSTICK_ERROR_UNKNOWN_RESPONSE =       -7
 TELLSTICK_ERROR_SYNTAX =                 -8
 TELLSTICK_ERROR_BROKEN_PIPE =            -9
-TELLSTICK_ERROR_COMMUNICATING_device = -10
+TELLSTICK_ERROR_COMMUNICATING_SERVICE = -10
 TELLSTICK_ERROR_CONFIG_SYNTAX =         -11
 TELLSTICK_ERROR_UNKNOWN =               -99
 
@@ -94,7 +94,7 @@ TELLSTICK_CONTROLLER_TELLSTICK =          1
 TELLSTICK_CONTROLLER_TELLSTICK_DUO =      2
 TELLSTICK_CONTROLLER_TELLSTICK_NET =      3
 
-#device changes
+#Device changes
 TELLSTICK_DEVICE_ADDED =                  1
 TELLSTICK_DEVICE_CHANGED =                2
 TELLSTICK_DEVICE_REMOVED =                3
@@ -117,22 +117,22 @@ _callbackFuncs = {}
 
 
 def getNumberOfDevices():
-    return tdlib.tdGetNumberOfdevices()
+    return tdlib.tdGetNumberOfDevices()
 
-def getdeviceId(i):
-    return tdlib.tdGetdeviceId(int(i))
+def getDeviceId(i):
+    return tdlib.tdGetDeviceId(int(i))
 
-def getdeviceIdFromStr(s):
+def getDeviceIdFromStr(s):
     try:
         id = int(s)
-        devId = getdeviceId(id)
+        devId = getDeviceId(id)
         return devId, getName(devId)
     except:
         pass
 
-    for i in range(getNumberOfdevices()):
-        if s == getName(getdeviceId(i)):
-            return getdeviceId(i), s
+    for i in range(getNumberOfDevices()):
+        if s == getName(getDeviceId(i)):
+            return getDeviceId(i), s
 
     return -1, 'UNKNOWN'
 
@@ -164,44 +164,44 @@ def methods(id, methodsSupported = None, readable = False):
 
     return methods
 
-def turnOn(intdeviceId):
-    return tdlib.tdTurnOn(intdeviceId)
+def turnOn(intDeviceId):
+    return tdlib.tdTurnOn(intDeviceId)
 
-def turnOff(intdeviceId):
-    return tdlib.tdTurnOff(intdeviceId)
+def turnOff(intDeviceId):
+    return tdlib.tdTurnOff(intDeviceId)
 
-def bell(intdeviceId):
-    return tdlib.tdBell(intdeviceId)
+def bell(intDeviceId):
+    return tdlib.tdBell(intDeviceId)
 
-def dim(intdeviceId, level):
-    return tdlib.tdDim(intdeviceId, level)
+def dim(intDeviceId, level):
+    return tdlib.tdDim(intDeviceId, level)
 
-def up(intdeviceId):
-    return tdlib.tdUp(intdeviceId)
+def up(intDeviceId):
+    return tdlib.tdUp(intDeviceId)
 
-def down(intdeviceId):
-    return tdlib.tdDown(intdeviceId)
+def down(intDeviceId):
+    return tdlib.tdDown(intDeviceId)
 
-def stop(intdeviceId):
-    return tdlib.tdStop(intdeviceId)
+def stop(intDeviceId):
+    return tdlib.tdStop(intDeviceId)
 
-def learn(intdeviceId):
-    return tdlib.tdLearn(intdeviceId)
+def learn(intDeviceId):
+    return tdlib.tdLearn(intDeviceId)
 
-def lastSentCommand(intdeviceId, methodsSupported = None, readable = False):
+def lastSentCommand(intDeviceId, methodsSupported = None, readable = False):
     if methodsSupported == None:
         methodsSupported = methodsSupportedDefault
 
     if readable:
-        return methodsReadable.get(tdlib.tdLastSentCommand(intdeviceId, methodsSupported), 'UNKNOWN')
+        return methodsReadable.get(tdlib.tdLastSentCommand(intDeviceId, methodsSupported), 'UNKNOWN')
 
-    return tdlib.tdLastSentCommand(intdeviceId, methodsSupported)
+    return tdlib.tdLastSentCommand(intDeviceId, methodsSupported)
 
-def lastSentValue(intdeviceId):
+def lastSentValue(intDeviceId):
     func = tdlib.tdLastSentValue
     func.restype = c_char_p
 
-    ret = func(intdeviceId)
+    ret = func(intDeviceId)
     
 #Release string here?
     return ret
@@ -219,28 +219,28 @@ def getErrorString(intErrorNo):
 
     return s
 
-def adddevice():
-    return tdlib.tdAdddevice()
+def addDevice():
+    return tdlib.tdAddDevice()
 
-def removedevice(intDeviceId):
-    return tdlib.tdRemovedevice(intDeviceId)
+def removeDevice(intDeviceId):
+    return tdlib.tdRemoveDevice(intDeviceId)
 
-def setName(intdeviceId, chNewName):
+def setName(intDeviceId, chNewName):
     if not isinstance(chNewName, str):
         raise ValueError('chNewName needs to be a str')
-    if not isinstance(intdeviceId, int):
-        raise ValueError('intdeviceId needs to be an integer')
+    if not isinstance(intDeviceId, int):
+        raise ValueError('intDeviceId needs to be an integer')
 
-    return tdlib.tdSetName(intdeviceId, chNewName)
+    return tdlib.tdSetName(intDeviceId, chNewName)
     
-def getProtocol(intdeviceId):
-    if not isinstance(intdeviceId, int):
-        raise ValueError('intdeviceId needs to be an integer')
+def getProtocol(intDeviceId):
+    if not isinstance(intDeviceId, int):
+        raise ValueError('intDeviceId needs to be an integer')
     
     tdGetProtocolFunc = tdlib.tdGetProtocol
     tdGetProtocolFunc.restype = c_void_p
 
-    vp = tdGetProtocolFunc(intdeviceId)
+    vp = tdGetProtocolFunc(intDeviceId)
     cp = c_char_p(vp)
     s = cp.value
     
@@ -249,14 +249,14 @@ def getProtocol(intdeviceId):
 
     return s
 
-def getModel(intdeviceId):
-    if not isinstance(intdeviceId, int):
-        raise ValueError('intdeviceId needs to be an integer')
+def getModel(intDeviceId):
+    if not isinstance(intDeviceId, int):
+        raise ValueError('intDeviceId needs to be an integer')
     
     tdGetModelFunc = tdlib.tdGetModel
     tdGetModelFunc.restype = c_void_p
 
-    vp = tdGetModelFunc(intdeviceId)
+    vp = tdGetModelFunc(intDeviceId)
     cp = c_char_p(vp)
     s = cp.value
     
@@ -265,19 +265,19 @@ def getModel(intdeviceId):
 
     return s
 
-def getdeviceParameter(intDeviceId, strName, defaultValue):
-    if not isinstance(intdeviceId, int):
-        raise ValueError('intdeviceId needs to be an integer')
+def getDeviceParameter(intDeviceId, strName, defaultValue):
+    if not isinstance(intDeviceId, int):
+        raise ValueError('intDeviceId needs to be an integer')
     if not isinstance(strName, str):
         raise ValueError('strName needs to be a str')
     if not isinstance(defaultValue, str):
         raise ValueError('defaultValue needs to be a str')
 
 
-    tdGetdeviceParameterFunc = tdlib.tdGetDeviceParameter
-    tdGetdeviceParameterFunc.restype = c_void_p
+    tdGetDeviceParameterFunc = tdlib.tdGetDeviceParameter
+    tdGetDeviceParameterFunc.restype = c_void_p
 
-    vp = tdGetdeviceParameterFunc(intDeviceId, strName, defaultValue)
+    vp = tdGetDeviceParameterFunc(intDeviceId, strName, defaultValue)
     cp = c_char_p(vp)
     s = cp.value
     
@@ -319,13 +319,13 @@ callbacks = {'lastAdd': 0,
              'deviceEvent': {},
              'deviceChangeEvent': {},
              'sensorEvent': {},
-             'rawdeviceEvent': {}
+             'rawDeviceEvent': {}
              }
 
-def deviceEvent(serviceId, method, data, callbackId, context):
+def deviceEvent(deviceId, method, data, callbackId, context):
     if debug:
-        print 'deviceEvent'
-        print '  deviceId:', serviceId
+        print 'DeviceEvent'
+        print '  deviceId:', deviceId
         print '  method:', method
         print '  data:', data
         print '  callbackId:', callbackId
@@ -340,10 +340,10 @@ def deviceEvent(serviceId, method, data, callbackId, context):
             if debug:
                 raise
 
-def deviceChangeEvent(serviceId, changeEvent, changeType, callbackId, context):
+def deviceChangeEvent(deviceId, changeEvent, changeType, callbackId, context):
     if debug:
-        print 'deviceChangeEvent'
-        print 'deviceId:', serviceId
+        print 'DeviceChangeEvent'
+        print 'deviceId:', deviceId
         print 'changeEvent:', changeEvent
         print 'changeType:', changeType
         print 'callbackId:', callbackId
@@ -379,35 +379,35 @@ def sensorEvent(protocol, model, id, dataType, value, timestamp, callbackId, con
             if debug:
                 raise
 
-def rawdeviceEvent(data, controllerId, callbackId, context):
+def rawDeviceEvent(data, controllerId, callbackId, context):
     if debug:
-        print 'RawdeviceEvent'
+        print 'RawDeviceEvent'
         print '  data:', data
         print '  controllerId:', controllerId
         print '  callbackId:', callbackId
         print '  context:', context
 
-    for key in callbacks['rawdeviceEvent']:
-        f = callbacks['rawdeviceEvent'][key]
+    for key in callbacks['rawDeviceEvent']:
+        f = callbacks['rawDeviceEvent'][key]
         try:
             f(data, controllerId, callbackId)
         except:
-            print 'Error calling registered callback for rawdeviceEvent'
+            print 'Error calling registered callback for rawDeviceEvent'
             if debug:
                 raise
 
 
-device_func = DEVICEFUNC(serviceEvent)
-_callbackFuncs['device'] = service_func
+device_func = DEVICEFUNC(deviceEvent)
+_callbackFuncs['device'] = device_func
 
-deviceChange_func = DEVICECHANGEFUNC(serviceChangeEvent)
-_callbackFuncs['deviceChange'] = serviceChange_func
+deviceChange_func = DEVICECHANGEFUNC(deviceChangeEvent)
+_callbackFuncs['deviceChange'] = deviceChange_func
 
 sensor_func = SENSORFUNC(sensorEvent)
 _callbackFuncs['sensor'] = sensor_func
     
-rawdevice_func = RAWDEVICEFUNC(rawDeviceEvent)
-_callbackFuncs['raw'] = rawdevice_func
+rawDevice_func = RAWDEVICEFUNC(rawDeviceEvent)
+_callbackFuncs['raw'] = rawDevice_func
 
 
 def registerEvent(func, eventType):
@@ -417,13 +417,13 @@ def registerEvent(func, eventType):
         #if first registration of this type of callback
         # register the handler
         if eventType == 'deviceEvent':
-            _callbackFuncs['deviceCallbackId'] = tdlib.tdRegisterDeviceEvent(_callbackFuncs['service'], 0)
+            _callbackFuncs['deviceCallbackId'] = tdlib.tdRegisterDeviceEvent(_callbackFuncs['device'], 0)
         elif eventType == 'deviceChangeEvent':
-            _callbackFuncs['deviceChangeCallbackId'] = tdlib.tdRegisterDeviceChangeEvent(_callbackFuncs['serviceChange'], 0)
+            _callbackFuncs['deviceChangeCallbackId'] = tdlib.tdRegisterDeviceChangeEvent(_callbackFuncs['deviceChange'], 0)
         elif eventType == 'sensorEvent':
             _callbackFuncs['sensorCallbackId'] = tdlib.tdRegisterSensorEvent(_callbackFuncs['sensor'], 0)
-        elif eventType == 'rawdeviceEvent':
-            _callbackFuncs['rawCallbackId'] = tdlib.tdRegisterRawdeviceEvent(_callbackFuncs['raw'], 0)
+        elif eventType == 'rawDeviceEvent':
+            _callbackFuncs['rawCallbackId'] = tdlib.tdRegisterRawDeviceEvent(_callbackFuncs['raw'], 0)
         else:
             print 'Unknown event type', eventType
 
@@ -435,17 +435,17 @@ def registerEvent(func, eventType):
 
     return id
 
-def registerdeviceEvent(func):
+def registerDeviceEvent(func):
     return registerEvent(func, 'deviceEvent')
 
-def registerdeviceChangedEvent(func):
+def registerDeviceChangedEvent(func):
     return registerEvent(func, 'deviceChangeEvent')
 
 def registerSensorEvent(func):
     return registerEvent(func, 'sensorEvent')
     
-def registerRawdeviceEvent(func):
-    return registerEvent(func, 'rawdeviceEvent')
+def registerRawDeviceEvent(func):
+    return registerEvent(func, 'rawDeviceEvent')
 
 def unregisterCallback(callbackId):
     global callbacks
@@ -468,21 +468,21 @@ def unregisterCallback(callbackId):
             tdlib.tdUnregisterCallback(_callbackFuncs['sensorCallbackId'])
             del _callbackFuncs['sensorCallbackId']
 
-    elif callbackId in callbacks['rawdeviceEvent']:
-        del callbacks['rawdeviceEvent'][callbackId]
-        if len(callbacks['rawdeviceEvent']) == 0:
+    elif callbackId in callbacks['rawDeviceEvent']:
+        del callbacks['rawDeviceEvent'][callbackId]
+        if len(callbacks['rawDeviceEvent']) == 0:
             tdlib.tdUnregisterCallback(_callbackFuncs['rawCallbackId'])
             del _callbackFuncs['rawCallbackId']
 
 
-def setProtocol(intdeviceId, strProtocol):
-    return tdlib.tdSetProtocol(intdeviceId, strProtocol)
+def setProtocol(intDeviceId, strProtocol):
+    return tdlib.tdSetProtocol(intDeviceId, strProtocol)
 
-def setModel(intdeviceId, strModel):
-    return tdlib.tdSetModel(intdeviceId, strModel)
+def setModel(intDeviceId, strModel):
+    return tdlib.tdSetModel(intDeviceId, strModel)
 
-def setdeviceParameter(intDeviceId, strName, strValue):
-    return tdlib.tdSetdeviceParameter(intDeviceId, strName, strValue)
+def setDeviceParameter(intDeviceId, strName, strValue):
+    return tdlib.tdSetDeviceParameter(intDeviceId, strName, strValue)
 
 #Completly untested calls
 def connectTellStickController(vid, pid, serial):
@@ -499,13 +499,13 @@ def disconnectTellStickController(vid, pid, serial):
 
 if __name__ == '__main__':
     def cb(data,controllerId,callbackId):
-        print 'RawdeviceEvent'
+        print 'RawDeviceEvent'
         print '  data:', data
         print '  controllerId:', controllerId
         print '  callbackId:', callbackId
         print '  context:', context
 
-    registerRawdeviceEvent(cb)
+    registerRawDeviceEvent(cb)
     import time
     while True:
         time.sleep(0.5)
@@ -515,11 +515,11 @@ if __name__ == 'x__main__':
 
     init(defaultMethods = TELLSTICK_TURNON | TELLSTICK_TURNOFF | TELLSTICK_BELL | TELLSTICK_TOGGLE | TELLSTICK_DIM | TELLSTICK_LEARN)
 
-    print 'getNumberOfdevices', getNumberOfDevices()
+    print 'getNumberOfDevices', getNumberOfDevices()
     
     print 'Id\tName'
-    for i in range(getNumberOfdevices()):
-        devId = getdeviceId(i)
+    for i in range(getNumberOfDevices()):
+        devId = getDeviceId(i)
         print devId, getName(devId), methods(devId)
 
 
@@ -537,14 +537,14 @@ if __name__ == 'x__main__':
         print 'LastSentValue(1)', lastSentValue(1)
         print 'GetErrorString(-2)', getErrorString(-2)
         
-    print 'getdeviceIdFromStr', getDeviceIdFromStr('2')    
-    print 'getdeviceIdFromStr', getDeviceIdFromStr('Vardagsrum')
-    print 'getdeviceIdFromStr', getDeviceIdFromStr('234')
+    print 'getDeviceIdFromStr', getDeviceIdFromStr('2')    
+    print 'getDeviceIdFromStr', getDeviceIdFromStr('Vardagsrum')
+    print 'getDeviceIdFromStr', getDeviceIdFromStr('234')
 
 
-    devId = adddevice()
+    devId = addDevice()
     if devId > 0:
-        print 'Adddevice', devId
+        print 'AddDevice', devId
         print 'setName', repr(setName(devId, 'Test'))
         print 'getName', repr(getName(devId))
         print 'getProtocol', getProtocol(devId)
@@ -555,27 +555,27 @@ if __name__ == 'x__main__':
         print 'setModel', setModel(devId, 'selflearning-switch')
         print 'getModel', getModel(devId)
 
-        print 'getdeviceParameter (unit)', repr(getDeviceParameter(devId, "unit", ""))
-        print 'setdeviceParameter (unit)', repr(setDeviceParameter(devId, 'unit', '123'))                                       
-        print 'getdeviceParameter (unit)', repr(getDeviceParameter(devId, "unit", ""))
+        print 'getDeviceParameter (unit)', repr(getDeviceParameter(devId, "unit", ""))
+        print 'setDeviceParameter (unit)', repr(setDeviceParameter(devId, 'unit', '123'))                                       
+        print 'getDeviceParameter (unit)', repr(getDeviceParameter(devId, "unit", ""))
 
-        print 'getdeviceParameter (house)', repr(getDeviceParameter(devId, "house", ""))
-        print 'setdeviceParameter (house)', repr(setDeviceParameter(devId, "house", "321"))
-        print 'getdeviceParameter (house)', repr(getDeviceParameter(devId, "house", ""))
+        print 'getDeviceParameter (house)', repr(getDeviceParameter(devId, "house", ""))
+        print 'setDeviceParameter (house)', repr(setDeviceParameter(devId, "house", "321"))
+        print 'getDeviceParameter (house)', repr(getDeviceParameter(devId, "house", ""))
 
         print '\n\nId\tName'
-        for i in range(getNumberOfdevices()):
-            devId = getdeviceId(i)
+        for i in range(getNumberOfDevices()):
+            devId = getDeviceId(i)
             print devId, getName(devId), methods(devId)
-
-        print 'Remove device', removeDevice(devId)
+    
+        print 'Remove Device', removeDevice(devId)
 
     else:
-        print 'adddevice returned error', getErrorString(devId)
+        print 'addDevice returned error', getErrorString(devId)
 
     print '\n\nId\tName'
-    for i in range(getNumberOfdevices()):
-        devId = getdeviceId(i)
+    for i in range(getNumberOfDevices()):
+        devId = getDeviceId(i)
         print devId, getName(devId), methods(devId)
 
 
