@@ -6,26 +6,26 @@
 ARCH=`uname -m`
 if [ ! -f /chains-configured ]; then
     echo "First run, installing default configs"
-    mkdir -p /etc/chains/devices
+    mkdir -p /etc/chains/services
     if [ ! -f /etc/chains/chains.conf ]; then
         cp /srv/chains/misc/Docker/chains-config/chains.conf-master /etc/chains/
     fi
     if [ ! -f /etc/chains/amqp.conf ]; then
         cp /srv/chains/misc/Docker/chains-config/amqp.conf /etc/chains/
     fi
-    # Add some default devices
+    # Add some default services
     shopt -s nullglob
-    files=(/etc/chains/devices/*)
+    files=(/etc/chains/services/*)
     shopt -u nullglob
     if [ ${#files[@]} -lt 1 ]; then
         if [[ (${ARCH} == 'x86_64') || (${ARCH} == 'i686') ]]; then
             echo "container is x86"
-            cp /srv/chains/misc/Docker/chains-config/default-devices-master/* /etc/chains/devices/
+            cp /srv/chains/misc/Docker/chains-config/default-services-master/* /etc/chains/services/
         fi
         if [[ ${ARCH} == 'armv7l' ]]; then
             echo "container is RPi"
-            cp /srv/chains/misc/Docker/chains-config/default-devices-master/* /etc/chains/devices/
-            cp /srv/chains/misc/Docker/chains-config/default-devices-rpi-master/* /etc/chains/devices/
+            cp /srv/chains/misc/Docker/chains-config/default-services-master/* /etc/chains/services/
+            cp /srv/chains/misc/Docker/chains-config/default-services-rpi-master/* /etc/chains/services/
         fi
     fi
     touch /chains-configured

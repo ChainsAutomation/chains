@@ -108,7 +108,7 @@ echo "Creating non-repo dirs (if not exists)"
 mkdir -p $CONF_DIR/rules_available
 mkdir -p $CONF_DIR/rules_enabled
 mkdir -p $DATA_DIR
-mkdir -p $DATA_DIR/devices
+mkdir -p $DATA_DIR/services
 mkdir -p $DATA_DIR/log
 mkdir -p $DATA_DIR/rrd
 mkdir -p $DATA_DIR/tmp

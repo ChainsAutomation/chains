@@ -25,15 +25,15 @@ def find_packages(path, base="" ):
             else:
                 module_name = item
             #packages[module_name] = dir
-            packages["chains/devices/%s" % module_name] = dir
+            packages["chains/services/%s" % module_name] = dir
             packages.update(find_packages(dir, module_name))
     return packages
 
 #find_packages(".")
-#find_packages("lib/chains/devices/")
-packs = find_packages("lib/chains/devices/")
+#find_packages("lib/chains/services/")
+packs = find_packages("lib/chains/services/")
 
-devices = find_packages('lib/chains/devices/').keys()
+services = find_packages('lib/chains/services/').keys()
 
 setup(name='chains',
     version='0.9',
@@ -42,8 +42,8 @@ setup(name='chains',
     author_email='devel@chainsautomation.com',
     url='http://chainsautomation.com',
     package_dir={'': 'lib'},
-    # packages=['lib/ha', 'lib/ha/com', 'lib/ha/devices', 'lib/ha/daemon', 'lib/ha/listener', 'lib/ha/sequences', 'lib/ha/config'],
-    packages=['chains', 'chains/commandline', 'chains/common', 'chains/device', 'chains/devices','chains/daemon', 'chains/manager', 'chains/orchestrator', 'chains/reactor']+devices,
+    # packages=['lib/ha', 'lib/ha/com', 'lib/ha/services', 'lib/ha/daemon', 'lib/ha/listener', 'lib/ha/sequences', 'lib/ha/config'],
+    packages=['chains', 'chains/commandline', 'chains/common', 'chains/service', 'chains/services','chains/daemon', 'chains/manager', 'chains/orchestrator', 'chains/reactor']+devices,
     # py_modules=['foo'],
     )
 

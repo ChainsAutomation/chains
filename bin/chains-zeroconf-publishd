@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-"""Device implementing zeroconf publishing service for chains master servers"""
+""" daemon implementing zeroconf publishing service for chains master servers"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import socket
