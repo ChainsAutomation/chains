@@ -15,10 +15,10 @@ module.exports = function(app, route) {
             {
                 "_links":
                 {
-                    "self": {"href": baseUrl + "/devices"}
+                    "self": {"href": baseUrl + "/services"}
                 },
-                "id": "devices",
-                "name": "Devices"
+                "id": "services",
+                "name": "Services"
             },
             {
                 "_links":

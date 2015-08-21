@@ -3,10 +3,10 @@ var should = require('chai').should(),
 		api = supertest('http://localhost:7890'),
         timerId = '157ddfcfd7814735aa9add5ed9e05085';
 
-describe('GET /devices', function() {
+describe('GET /services', function() {
 
-	it('it returns list of devices', function(done) {
-		api.get('/devices')
+	it('it returns list of services', function(done) {
+		api.get('/services')
 		.expect(200)
 		.expect('Content-Type', /json/)
 		.end(function(err, res) {
@@ -26,10 +26,10 @@ describe('GET /devices', function() {
 
 });
 
-describe('GET /devices/<timerId>', function() {
+describe('GET /services/<timerId>', function() {
 
-	it('it returns timer device', function(done) {
-		api.get('/devices/' + timerId)
+	it('it returns timer service', function(done) {
+		api.get('/services/' + timerId)
 		.expect(200)
 		.expect('Content-Type', /json/)
 		.end(function(err, res) {
@@ -48,10 +48,10 @@ describe('GET /devices/<timerId>', function() {
 
 });
 
-describe('POST /devices/<timerId>/ping', function() {
+describe('POST /services/<timerId>/ping', function() {
 
 	it('it returns pong', function(done) {
-		api.post('/devices/' + timerId + '/ping')
+		api.post('/services/' + timerId + '/ping')
 		.expect(200)
 		.end(function(err, res) {
 			if (err) return done(err);
@@ -63,10 +63,10 @@ describe('POST /devices/<timerId>/ping', function() {
 
 });
 
-describe('POST /devices/<timerId>/echo', function() {
+describe('POST /services/<timerId>/echo', function() {
 
 	it('it returns what we sent', function(done) {
-		api.post('/devices/' + timerId + '/echo')
+		api.post('/services/' + timerId + '/echo')
         .send(["hello"])
 		.expect(200)
 		.end(function(err, res) {
@@ -79,10 +79,10 @@ describe('POST /devices/<timerId>/echo', function() {
 
 });
 
-describe('POST /devices/<timerId>/describe', function() {
+describe('POST /services/<timerId>/describe', function() {
 
 	it('it returns description that includes describe action', function(done) {
-		api.post('/devices/' + timerId + '/describe')
+		api.post('/services/' + timerId + '/describe')
 		.end(function(err, res) {
 			if (err) return done(err);
             res.body.should.have.property('info');

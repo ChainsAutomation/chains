@@ -2,7 +2,7 @@ module.exports = function(app, route) {
 
 	app.get(route, function(req, res) {
 
-		app.chains.callOrchestratorAction('getDevices', [], function(err, response) {
+		app.chains.callOrchestratorAction('getServices', [], function(err, response) {
 
 			if (err)
 				return res.send(err, 500);

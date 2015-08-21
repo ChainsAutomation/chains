@@ -22,7 +22,7 @@ describe('GET /state', function() {
 
 describe('GET /state/<timerId>', function() {
 
-	it('it returns state for timer device', function(done) {
+	it('it returns state for timer service', function(done) {
 		api.get('/state/' + timerId)
 		.expect(200)
 		.expect('Content-Type', /json/)
@@ -38,7 +38,7 @@ describe('GET /state/<timerId>', function() {
 
 describe('GET /state/<timerId>/online/data', function() {
 
-	it('it returns state for timer device online key', function(done) {
+	it('it returns state for timer service online key', function(done) {
 		api.get('/state/' + timerId + '/online/data')
 		.expect(200)
 		.expect('Content-Type', /json/)

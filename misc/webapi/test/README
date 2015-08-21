@@ -6,4 +6,4 @@ The following setup is required for tests to pass:
 - Orchestrator id must be "main"
 - Reactor id must be "master"
 - Manager id must be "manager"
-- Timer device must be running, and have id "157ddfcfd7814735aa9add5ed9e05085"
+- Timer service must be running, and have id "157ddfcfd7814735aa9add5ed9e05085"

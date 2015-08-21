@@ -99,7 +99,7 @@ module.exports.callReactorAction = function(id, command, args, callback) {
 	module.exports.rpc('r', id, command, args, callback);
 }
 
-module.exports.callDeviceAction = function(id, command, args, callback) {
-	module.exports.rpc('d', id, command, args, callback);
+module.exports.callServiceAction = function(id, command, args, callback) {
+	module.exports.rpc('s', id, command, args, callback);
 }
 

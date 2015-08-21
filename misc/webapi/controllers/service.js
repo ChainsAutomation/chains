@@ -2,9 +2,9 @@ module.exports = function(app, route) {
 
 	app.get(route, function(req, res) {
 
-        var deviceId = req.params.id;
+        var id = req.params.id;
 
-		app.chains.callOrchestratorAction('getDevices', [], function(err, response) {
+		app.chains.callOrchestratorAction('getServices', [], function(err, response) {
 
 			if (err)
 				return res.send(err, 500);
@@ -12,7 +12,7 @@ module.exports = function(app, route) {
 			var result = {};
 			for(var key in response) {
 
-                if (key != deviceId)
+                if (key != id)
                     continue;
 
 				var dev = response[key];

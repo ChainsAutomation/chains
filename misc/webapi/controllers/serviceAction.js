@@ -4,7 +4,7 @@ module.exports = function(app, route) {
 
         var args = req.body || [];
 
-		app.chains.callDeviceAction(req.params.id, req.params.action, args, function(err, response) {
+		app.chains.callServiceAction(req.params.id, req.params.action, args, function(err, response) {
 			if (err)
 				return res.send(err, 500);
             res.send(response);
