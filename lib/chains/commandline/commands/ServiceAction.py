@@ -1,5 +1,6 @@
 from chains.commandline.commands import Command
 from chains.commandline import InvalidParameterException
+from chains.common import amqp
 
 class CommandServiceAction(Command):
     def main(self, *args):
@@ -17,4 +18,4 @@ class CommandServiceAction(Command):
             action = args.pop(0)
         except IndexError:
             raise InvalidParameterException('usage: service action <serviceId> <action> [args]')
-        return self.rpc('da.%s.%s' % (serviceId, action), args)
+        return self.rpc('%s%s.%s.%s' % (amqp.PREFIX_SERVICE, amqp.PREFIX_ACTION, serviceId, action), args)
