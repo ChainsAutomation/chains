@@ -106,13 +106,13 @@ class Orchestrator(amqp.AmqpDaemon):
             '%s%s.%s.*' % (amqp.PREFIX_ORCHESTRATOR, amqp.PREFIX_ACTION, self.id),
 
             # online/offline/heartbeat events
-            '%s%s.*' % (amqp.PREFIX_DEVICE,  amqp.PREFIX_HEARTBEAT_RESPONSE),
+            '%s%s.*' % (amqp.PREFIX_SERVICE,  amqp.PREFIX_HEARTBEAT_RESPONSE),
             '%s%s.*' % (amqp.PREFIX_MANAGER, amqp.PREFIX_HEARTBEAT_RESPONSE),
             '%s%s.*' % (amqp.PREFIX_REACTOR, amqp.PREFIX_HEARTBEAT_RESPONSE),
         ]
 
     def prefixToType(self, prefix):
-        if prefix == amqp.PREFIX_DEVICE:       return 'service'
+        if prefix == amqp.PREFIX_SERVICE:       return 'service'
         if prefix == amqp.PREFIX_MANAGER:      return 'manager'
         if prefix == amqp.PREFIX_REACTOR:      return 'reactor'
         if prefix == amqp.PREFIX_ORCHESTRATOR: return 'orchestrator'
@@ -120,7 +120,7 @@ class Orchestrator(amqp.AmqpDaemon):
     def typeToPrefix(self, type):
         return self.getDaemonTypePrefix(type)
         '''
-        if type == 'service': return amqp.PREFIX_DEVICE
+        if type == 'service': return amqp.PREFIX_SERVICE
         if type == 'manager': return amqp.PREFIX_MANAGER
         if type == 'reactor': return amqp.PREFIX_REACTOR
         '''

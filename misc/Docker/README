@@ -80,7 +80,7 @@ sudo docker run -d --privileged -v /etc/chains:/etc/chains -v /dev/bus/usb:/dev/
 ssh  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null localhost -p 2222 -l root
 
 ############ DEVCE DEPENDENCIES (on ubuntu 14:04)
-How to install needed dependencies for different devices
+How to install needed dependencies for different services
 
 #### TELLSTICK
 ####

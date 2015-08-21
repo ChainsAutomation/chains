@@ -1,4 +1,4 @@
-# Node install and dependencies for node devices
+# Node install and dependencies for node services
 RUN apt-add-repository ppa:chris-lea/node.js
 RUN apt-get update
 RUN apt-get -y install nodejs lirc liblircclient-dev

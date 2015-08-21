@@ -21,24 +21,24 @@
 
 local -a _1st_arguments
 _1st_arguments=(
-    'device:Device commands'
+    'service:Service commands'
     'manager:Manager commands'
     'reactor:Reactor commands'
     'amqp:Amqp commands'
     'shell:Chains shell'
 )
 
-local -a _device_arguments
-_device_arguments=(
-    'list:List all devices with status (at online managers)'
-    'describe:DEVICEID Describe device actions and events'
-    'start:DEVICEID Start device'
-    'stop:DEVICEID Stop device'
-    'restart:DEVICEID Restart device (todo)'
-    'reload:DEVICEID Reload device (todo)'
-    'enable:DEVICEID Enable device'
-    'disable:DEVICEID Disable device'
-    'action:DEVICEID ACTION (ARGS) Run device action'
+local -a _service_arguments
+_service_arguments=(
+    'list:List all services with status (at online managers)'
+    'describe:SERVICEID Describe service actions and events'
+    'start:SERVICEID Start service'
+    'stop:SERVICEID Stop service'
+    'restart:SERVICEID Restart service (todo)'
+    'reload:SERVICEID Reload service (todo)'
+    'enable:SERVICEID Enable service'
+    'disable:SERVICEID Disable service'
+    'action:SERVICEID ACTION (ARGS) Run service action'
 )
 
 local -a _manager_arguments
@@ -58,7 +58,7 @@ _reactor_arguments=(
 
 local -a _amqp_arguments
 _amqp_arguments=(
-'event:DEVICEID KEY VALUE (EXTRA)'
+'event:SERVICEID KEY VALUE (EXTRA)'
     'rpc:TOPIC DATA'
     'send:TOPIC'
     'recv:TOPICS'
@@ -69,39 +69,39 @@ __task_list ()
     local expl
     local -a tasks
 
-    tasks=(device manager reactor amqp shell)
+    tasks=(service manager reactor amqp shell)
 
     _wanted tasks expl 'help' compadd $tasks
 }
 
-__device_list ()
+__service_list ()
 {
-  #echo FUNCTION: device_list
-  _wanted application expl 'command' compadd $(command chains-admin device list | grep -v '^Device\|^-\|^$' | awk '{print $1}')
+  #echo FUNCTION: service_list
+  _wanted application expl 'command' compadd $(command chains-admin service list | grep -v '^Service\|^-\|^$' | awk '{print $1}')
   #_wanted application expl 'command' compadd dev1 dev2 dev3 dev4 dev5
 }
 
-__device_action_list ()
+__service_action_list ()
 {
-  # For some reason $line is the current last device
-  #echo FUNCTION: device_action_list
+  # For some reason $line is the current last service
+  #echo FUNCTION: service_action_list
   #echo LINE: $line
   #echo STATE: $state
   #echo OPTIONS: $options
-  #_wanted application expl 'options' compadd $(options chains-admin device describe $line | grep '^    name:' | awk '{print $2}')
-  #echo "COMMAND: chains-admin device describe ${line[1]:7}"
-  _wanted application expl 'options' compadd $(chains-admin device describe ${line[1]} | grep '^    name:' | awk '{print $2}' | cut -d_ -f2)
+  #_wanted application expl 'options' compadd $(options chains-admin service describe $line | grep '^    name:' | awk '{print $2}')
+  #echo "COMMAND: chains-admin service describe ${line[1]:7}"
+  _wanted application expl 'options' compadd $(chains-admin service describe ${line[1]} | grep '^    name:' | awk '{print $2}' | cut -d_ -f2)
   #_wanted application expl 'options' compadd ${line}-act1 ${line}-act2 ${line}-act3 ${line}-act4
-  #echo FUNCTION: device_action_list ENDS
+  #echo FUNCTION: service_action_list ENDS
 }
 
-__device_event_list ()
+__service_event_list ()
 {
-  # For some reason $line is the current last device
+  # For some reason $line is the current last service
   #echo LINE: $line
-  _wanted application expl 'options' compadd $(options chains-admin device describe $line | grep 'event something' | awk '{print $2}')
+  _wanted application expl 'options' compadd $(options chains-admin service describe $line | grep 'event something' | awk '{print $2}')
   #_wanted application expl 'options' compadd TODO-completion
-  #echo FUNCTION: device_action_list ENDS
+  #echo FUNCTION: service_action_list ENDS
 }
 
 __manager_list ()
@@ -136,7 +136,7 @@ __amqp_topic_list ()
   _wanted application expl 'options' compadd TODO-completion
 }
 
-__chains-device ()
+__chains-service ()
 {
 # TODO:
 # action ARGS missing
@@ -152,23 +152,23 @@ __chains-device ()
    #echo LINE length: ${#line[@]}
    case $state in
        (command)
-           _describe -t commands "device subcommand" _device_arguments
+           _describe -t commands "service subcommand" _service_arguments
            return
        ;;
 
        (options)
            case $line[1] in
                (describe|disable|enable|reload|restart|start|stop)
-                   _arguments ':feature:__device_list'
+                   _arguments ':feature:__service_list'
                ;;
                (action)
-                 _arguments ':feature:__device_list' ':feature:__device_action_list'
+                 _arguments ':feature:__service_list' ':feature:__service_action_list'
 #                 if [ ${#line[@]} -eq 2 ] ; then
-                    #_arguments ':feature:__device_list'
+                    #_arguments ':feature:__service_list'
                   #elif [ ${#line[@]} -eq 3 ] ; then
                     #echo ELIF: yeah 3 args
                     #echo curcontext $curcontext
-                    #_arguments ':feature:__device_action_list'
+                    #_arguments ':feature:__service_action_list'
                  #else
                    #echo unknown, man
                  #fi
@@ -264,7 +264,7 @@ __chains-amqp ()
                    _arguments ':feature:__amqp_topic_list'
                ;;
                (event)
-                 _arguments ':feature:__device_list' ':feature:__device_event_list'
+                 _arguments ':feature:__service_list' ':feature:__service_event_list'
                ;;
            esac
        ;;
@@ -293,8 +293,8 @@ case $state in
          _arguments ':feature:__task_list'
       ;;
 
-      (device)
-          __chains-device
+      (service)
+          __chains-service
       ;;
 
       (manager)

@@ -4,7 +4,7 @@ from chains.common import log, utils, config, ChainsException, NoSuchActionExcep
 import time, threading, socket, sys, signal
 import amqplib.client_0_8.exceptions
 
-PREFIX_DEVICE             = 'd'
+PREFIX_SERVICE            = 's'
 PREFIX_MANAGER            = 'm'
 PREFIX_REACTOR            = 'r'
 PREFIX_ORCHESTRATOR       = 'o'
@@ -559,7 +559,7 @@ class AmqpDaemon:
         if not type:
             type = self.type
         if type == 'service':
-            return PREFIX_DEVICE
+            return PREFIX_SERVICE
         if type == 'manager':
             return PREFIX_MANAGER
         if type == 'reactor':
