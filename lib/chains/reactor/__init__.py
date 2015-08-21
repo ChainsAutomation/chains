@@ -1,5 +1,5 @@
 from chains.common import log, utils
-from chains.common.amqp import AmqpDaemon, runWithSignalHandler
+from chains.common.amqp import AmqpDaemon, runWithSignalHandler, PREFIX_SERVICE, PREFIX_EVENT
 from chains.reactor.state import State
 from chains.reactor.worker.ruleset import RuleSet
 from chains.reactor.worker.context import Context
@@ -28,7 +28,7 @@ class Reactor(AmqpDaemon):
 
     def getConsumeKeys(self):
         keys = AmqpDaemon.getConsumeKeys(self)
-        keys.append('de.#') # Listen for all service events
+        keys.append('%s%s.#' % (PREFIX_SERVICE,PREFIX_EVENT))
         return keys
 
     def onMessage(self, topic, data, correlationId):
@@ -36,6 +36,7 @@ class Reactor(AmqpDaemon):
             topic = topic.split('.')
             try:
                 if self.state:
+                    log.info('state.set: %s' % topic)
                     self.state.set('.'.join(topic[1:]), data)
             except Exception, e:
                 log.error(utils.e2str(e))
