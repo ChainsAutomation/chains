@@ -17,7 +17,9 @@ class TellstickService(chains.service.Service):
         self.eventCallbackId = None
         self.sensorCallbackId = None
 
+        log.info('Open telldus')
         self.openTelldus()
+        log.info('Opened telldus')
 
     def onShutdown(self):
         self.closeTelldus()
@@ -25,7 +27,7 @@ class TellstickService(chains.service.Service):
     def action_dim(self, id, level):
         '''
         Dim a lamp to a specific level
-        @param  id     int   ID of service in tellstick.conf
+        @param  id     int   ID of device in tellstick.conf
         @param  level  int   Light level (0-255)
         '''
         td.dim(self.parseId(id), self.parseLevel(level))
@@ -33,14 +35,14 @@ class TellstickService(chains.service.Service):
     def action_on(self, id):
         '''
         Turn a lamp on
-        @param  id     int   ID of service in tellstick.conf
+        @param  id     int   ID of device in tellstick.conf
         '''
         td.turnOn(self.parseId(id))
         
     def action_off(self, id):
         '''
         Turn a lamp off
-        @param  id     int   ID of service in tellstick.conf
+        @param  id     int   ID of device in tellstick.conf
         '''
         td.turnOff(self.parseId(id))
 
@@ -51,21 +53,21 @@ class TellstickService(chains.service.Service):
     def action_up(self, id):
         '''
         Start dimming a lamp up
-        @param  id     int   ID of service in tellstick.conf
+        @param  id     int   ID of device in tellstick.conf
         '''
         td.up(self.parseId(id))
         
     def action_down(self, id):
         '''
         Start dimming a lamp down
-        @param  id     int   ID of service in tellstick.conf
+        @param  id     int   ID of device in tellstick.conf
         '''
         td.down(self.parseId(id))
 
     def action_stop(self, id):
         '''
         Stop dimming a lamp up or down
-        @param  id     int   ID of service in tellstick.conf
+        @param  id     int   ID of device in tellstick.conf
         '''
         td.stop(self.parseId(id))
     """
@@ -73,28 +75,28 @@ class TellstickService(chains.service.Service):
     def action_bell(self, id):
         '''
         Send bell signal for a lamp
-        @param  id     int   ID of service in tellstick.conf
+        @param  id     int   ID of device in tellstick.conf
         '''
         td.bell(self.parseId(id))
 
     def action_learn(self, id):
         '''
         Send learn signal for a lamp
-        @param  id     int   ID of service in tellstick.conf
+        @param  id     int   ID of device in tellstick.conf
         '''
         td.learn(self.parseId(id))
 
     def action_list(self):
         '''
-        List available services, and return result like this:
+        List available devices, and return result like this:
            [
             {'id': 1, 'name': 'office_roof',       'value': 250 },
             {'id': 1, 'name': 'livingroom_corner', 'value': 255 },
            ]
         '''
         result = [] 
-        for i in range(td.getNumberOfServices()):
-           id = td.getServiceId(i)
+        for i in range(td.getNumberOfDevices()):
+           id = td.getDeviceId(i)
            result.append({
                'id':    id,
                'name':  td.getName(id),
@@ -128,16 +130,15 @@ class TellstickService(chains.service.Service):
     #   control them both from chains and external controllers.
     # - For dimmers, do it via Chains if you want correct state.
     #
-    def serviceEventCallback(self, serviceId, method, value, callbackId):
-        if self.ignoreRepeatedEvent(serviceId, method, value):
+    def deviceEventCallback(self, deviceId, method, value, callbackId):
+        if self.ignoreRepeatedEvent(deviceId, method, value):
             return
-        #log.info('ServiceCallback: %s : %s = %s' % (serviceId, method, value))
         if method == td.TELLSTICK_TURNON:
-            self.sendLampEvent(serviceId, self.maxLampValue)
+            self.sendLampEvent(deviceId, self.maxLampValue)
         elif method == td.TELLSTICK_TURNOFF:
-            self.sendLampEvent(serviceId, self.minLampValue)
+            self.sendLampEvent(deviceId, self.minLampValue)
         elif method == td.TELLSTICK_DIM:
-            self.sendLampEvent(serviceId, value)
+            self.sendLampEvent(deviceId, value)
 
     def sensorEventCallback(self, protocol, model, sensorId, dataType, value, timestamp, callbackId):
         if dataType == td.TELLSTICK_TEMPERATURE:
@@ -185,8 +186,8 @@ class TellstickService(chains.service.Service):
     # as to "make sure at least one arrive". So when we receive
     # a many of the same event within a short time, we want to
     # filter out just one of them.
-    def ignoreRepeatedEvent(self, serviceId, method, value):
-        key = '%s.%s.%s' % (serviceId, method, value)
+    def ignoreRepeatedEvent(self, deviceId, method, value):
+        key = '%s.%s.%s' % (deviceId, method, value)
         now = time.time()
         if self.repeatedEventLastTime.has_key(key):
             timeDiff = now - self.repeatedEventLastTime[key]
@@ -231,12 +232,12 @@ class TellstickService(chains.service.Service):
         td.init( defaultMethods = td.TELLSTICK_TURNON | td.TELLSTICK_TURNOFF | td.TELLSTICK_BELL | td.TELLSTICK_TOGGLE | td.TELLSTICK_DIM | td.TELLSTICK_LEARN )
         #td.debug = True
 
-        log.info('Registering service event handler')
-        self.serviceCallbackId = td.registerServiceEvent(self.serviceEventCallback)
+        log.info('Registering device event handler')
+        self.deviceCallbackId = td.registerDeviceEvent(self.deviceEventCallback)
 
         log.info('Registering sensor event handler')
         self.sensorCallbackId = td.registerSensorEvent(self.sensorEventCallback)
-        #td.registerRawServiceEvent(...) # if we want to support ALL recvd signals. noisy!
+        #td.registerRawDeviceEvent(...) # if we want to support ALL recvd signals. noisy!
 
         log.info('Initializing complete')
 
@@ -245,9 +246,9 @@ class TellstickService(chains.service.Service):
         log.info('Closing telldus')
 
         try:
-            td.unregisterCallback(self.serviceCallbackId)
+            td.unregisterCallback(self.deviceCallbackId)
         except:
-            log.warn('ignored error unregistering service callback')
+            log.warn('ignored error unregistering device callback')
 
         try:
             td.unregisterCallback(self.sensorCallbackId)

@@ -79,4 +79,9 @@ def main(id):
 
 
 if __name__ == '__main__':
-    main('master')
+    import sys
+    try:
+        id = sys.argv[1]
+    except AttributeError,e:
+        id = 'master'
+    main(id)
