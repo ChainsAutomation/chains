@@ -79,5 +79,4 @@ def main(id):
 
 
 if __name__ == '__main__':
-    host = utils.getHostName().split('.')[0]
-    main(host)
+    main('master')

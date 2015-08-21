@@ -25,7 +25,32 @@ class TimeoutException(Exception):
     pass
 
 class RemoteException(ChainsException):
-    pass
+
+    def __init__(self, *args, **kw):
+        ChainsException.__init__(self, *args, **kw)
+        self.response = {}
+
+    def setResponse(self, response):
+        self.response = response
+
+    def getResponse(self):
+        return self.response
+
+    def getRemoteTraces(self):
+        traces = []
+        resp = self.response
+        line = '='*60
+        while resp:
+            txt  = ''
+            txt += '%s\n' % line
+            txt += '%s\n' % resp.get('source')
+            txt += '%s\n' % line
+            #txt += resp.get('errorMessage').strip() + '\n'
+            txt += resp.get('errorDetails').strip() + '\n'
+            traces.append(txt)
+            resp = resp.get('remoteError')
+        traces.reverse()
+        return '\n'.join(traces)
 
 def getUuid():
     import uuid # this takes a little while, so don't do it before we need it
@@ -337,7 +362,13 @@ class Rpc(Channel):
             raise Exception("json decoding error: %s - for raw response: %s" % (e, self.response.body))
         tmp = self.response.routing_key.split('.')
         if tmp[0][1] == 'x': # todo: use constants
-            raise RemoteException(body)
+            if tmp[0][0] == 'o': d = 'orchestrator' # here too
+            elif tmp[0][0] == 's': d = 'service'
+            elif tmp[0][0] == 'r': d = 'reactor'
+            elif tmp[0][0] == 'm': d = 'manager'
+            e = RemoteException('Error in %s %s when calling %s' % (d,tmp[1],tmp[2]))
+            e.setResponse(body)
+            raise e
         log.debug('RPC-CALL: respone %s = %s' % (self.response.routing_key, body))
         return body
 
@@ -513,10 +544,16 @@ class AmqpDaemon:
 
     def sendActionError(self, key, data, correlationId=None):
         if isinstance(data, Exception):
-            data = {'error': True, 'errorMessage': utils.e2str(data)}
+            resp = {'errorMessage': data.message, 'errorDetails': utils.e2str(data), 'remoteError': None}
+            if isinstance(data, RemoteException):
+                resp['remoteError'] = data.getResponse()
+        else:
+            resp = data
+        resp['error'] = True
+        resp['source'] = '%s.%s.%s' % (self.type, self.id, key)
         topic = '%s.%s.%s' % (self.getActionErrorPrefix(), self.id, key)
-        log.debug('sendActionError: %s = %s' % (topic, data))
-        self.producer.put(topic, data, correlationId)
+        log.debug('sendActionError: %s = %s' % (topic, resp))
+        self.producer.put(topic, resp, correlationId)
 
     def sendShutdownAction(self):
         log.info('Put shutdown message to producer - start')

@@ -1,5 +1,4 @@
-from chains.common import amqp
-from chains.common import log
+from chains.common import amqp, utils, log
 from chains.commandline import commands, formatter, describe
 import chains.common.jsonlib as json
 from optparse import OptionParser
@@ -16,6 +15,8 @@ sections and their commands:
 options:
     --raw       Print output in raw mode (i.e. do not format putput)
     --json      Print output in json mode
+    -v          Show verbose output on error
+    -d          Also show debug log messages
     '''
 
 # Auto-generate help from comments in objects in commandline/commands/*
@@ -90,6 +91,8 @@ def parse(_req):
     parser = OptionParser()
     parser.add_option('-r', '--raw', action='store_true', dest='raw', help='Output raw data (do not format it)')
     parser.add_option('-j', '--json', action='store_true', dest='json', help='Output data as json')
+    parser.add_option('-v', '--verbose', action='store_true', dest='verbose', help='Be verbose (show error traces')
+    parser.add_option('-d', '--debug', action='store_true', dest='debug', help='Be very verbose (print log message for level debug and above)')
     (options, req) = parser.parse_args(_req)
     try:
         section = req[0]
@@ -127,7 +130,10 @@ def getCommandObject(section, command):
     return obj
 
 def main(req):
+    error = None
     opt = parse(req)
+    if opt.debug:
+        log.setLevel('debug')
     obj = getCommandObject(opt.section, opt.command)
     if not obj:
         print 'No such command: %s %s' % (opt.section,opt.command)
@@ -139,15 +145,37 @@ def main(req):
         elif opt.raw:
             fmt = formatter.load('generic')
         else:
-            fmt = formatter.load(obj.getFormatter()) 
+            fmt = formatter.load(obj.getFormatter())
         if not opt.json:
             print ''
         result = fmt.main(result)
         if result: print result
         if not opt.json:
             print ''
+    except amqp.RemoteException, e:
+        error = e.message + '\n\n'
+        if opt.verbose or opt.debug:
+            line  = '='*60
+            error += e.getRemoteTraces()
+            error += '\n'
+            error += '%s\n' % line
+            error += 'chains-admin %s %s\n' % (opt.section, opt.command)
+            error += '%s\n' % line
+            error += utils.e2str(e)
+        else:
+            error += 'Add -v to see error trace\n'
+    except Exception, e:
+        error = e.message + '\n'
+        if opt.verbose or opt.debug:
+            error += '\n' + utils.e2str(e)
+        else:
+            error += 'Add -v to see error trace\n'
     finally:
         obj.close()
+
+    if error:
+        print ''
+        print 'ERROR: %s' % error
 
 def shell():
     chainsCmd = ChainsCmd()
@@ -188,8 +216,7 @@ class ChainsCmd(cmd.Cmd):
                     print ''
 
 if __name__ == '__main__':
-    log.level = 'warn'
-    #log.level = 'debug'
+    log.setLevel('warn')
     import sys
     if len(sys.argv) == 2 and sys.argv[1] == 'shell':
         shell()

@@ -428,7 +428,8 @@ class Orchestrator(amqp.AmqpDaemon):
 
     def startService(self, managerId, serviceId):
         config = self.data['service'][serviceId]
-        self.sendManagerAction(managerId, 'startService', [config])
+        #self.sendManagerAction(managerId, 'startService', [config])
+        return self.callManagerAction(managerId, 'startService', [config])
 
     '''
     def action_enableService(self, serviceId):
@@ -449,6 +450,11 @@ class Orchestrator(amqp.AmqpDaemon):
         return uuid.uuid4().hex
 
     def parseServiceParam(self, value):
+        service, manager = self._parseServiceParam(value)
+        log.debug('Parsed service id: %s => %s @ %s' % (value, service, manager))
+        return service, manager
+
+    def _parseServiceParam(self, value):
 
         # serviceId
         serviceConfig = self.data['service'].get(value)
