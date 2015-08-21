@@ -17,7 +17,7 @@ class PushoverService(Service):
         self.pushurl = 'https://api.pushover.net/1/messages.json'
 
         self.message = self.config.get('message') or "Chains calling!"
-        self.targetservice = self.config.get('targetservice')
+        self.targetdevice = self.config.get('targetdevice')
         self.title = self.config.get('title')
         self.url = self.config.get('url')
         self.urltitle = self.config.get('urltitle')
@@ -35,7 +35,7 @@ class PushoverService(Service):
         '''
         Send a message using pushover.net
         @param  message     string   Text message you want to send
-        @param  targetservice     string   Service to send to (optional)
+        @param  targetdevice     string   Device to send to (optional)
         @param  title     string   Title of the message (optional)
         @param  url     string   URL to attach to the message (optional)
         @param  urltitle     string   Title of the URL (optional)
@@ -44,13 +44,13 @@ class PushoverService(Service):
 
         '''
 
-        res = self._send_push(message, targetservice, title, url, urltitle, priority, sound)
+        res = self._send_push(message, targetdevice, title, url, urltitle, priority, sound)
         if res:
             return True
         else:
             return False
 
-    def _send_push(self, message, targetservice, title, url, urltitle, priority, sound):
+    def _send_push(self, message, targetdevice, title, url, urltitle, priority, sound):
         ''' Internal function for sending push message'''
 
         data = {'token': self.token, 'user': self.username}
@@ -58,11 +58,11 @@ class PushoverService(Service):
             data.update({'message': message})
         else:
             data.update({'message': self.message})
-        if targetservice:
-            data.update({'service': targetservice})
+        if targetdevice:
+            data.update({'device': targetdevice})
         else:
-            if self.targetservice:
-                data.update({'service': self.targetservice})
+            if self.targetdevice:
+                data.update({'device': self.targetdevice})
         if title:
             data.update({'title': title})
         else:

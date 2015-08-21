@@ -65,7 +65,7 @@ class LgTvService(Service):
         self.last     = {}
         self.channel  = self.config.get('channel')
         self.serial   = serial.Serial(
-            self.config.get('serial.service'),
+            self.config.get('serial.device'),
             self.config.get('serial.bps'),
             timeout=self.config.getInt('serial.timeout')
         )
