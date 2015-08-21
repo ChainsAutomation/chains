@@ -420,11 +420,11 @@ class Orchestrator(amqp.AmqpDaemon):
     def action_startService(self, service):
         #self.reloadServiceConfigs()
         serviceId, managerId = self.parseServiceParam(service)
-        self.startService(managerId, serviceId)
+        return self.startService(managerId, serviceId)
 
     def action_stopService(self, service):
         serviceId, managerId = self.parseServiceParam(service)
-        self.sendManagerAction(managerId, 'stopService', [serviceId])
+        return self.callManagerAction(managerId, 'stopService', [serviceId])
 
     def startService(self, managerId, serviceId):
         config = self.data['service'][serviceId]

@@ -42,7 +42,9 @@ def start(serviceConfig):
     #proc = subprocess.Popen(command)
     processes[serviceId] = subprocess.Popen(command, close_fds=True)
     setPid(serviceId, processes[serviceId].pid)
-    log.info("Started service %s on pid %s" % (serviceId, pid))
+    log.info("Started service %s on pid %s" % (serviceId, processes[serviceId].pid))
+
+    return processes[serviceId].pid
 
 def stop(serviceId):
 
@@ -50,7 +52,7 @@ def stop(serviceId):
     pid = isRunning(serviceId)
     if not pid:
         log.info('Ignore stop service %s since not running' % serviceId)
-        return
+        return False
 
     # Two cases here:
     #
@@ -81,10 +83,10 @@ def stop(serviceId):
     for i in range(1,30):
         if proc:
             if proc.poll() != None:
-                return
+                return True
         else:
             if not isRunning(serviceId):
-                return
+                return True
         time.sleep(0.5)
 
     log.info('Kill service %s since still not stopped' % serviceId)
@@ -92,7 +94,9 @@ def stop(serviceId):
         proc.kill()
     else:
         os.kill(pid, signal.SIGKILL)
-    
+
+    return True
+
 def isRunning(serviceId):
 
     # Check pidfile

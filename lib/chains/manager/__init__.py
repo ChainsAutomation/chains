@@ -32,11 +32,11 @@ class Manager(AmqpDaemon):
 
     def action_startService(self, serviceConfig):
         """ Start a new service thread on this host """
-        serviceProcess.start(serviceConfig)
+        return serviceProcess.start(serviceConfig)
 
     def action_stopService(self, serviceId):
         """ Stop a running service thread on this host """
-        serviceProcess.stop(serviceId)
+        return serviceProcess.stop(serviceId)
 
     '''
     def action_enableService(self, serviceId):
