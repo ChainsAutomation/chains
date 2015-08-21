@@ -36,7 +36,6 @@ class Reactor(AmqpDaemon):
             topic = topic.split('.')
             try:
                 if self.state:
-                    log.info('state.set: %s' % topic)
                     self.state.set('.'.join(topic[1:]), data)
             except Exception, e:
                 log.error(utils.e2str(e))

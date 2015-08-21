@@ -10,7 +10,7 @@ def Action(service, action, params=None):
         log.info("Run Action: %s.%s( %s )" % (service, action, params))
         if not params:
             params = []
-        topic = 'da.%s.%s' % (service, action)
+        topic = '%s%s.%s.%s' % (amqp.PREFIX_SERVICE, amqp.PREFIX_ACTION, service, action)
         connection = amqp.Connection()
         rpc = connection.rpc(queuePrefix='reactor-action')
         result = rpc.call(topic, data=params)
