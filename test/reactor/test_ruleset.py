@@ -47,13 +47,13 @@ class TestRuleSet(unittest.TestCase):
             self.context
         )
 
-        ruleset.onEvent(Event(device='tellstick', key='switch-1'))
+        ruleset.onEvent(Event(service='tellstick', key='switch-1'))
         time.sleep(0.1)
 
-        ruleset.onEvent(Event(device='tellstick', key='switch-2'))
+        ruleset.onEvent(Event(service='tellstick', key='switch-2'))
         time.sleep(0.3)
 
-        ruleset.onEvent(Event(device='tellstick', key='switch-3'))
+        ruleset.onEvent(Event(service='tellstick', key='switch-3'))
         time.sleep(0.3)
 
         self.assertTrue( self.context.test.has_key('event-1.1-seen') )
@@ -73,25 +73,25 @@ class TestRuleSet(unittest.TestCase):
 
         # matches evt #1 in rule3 instance 1
         # ie. event-3.1-seen = 1
-        ruleset.onEvent(Event(device='tellstick', key='switch-1'))
+        ruleset.onEvent(Event(service='tellstick', key='switch-1'))
         time.sleep(0.1)
 
         # matches evt #1 in rule1 instance 1
         # and next evt (#2) in rule3 instance 1 - but it is busy so nothing happens
         # ie. event-1.1-seen = 1
-        ruleset.onEvent(Event(device='tellstick', key='switch-2'))
+        ruleset.onEvent(Event(service='tellstick', key='switch-2'))
         time.sleep(0.3)
 
         # matches evt #1 in rule3 instance 2
         # ie. event-3.1-seen = 2
-        ruleset.onEvent(Event(device='tellstick', key='switch-1'))
+        ruleset.onEvent(Event(service='tellstick', key='switch-1'))
         time.sleep(0.1)
 
         # matches evt #1 in rule1, which is done, so new is spawned
         # and matches next evt (#2) in rule3 instance 1 that is now done running actions
         # and matches next evt (#2) in rule3 instance 2 but it is busy
         # ie. event-1.1-seen = 2 and event-3.2-seen = 2
-        ruleset.onEvent(Event(device='tellstick', key='switch-2'))
+        ruleset.onEvent(Event(service='tellstick', key='switch-2'))
         time.sleep(0.3)
 
         self.assertEqual( self.context.test['event-1.1-seen'], 2 )

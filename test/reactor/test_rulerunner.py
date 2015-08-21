@@ -21,35 +21,35 @@ class TestRuleRunner(unittest.TestCase):
     def test_When_event_rule_waits_for_occurs_Rule_iterates_to_next_step(self):
         runner = RuleRunner('rule1', self.context, rule1, None)
         self.assertFalse( self.context.test.has_key('event-seen') )
-        runner.onEvent(Event(device='tellstick', key='switch-2'))
+        runner.onEvent(Event(service='tellstick', key='switch-2'))
         runner.wait()
         self.assertTrue( self.context.test.has_key('event-1.1-seen') )
 
     def test_When_event_rule_does_not_wait_for_occurs_Rule_does_not_iterate_to_next_step(self):
         runner = RuleRunner('rule1', self.context, rule1, None)
         self.assertFalse( self.context.test.has_key('event-seen') )
-        runner.onEvent(Event(device='tellstick', key='switch-3'))
+        runner.onEvent(Event(service='tellstick', key='switch-3'))
         runner.wait()
         self.assertFalse( self.context.test.has_key('event-1.1-seen') )
 
     def test_When_rule_has_no_more_events_It_is_complete(self):
         runner = RuleRunner('rule1', self.context, rule1, None)
         self.assertFalse(runner.isComplete)
-        runner.onEvent(Event(device='tellstick', key='switch-2'))
+        runner.onEvent(Event(service='tellstick', key='switch-2'))
         runner.wait()
         self.assertTrue(runner.isComplete)
 
     def test_When_rule_has_more_events_It_is_not_complete(self):
         runner = RuleRunner('rule1', self.context, rule1, None)
         self.assertFalse(runner.isComplete)
-        runner.onEvent(Event(device='tellstick', key='switch-3'))
+        runner.onEvent(Event(service='tellstick', key='switch-3'))
         runner.wait()
         self.assertFalse(runner.isComplete)
 
     def test_When_event_is_matched_The_yield_returns_the_event(self):
         runner = RuleRunner('rule4', self.context, rule4, None)
         self.assertFalse( self.context.test.has_key('matched-event') )
-        runner.onEvent(Event(device='tellstick', key='switch-1', data={'value':'xyz', 'other': 'foo'}))
+        runner.onEvent(Event(service='tellstick', key='switch-1', data={'value':'xyz', 'other': 'foo'}))
         runner.wait()
         self.assertTrue( self.context.test.has_key('matched-event') )
         self.assertEqual( self.context.test['matched-event'].key,           'switch-1' )
@@ -70,34 +70,34 @@ class TestRuleRunner(unittest.TestCase):
         self.assertFalse( self.context.test.has_key('event-2.3-seen') )
 
         # When event that is not in rule occurs, nothing happens
-        runner.onEvent(Event(device='tellstick', key='foo'))
+        runner.onEvent(Event(service='tellstick', key='foo'))
         runner.wait()
         self.assertFalse( self.context.test.has_key('event-2.1-seen') )
         self.assertFalse( self.context.test.has_key('event-2.2-seen') )
         self.assertFalse( self.context.test.has_key('event-2.3-seen') )
 
         # When event occurs that matches first event in rule, it iterates to next step
-        runner.onEvent(Event(device='tellstick', key='switch-1'))
+        runner.onEvent(Event(service='tellstick', key='switch-1'))
         runner.wait()
         self.assertTrue( self.context.test.has_key('event-2.1-seen') )
         self.assertFalse( self.context.test.has_key('event-2.2-seen') )
         self.assertFalse( self.context.test.has_key('event-2.3-seen') )
 
         # When another event that is not in rule occurs, nothing happens
-        runner.onEvent(Event(device='tellstick', key='foo'))
+        runner.onEvent(Event(service='tellstick', key='foo'))
         runner.wait()
         self.assertTrue( self.context.test.has_key('event-2.1-seen') )
         self.assertFalse( self.context.test.has_key('event-2.2-seen') )
         self.assertFalse( self.context.test.has_key('event-2.3-seen') )
 
         # When event occurs that matches second event in rule, it iterates another step
-        runner.onEvent(Event(device='tellstick', key='switch-2'))
+        runner.onEvent(Event(service='tellstick', key='switch-2'))
         runner.wait()
         self.assertTrue( self.context.test.has_key('event-2.2-seen') )
         self.assertFalse( self.context.test.has_key('event-2.3-seen') )
 
         # When event occurs that matches third event in rule, it iterates another step
-        runner.onEvent(Event(device='tellstick', key='switch-3'))
+        runner.onEvent(Event(service='tellstick', key='switch-3'))
         runner.wait()
         self.assertTrue( self.context.test.has_key('event-2.3-seen') )
 
@@ -109,13 +109,13 @@ class TestRuleRunner(unittest.TestCase):
         self.context.state.set('timer.hour.data.value', 15)
         runner = RuleRunner('rule2', self.context, rule2, None)
 
-        runner.onEvent(Event(device='tellstick', key='switch-1'))
+        runner.onEvent(Event(service='tellstick', key='switch-1'))
         runner.wait()
 
-        runner.onEvent(Event(device='tellstick', key='switch-2'))
+        runner.onEvent(Event(service='tellstick', key='switch-2'))
         runner.wait()
 
-        runner.onEvent(Event(device='tellstick', key='switch-3'))
+        runner.onEvent(Event(service='tellstick', key='switch-3'))
         runner.wait()
 
         self.assertTrue( self.context.test.has_key('event-2.1-seen') )
@@ -129,15 +129,15 @@ class TestRuleRunner(unittest.TestCase):
 
         self.assertFalse( self.context.test.has_key('complete') )
 
-        runner.onEvent(Event(device='tellstick', key='switch-1'))
+        runner.onEvent(Event(service='tellstick', key='switch-1'))
         runner.wait()
 
-        runner.onEvent(Event(device='tellstick', key='switch-2'))
+        runner.onEvent(Event(service='tellstick', key='switch-2'))
         runner.wait()
 
         self.assertFalse( self.context.test.has_key('complete') )
 
-        runner.onEvent(Event(device='tellstick', key='switch-3'))
+        runner.onEvent(Event(service='tellstick', key='switch-3'))
         runner.wait()
 
         self.assertTrue( self.context.test.has_key('complete') )
@@ -149,12 +149,12 @@ class TestRuleRunner(unittest.TestCase):
 
         self.assertFalse( self.context.test.has_key('complete') )
 
-        runner.onEvent(Event(device='tellstick', key='switch-1'))
+        runner.onEvent(Event(service='tellstick', key='switch-1'))
         runner.wait()
 
         self.assertFalse( self.context.test.has_key('complete') )
 
-        runner.onEvent(Event(device='tellstick', key='switch-2'))
+        runner.onEvent(Event(service='tellstick', key='switch-2'))
         runner.wait()
 
         self.assertTrue( self.context.test.has_key('complete') )
@@ -164,11 +164,11 @@ class TestRuleRunner(unittest.TestCase):
         runner = RuleRunner('rule3', self.context, rule3, None)
 
         # At this point, rule is waiting for events, so this event is processed
-        runner.onEvent(Event(device='tellstick', key='switch-1'))
+        runner.onEvent(Event(service='tellstick', key='switch-1'))
 
         # At this point, "action" from step 1 is running, and it takes 0.3 sec
         # so the event we send now should be ignored since rule is busy running action
-        runner.onEvent(Event(device='tellstick', key='switch-2'))
+        runner.onEvent(Event(service='tellstick', key='switch-2'))
 
         # Wait for action (step 1) to complete
         runner.wait()
@@ -179,7 +179,7 @@ class TestRuleRunner(unittest.TestCase):
 
         # At this point rule is waiting for events again, so if we send
         # event 2 again now, it should be processed
-        runner.onEvent(Event(device='tellstick', key='switch-2'))
+        runner.onEvent(Event(service='tellstick', key='switch-2'))
         runner.wait()
 
         self.assertTrue( self.context.test.has_key('event-3.1-seen') )
