@@ -3,9 +3,6 @@
 [![GitHub stars](https://img.shields.io/github/stars/ChainsAutomation/chains.svg)]()
 [![IRC](https://img.shields.io/badge/freenode-%23chains-blue.svg)](http://webchat.freenode.net/?channels=chains)
 
-#NOTE
-We're currently renaming Devices to Services, which will cause problems building at the moment, check back in a few days.
-
 #Chains
 
 Chains is a home automation system.
