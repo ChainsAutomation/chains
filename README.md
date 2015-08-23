@@ -18,7 +18,7 @@ While most home automation software focuses on supporting a single piece of hard
 * Linux on Raspberry Pi and Raspberry Pi 2
 * Linux on x86 (32/64bit)
 
-##Supported devices (sensors, relays etc)
+##Supported services (sensors, relays etc)
 * Phidgets
 * Philips Hue
 * rrd (graphing)
@@ -53,11 +53,11 @@ While most home automation software focuses on supporting a single piece of hard
 #Installation
 
 We will eventually provide docker images from the docker registry, but for now dockerfiles can be created by bin/dockerfile-assemble.py and built on your own system.
-Docker is a good match for our project since we need a host of different libraries and services running to support the different devices. Providing instructions for all distributions and testing these configurations would be too time consuming. The whole process, however, is described in the generated dockerfile. Feel free to install it locally.
+Docker is a good match for our project since we need a host of different libraries and daemons running to support the different services. Providing instructions for all distributions and testing these configurations would be too time consuming. The whole process, however, is described in the generated dockerfile. Feel free to install it locally.
 ####Docker build/install for chains master node
 ```sh
 # Create config and data dir:
-sudo sh -c "mkdir -p /etc/chains/devices && mkdir -p /srv/chains/data"
+sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains/data"
 
 # Create chains master image:
 bin/dockerfile-assemble.py master
@@ -70,7 +70,7 @@ sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/ch
 ####Docker build/install for chains slave node (only if you already have a master node running on different computer)
 ```sh
 # Create config and data dir:
-sudo sh -c "mkdir -p /etc/chains/devices && mkdir -p /srv/chains/data"
+sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains/data"
 
 # Create chains slave image:
 bin/dockerfile-assemble.py slave
@@ -81,19 +81,19 @@ sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/ch
 
 # Chains intro
 
-##What are nodes(master/slave), devices and services?
+##What are nodes(master/slave), services and devices?
 
 In the Chains documentation we often refer to nodes, devices and services, these are explained below.
 
 ###Node
 Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using RabbitMQ. If you run chains on only one machine you must run the "master" node, this is the hub of the chains system and takes cares of `rules` described below. Slave nodes are installed on additional computers that you may add to the chains network.
 
-###Device
-A `device` is a program that controls something in chains, usually a piece of hardware like a ligh controller or internet service like pushover.net.
-Example devices: PhilipsHue, onewire, timer, pushover.
+###service
+A `service` is a program that controls something in chains, usually a piece of hardware like a ligh controller or internet service like pushover.net.
+Example services: PhilipsHue, onewire, timer, pushover.
 
-###Service
-A service is a specific piece of functionality exposed on a `device`. A single device may be able to do several `actions` and report several `events`. We call these "sub-devices" services. E.g. "the bluetooth device exposes an Obex service"
+###Device
+A device is a specific piece of functionality exposed on a `service`. A single device may be able to do several `actions` and report several `events`. We call these "sub-devices" services. E.g. "the bluetooth device exposes an Obex service"
 
 ##What are events, actions and rules?
 
