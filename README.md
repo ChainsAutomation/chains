@@ -81,7 +81,7 @@ sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/ch
 
 # Chains intro
 
-##What are nodes(master/slave), services and devices?
+##What are nodes(master/slave), services, devices and properties?
 
 In the Chains documentation we often refer to nodes, devices and services, these are explained below.
 
@@ -93,7 +93,10 @@ A `service` is a program that controls something in chains, usually a piece of h
 Example services: PhilipsHue, onewire, timer, pushover.
 
 ###Device
-A device is a specific piece of functionality exposed on a `service`. A single device may be able to do several `actions` and report several `events`. We call these "sub-devices" services. E.g. "the bluetooth device exposes an Obex service"
+Devices are how functionality is divided into units in a `service`. In a service that control light switches, each light switch eould typically be a `device`. A device may be able to do several `actions` and report several `events`.
+
+###Property
+Properties are information made available from a `device`. A property can also be the target of an `action`, if the property something that can be change. An example of this would be the "power" property on a light switch `device`, that might between "on" and "off".
 
 ##What are events, actions and rules?
 
