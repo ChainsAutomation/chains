@@ -100,15 +100,15 @@ Properties are information made available from a `device`. A property can also b
 
 ##What are events, actions and rules?
 
-While nodes, devices and services deal with the software controlling hardware sensors and such; events, actions and rules are what makes it possible for the former to connect and cooperate.
+While nodes, services and devices deal with the software controlling hardware sensors and such; events, actions and rules are what makes it possible for the former to connect and cooperate.
 
 ###Event
-A `device` will often report changes or things that happen to the system. This is called an `event`.
+A `devices` will often report changes or things that happen to the system. This is called an `event`.
 A remote control device would send an event when a button is pressed, a temperature sensor device would send an event containing the current temperature and so on.
 
 ###Action
 Some devices are able to do things as well as report `events` these are called actions.
-A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light control device could have actions like LightOn, LightOff and AllOff.
+A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light switch device could have actions like LightOn, LightOff and AllOff.
 
 ###Rule
 A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic. 
