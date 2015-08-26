@@ -111,12 +111,13 @@ Some devices are able to do things as well as report `events` these are called a
 A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light switch device could have actions like LightOn, LightOff and AllOff.
 
 ###Rule
-A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic. 
+A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic.
 
-The simplest rules can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available.
+The simplest `rules` can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available.
 
-####Example
+####Example if written by hand
 ```python
+# TODO: change to match new service/device naming
 def rule(context):
    # wait for 'switch-2' event sent from 'mydevice'
    yield Event(device='mydevice', key='switch-2')
@@ -139,7 +140,7 @@ import chains.device
 class MynewDevice(chains.device.Device):
   def onInit(self):
     code which runs at device startup
-  
+
   def action_something(self, myparam):
     """
     Do something
