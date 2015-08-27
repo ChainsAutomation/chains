@@ -2,10 +2,11 @@ import types
 
 class Event:
 
-    def __init__(self, service='*', key='*', data='*'):
+    def __init__(self, service='*', device='*', key='*', data='*'):
         self.service = service
-        self.key    = key
-        self.data   = data
+        self.device  = device
+        self.key     = key
+        self.data    = data
 
     # Check if this event is matched by "event" passed to this function
     # 
