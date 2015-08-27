@@ -8,8 +8,8 @@
 Chains is a home automation system.
 
 The main goals of the Chains project are:
-* Support as many different devices as possible
-* Easy device development
+* Support as many different services as possible
+* Easy service development
 * Easy installation
 
 While most home automation software focuses on supporting a single piece of hardware, we aim to support them all and make them work together.
@@ -89,11 +89,11 @@ In the Chains documentation we often refer to nodes, devices and services, these
 Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using RabbitMQ. If you run chains on only one machine you must run the "master" node, this is the hub of the chains system and takes cares of `rules` described below. Slave nodes are installed on additional computers that you may add to the chains network.
 
 ###service
-A `service` is a program that controls something in chains, usually a piece of hardware like a ligh controller or internet service like pushover.net.
+A `service` is a program that controls something in chains, usually a piece of hardware like a light controller or internet service like pushover.net.
 Example services: PhilipsHue, onewire, timer, pushover.
 
 ###Device
-Devices are how functionality is divided into units in a `service`. In a service that control light switches, each light switch eould typically be a `device`. A device may be able to do several `actions` and report several `events`.
+Devices are how functionality is divided into units in a `service`. In a service that control light switches, each light switch would typically be a `device`. A device may be able to do several `actions` and report several `events`.
 
 ###Property
 Properties are information made available from a `device`. A property can also be the target of an `action`, if the property something that can be change. An example of this would be the "power" property on a light switch `device`, that might between "on" and "off".
