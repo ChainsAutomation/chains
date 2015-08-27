@@ -518,9 +518,12 @@ class AmqpDaemon:
     def sendOfflineEvent(self):
         self.sendHeartBeatEvent(HEARTBEAT_VALUE_OFFLINE)
 
-    def sendEvent(self, key, data):
+    # todo: got a little messy, clean it up 
+    def sendEvent(self, key, data, event=None):
         topic = '%s.%s.%s' % (self.getEventPrefix(), self.id, key)
-        event = {'data': data}
+        if not event:
+            event = {}
+        event['data'] = data
         # service/host + key is "smoer paa flesk" because they are
         # part of topic and can be extracted from it, but keep it
         # untill there is a good reason not to (f.ex. in case

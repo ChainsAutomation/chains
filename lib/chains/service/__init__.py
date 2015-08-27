@@ -203,6 +203,12 @@ class Service(AmqpDaemon):
     #def onDescribe(self):
     #   See AmqpDaemon.onDescribe()
 
+    def sendEvent(self, key, data, device=None):
+        if not device:
+            device = self.config.get('name')
+        AmqpDaemon.sendEvent(self, key, data, {'device': device})
+        
+
 if __name__ == '__main__':
     import sys, time
     if len(sys.argv) < 2:
