@@ -35,17 +35,17 @@ class Reactor(AmqpDaemon):
         try:
             try:
                 if self.state:
-                    key = '%s.%s.%s' % (data['service'], data['device'], data['key'])
+                    key = '%s.%s.%s' % (data.get('service'), data.get('device'), data.get('key'))
                     self.state.set(key, data['data'])
             except Exception, e:
                 log.error(utils.e2str(e))
             try:
                 if self.ruleset:
                     self.ruleset.onEvent(Event(
-                        service = data['service'],
-                        device  = data['device'],
-                        key     = data['key'],
-                        data    = data['data']
+                        service = data.get('service'),
+                        device  = data.get('device'),
+                        key     = data.get('key'),
+                        data    = data.get('data')
                     ))
             except Exception, e:
                 log.error(utils.e2str(e))
