@@ -12,8 +12,8 @@ class Reactor(AmqpDaemon):
 
         log.info('Starting reactor')
 
-	self.ruleset = None
-	self.state   = None
+        self.ruleset = None
+        self.state   = None
 
         AmqpDaemon.__init__(self, 'reactor', id)
 
@@ -33,10 +33,10 @@ class Reactor(AmqpDaemon):
 
     def onMessage(self, topic, data, correlationId):
         try:
-            topic = topic.split('.')
             try:
                 if self.state:
-                    self.state.set('.'.join(topic[1:]), data)
+                    key = '%s.%s.%s' % (data['service'], data['device'], data['key'])
+                    self.state.set(key, data['data'])
             except Exception, e:
                 log.error(utils.e2str(e))
             try:
