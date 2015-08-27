@@ -43,8 +43,9 @@ class Reactor(AmqpDaemon):
                 if self.ruleset:
                     self.ruleset.onEvent(Event(
                         service = data['service'],
-                        key    = data['key'],
-                        data   = data['data']
+                        device  = data['device'],
+                        key     = data['key'],
+                        data    = data['data']
                     ))
             except Exception, e:
                 log.error(utils.e2str(e))
