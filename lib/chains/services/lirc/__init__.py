@@ -28,9 +28,10 @@ class LircService(Service):
                     if i:
                         raw, repeat, cmd, remote = i.split(' ')
                         self.sendEvent({
-                            'key': remote,
-                            'value': cmd,
-                            'extra': {'raw': raw, 'repeat': repeat}
+                            'device': remote,
+                            'key': cmd,
+                            'value': repeat,
+                            'extra': {'raw': raw}
                         })
             time.sleep(self.interval)
 
