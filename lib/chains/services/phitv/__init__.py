@@ -27,7 +27,7 @@ class PhiTVService(Service):
         while not self._shutdown:
             data_raw = self.ser.readline()  # Using readline for now since this doesn't need performance
             data = self._parse_data(data_raw)
-            self.sendEvent('phitv': data)
+            self.sendEvent('device': tv, 'phitv': data)
 
     def _parse_data(self, raw):
         # check data and return human readable data
