@@ -1,0 +1,23 @@
+{
+  "name": "chains-webgui",
+  "version": "0.0.1",
+  "homepage": "https://github.com/ChainsAutomation/chains",
+  "authors": [
+    "Stian Strandem <stian@eonbit.com>"
+  ],
+  "description": "Chains WebGUI",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-sass-official": "~3.3.5",
+    "bootstrap-sass": "bootstrap-sass-official#~3.3.5",
+    "font-awesome": "fontawesome#~4.4.0",
+    "fontawesome": "~4.4.0"
+  }
+}
