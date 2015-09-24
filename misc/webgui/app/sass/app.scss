@@ -5,9 +5,11 @@ body {
   padding-top: 55px;
 }
 
-.service-online {
-    color: green;
-}
-.service-offline {
-    color: red;
+.daemon-list {
+    tr td.online {
+        color: red;
+    }
+    tr.is-online td.online {
+        color: green;
+    }
 }
