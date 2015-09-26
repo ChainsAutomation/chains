@@ -14,7 +14,7 @@
             </tr>
         </thead>
 
-        <tbody data-bind="foreach: services">
+        <tbody data-bind="foreach: services.data">
             <tr data-bind="css: { 'is-online': online }">
                 <td class="name" data-bind="text: name"></td>
                 <td class="class" data-bind="text: className"></td>

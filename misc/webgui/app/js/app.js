@@ -5,30 +5,58 @@ window.Chains.App = function() {
     var self = this;
 
     self.backend = new window.Chains.Backend();
-    self.views = {};
+
+    self.services = new window.Chains.Services(self);
+    self.managers = new window.Chains.Managers(self);
+    self.reactors = new window.Chains.Reactors(self);
+    self.state    = new window.Chains.State(self);
+
+    self.views          = {};
     self.views.services = new window.Chains.View.Services(self);
-    self.views.managers = new window.Chains.View.Managers(self);
+    self.views.system   = new window.Chains.View.System(self);
+    self.views.state    = new window.Chains.View.State(self);
 
     self.setView = function(view) {
         $('.view').hide();
         $('#view-' + view).show();
-        if (self.views[view])
+        if (self.views[view] && self.views[view].resume)
             self.views[view].resume();
     }
 
     // Init
 
-    self.setView('index');
+    self.routes = function() {
 
-    routie('/services', function(date) {
-        self.setView('services');
-    });
+        routie('/services', function(date) {
+            self.setView('services');
+        });
 
-    routie('/managers', function(date) {
-        self.setView('managers');
-    });
+        routie('/system', function(date) {
+            self.setView('system');
+        });
 
-    console.log('started');
+        routie('/state', function(date) {
+            self.setView('state');
+        });
+
+    }
+
+    self.init = function() {
+        ko.applyBindings(self);
+        self.routes();
+        self.setView('index');
+        self.services.load(function(){
+            self.managers.load(function(){
+                self.reactors.load(function(){
+                    self.state.load(function(){
+console.log('all done!');
+                    });
+                });
+            });
+        });
+    }
+
+    self.init();
 
 };
 
