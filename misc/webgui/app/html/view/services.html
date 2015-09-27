@@ -1,0 +1,29 @@
+<div id="view-services" class="view">
+
+    <h1>Services</h1>
+
+    <table class="table daemon-list">
+
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Class</th>
+                <th>Manager</th>
+                <th>Autostart</th>
+                <th>Online</th>
+            </tr>
+        </thead>
+
+        <tbody data-bind="foreach: services.data">
+            <tr data-bind="css: { 'is-online': online }">
+                <td class="name" data-bind="text: name"></td>
+                <td class="class" data-bind="text: className"></td>
+                <td class="manager" data-bind="text: manager"></td>
+                <td class="autostart" data-bind="text: autostart"></td>
+                <td class="online" data-bind="text: online"></td>
+            </tr>
+        </tbody>
+
+    </table>
+
+</div>

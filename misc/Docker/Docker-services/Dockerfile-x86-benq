@@ -1,0 +1,2 @@
+FROM chains-x86-base
+RUN pip install pyserial

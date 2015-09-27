@@ -417,11 +417,13 @@ class AmqpDaemon:
                 log.error('Successfully reconnected (after %s retries) - back to work!' % (retry))
                 return
             except socket.error, e2:
-                pass
+                log.info('Ignoring expected exception on reconnect and will soon try again: %s' % e2)
             except amqplib.client_0_8.exceptions.AMQPConnectionException, e2:
-                pass
+                log.info('Ignoring expected exception on reconnect and will soon try again: %s' % e2)
             except ConnectionNotReadyException, e2:
-                pass
+                log.info('Ignoring expected exception on reconnect and will soon try again: %s' % e2)
+            except Exception, e2:
+                log.warn('Ignoring unexpected exception on reconnect and will soon try again: %s' % e2)
 
     def listen(self):
         log.info('Start listening for messages, topics = %s' % self.getConsumeKeys())

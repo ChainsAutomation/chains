@@ -45,21 +45,24 @@ class TimeoutThread(threading.Thread):
                     item['offlineTimer'] = time.time()
 
                 if item['main'].get('autostart'):
-                    timeSinceOffline = time.time() - item['offlineTimer']
-                    if timeSinceOffline > self.orchestrator.startInterval:
-                        self.orchestrator.data[type][id]['offlineTimer'] = time.time()
-                        try:
-                            #self.orchestrator.action_startService(id)
-                            serviceId, managerId = self.orchestrator.parseServiceParam(id)
-                            if self.orchestrator.isOnline('manager', managerId):
-                                log.info('Auto-start service %s after %s secs offline' % (id, timeSinceOffline))
-                                self.orchestrator.startService(managerId, serviceId)
-                            else:
-                                log.debug('Do not auto-start service %s since manager %s is offline' % (id,managerId))
-                        except Exception, e:
-                            log.error('Error trying to autostart service %s: %s' % (id,e))
+                    if item.get('manuallyStopped'):
+                        log.debug('Do not auto-start service %s since manually stopped' % id)
                     else:
-                        log.debug('Do not auto-start service %s since %s secs offline is less than startinterval %s' % (id,timeSinceOffline,self.orchestrator.startInterval))
+                        timeSinceOffline = time.time() - item['offlineTimer']
+                        if timeSinceOffline > self.orchestrator.startInterval:
+                            self.orchestrator.data[type][id]['offlineTimer'] = time.time()
+                            try:
+                                #self.orchestrator.action_startService(id)
+                                serviceId, managerId = self.orchestrator.parseServiceParam(id)
+                                if self.orchestrator.isOnline('manager', managerId):
+                                    log.info('Auto-start service %s @ %s after %s secs offline' % (serviceId, managerId, timeSinceOffline))
+                                    self.orchestrator.startService(managerId, serviceId)
+                                else:
+                                    log.debug('Do not auto-start service %s since manager %s is offline' % (id,managerId))
+                            except Exception, e:
+                                log.error('Error trying to autostart service %s: %s' % (id,e))
+                        else:
+                            log.debug('Do not auto-start service %s since %s secs offline is less than startinterval %s' % (id,timeSinceOffline,self.orchestrator.startInterval))
                 else:
                     log.debug('Do not auto-start service %s since autostart not set in config' % (id,))
 
@@ -425,11 +428,13 @@ class Orchestrator(amqp.AmqpDaemon):
     def action_stopService(self, service):
         serviceId, managerId = self.parseServiceParam(service)
         #return self.callManagerAction(managerId, 'stopService', [serviceId])
+        self.data['service'][serviceId]['manuallyStopped'] = True
         self.sendManagerAction(managerId, 'stopService', [serviceId])
 
     def startService(self, managerId, serviceId):
         config = self.data['service'][serviceId]
         #self.sendManagerAction(managerId, 'startService', [config])
+        self.data['service'][serviceId]['manuallyStopped'] = False
         self.sendManagerAction(managerId, 'startService', [config])
 
     '''

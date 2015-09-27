@@ -1,0 +1,28 @@
+<div id="view-state" class="view">
+
+    <h1>State</h1>
+
+    <div data-bind="foreach: views.state.data">
+
+        <div class="service-container">
+
+            <div class="service" data-bind="text: $root.services.getName(serviceId)"></div>
+
+            <div data-bind="foreach: devices">
+
+                <div class="device" data-bind="text: device"></div>
+
+                <div data-bind="foreach: data">
+
+                    <div class="key" data-bind="text: key"></div>
+
+                    <div class="data" data-bind="text: ko.toJSON(data)"></div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>

@@ -20,4 +20,4 @@ class ProximitynetService(chains.service.Service):
                 # return pkt.psrc
             if pkt[ARP].op == 2:  # is-at (response)
                 log.info("ARP Response: " + pkt[ARP].hwsrc + " has address " + pkt[ARP].psrc)
-                self.sendEvent(pkt[ARP].hwsrc, {'address': pkt[ARP].psrc, 'type': 'arp_response'})
+                self.sendEvent(pkt[ARP].hwsrc, {'device': 'ARP', 'address': pkt[ARP].psrc, 'type': 'arp_response'})

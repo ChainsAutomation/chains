@@ -1,0 +1,2 @@
+FROM chains-x86-base
+# TODO: add alsa dependencies

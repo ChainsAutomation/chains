@@ -28,7 +28,7 @@ class BenqService(Service):
         while not self._shutdown:
             line = self.ser.readline()
             if line:
-                self.sendEvent(line, {'value': line})
+                self.sendEvent(line, {'device': 'projector', 'value': line})
             # TODO: sleep probably not needed?
             time.sleep(0.1)
 

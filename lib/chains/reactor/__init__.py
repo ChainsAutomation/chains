@@ -35,7 +35,10 @@ class Reactor(AmqpDaemon):
         try:
             try:
                 if self.state:
-                    key = '%s.%s.%s' % (data.get('service'), data.get('device'), data.get('key'))
+                    dev = data.get('device')
+                    if not dev:
+                        dev = '_service'
+                    key = '%s.%s.%s' % (data.get('service'), dev, data.get('key'))
                     self.state.set(key, data['data'])
             except Exception, e:
                 log.error(utils.e2str(e))

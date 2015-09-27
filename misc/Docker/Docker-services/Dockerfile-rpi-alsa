@@ -1,0 +1,2 @@
+FROM chains-rpi-base
+# TODO: add alsa dependencies

@@ -1,0 +1,43 @@
+<div id="view-system" class="view">
+
+    <h1>Managers</h1>
+
+    <table class="table daemon-list">
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Online</th>
+            </tr>
+        </thead>
+
+        <tbody data-bind="foreach: managers.data">
+            <tr data-bind="css: { 'is-online': online }">
+                <td class="id" data-bind="text: id"></td>
+                <td class="online" data-bind="text: online"></td>
+            </tr>
+        </tbody>
+
+    </table>
+
+    <h1>Rectors</h1>
+
+    <table class="table daemon-list">
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Online</th>
+            </tr>
+        </thead>
+
+        <tbody data-bind="foreach: reactors.data">
+            <tr data-bind="css: { 'is-online': online }">
+                <td class="id" data-bind="text: id"></td>
+                <td class="online" data-bind="text: online"></td>
+            </tr>
+        </tbody>
+
+    </table>
+
+</div>
