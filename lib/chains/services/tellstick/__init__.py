@@ -21,6 +21,9 @@ class TellstickService(chains.service.Service):
         self.openTelldus()
         log.info('Opened telldus')
 
+        self.devices = self.parseDeviceConfig()
+
+
     def onShutdown(self):
         self.closeTelldus()
 
@@ -30,21 +33,28 @@ class TellstickService(chains.service.Service):
         @param  id     int   ID of device in tellstick.conf
         @param  level  int   Light level (0-255)
         '''
-        td.dim(self.parseId(id), self.parseLevel(level))
+        id = self.parseId(id)
+        level = self.parseLevel(level)
+        td.dim(id, level)
+        self.sendDeviceEvent(id, level)
 
     def action_on(self, id):
         '''
         Turn a lamp on
         @param  id     int   ID of device in tellstick.conf
         '''
-        td.turnOn(self.parseId(id))
+        id = self.parseId(id)
+        td.turnOn(id)
+        self.sendDeviceEvent(id, self.maxLampValue)
         
     def action_off(self, id):
         '''
         Turn a lamp off
         @param  id     int   ID of device in tellstick.conf
         '''
-        td.turnOff(self.parseId(id))
+        id = self.parseId(id)
+        td.turnOff(id)
+        self.sendDeviceEvent(id, self.minLampValue)
 
     # Skip these, at least until someone requests them, since
     # we want to avoid this kind of uncontrolled dimming
@@ -134,11 +144,11 @@ class TellstickService(chains.service.Service):
         if self.ignoreRepeatedEvent(deviceId, method, value):
             return
         if method == td.TELLSTICK_TURNON:
-            self.sendLampEvent(deviceId, self.maxLampValue)
+            self.sendDeviceEvent(deviceId, self.maxLampValue)
         elif method == td.TELLSTICK_TURNOFF:
-            self.sendLampEvent(deviceId, self.minLampValue)
+            self.sendDeviceEvent(deviceId, self.minLampValue)
         elif method == td.TELLSTICK_DIM:
-            self.sendLampEvent(deviceId, value)
+            self.sendDeviceEvent(deviceId, value)
 
     def sensorEventCallback(self, protocol, model, sensorId, dataType, value, timestamp, callbackId):
         if dataType == td.TELLSTICK_TEMPERATURE:
@@ -159,16 +169,6 @@ class TellstickService(chains.service.Service):
             'model':    model,
             'time':     timestamp
         })
-
-    def sendSensorEvent(self, sensor):
-        id = sensor['id']
-        del sensor['id']
-        self.sendEventWrapper('sensor-%s' % id, sensor)
-
-    def sendLampEvent(self, id, value):
-        key = 'lamp-%s' % id
-        self.states[key] = value
-        self.sendEventWrapper(key, { 'value': value })
 
     def parseId(self, id):
         return int(id)
@@ -196,34 +196,37 @@ class TellstickService(chains.service.Service):
         self.repeatedEventLastTime[key] = now
 
 
+    def sendSensorEvent(self, sensor):
+        id = sensor['id']
+        del sensor['id']
+        self.sendEventWrapper('sensor', id, sensor)
 
-    # Alias and suppress support - todo: make service-global?
+    def sendDeviceEvent(self, id, value):
+        key = 'device-%s' % id
+        self.states[key] = value
+        self.sendEventWrapper('device', id, { 'value': value })
 
-    def sendEventWrapper(self, key, event):
+    def sendEventWrapper(self, type, id, event):
 
-        if self.shouldSuppressEvent(key):
-            log.debug('Config says suppress event: %s' % key)
-            return
-
-        alias = self.getEventKeyAlias(key)
-        if alias:
-            log.debug('Change event key: %s to alias: %s' % (key, alias))
-            key = alias
-
-        self.sendEvent(key, event)
-
-
-    def shouldSuppressEvent(self, key):
-        suppressed = self.config.data('suppress')
-        if suppressed and key in suppressed:
-            return True
-        else:
-            return False
-
-    def getEventKeyAlias(self, key):
-        aliases = self.config.data('alias')
-        if aliases and aliases.has_key(key):
-            return aliases[key]
+        device = '%s-%s' % (type,id)
+        config = self.devices.get(device)
+        if config:
+            if config.get('suppress'):
+                log.debug('Config says suppress event: %s' % device)
+                return
+            if config.get('id'):
+                device = config.get('id')
+            if config.get('name'):
+                event['name'] = config.get('name')
+            if config.get('location'):
+                event['location'] = config.get('location')
+            # todo: infer these from telldus types instead (done for sensor, todo for device)
+            if config.get('type') and not event.get('type'):
+                event['type'] = config.get('type')
+            elif type == 'device':
+                event['type'] = 'lamp'
+            
+        self.sendEvent('change', event, device)
 
     def openTelldus(self):
 
@@ -259,4 +262,26 @@ class TellstickService(chains.service.Service):
             td.close()
         except:
             log.warn('ignored error closing td')
+
+    def parseDeviceConfig(self):
+        result = {}
+        conf = self.config.data('devices')
+        if conf:
+            for key in conf:
+                deviceId, prop = key.split('.')
+                if not result.has_key(deviceId):
+                    result[deviceId] = {
+                        'id': deviceId,
+                        'location': None,
+                        'name': None,
+                        'suppress': False
+                    }
+                value = conf[key]
+                if prop == 'suppress':
+                    if value.lower() in ['1','true']:
+                        value = True
+                    else:
+                        value = False
+                result[deviceId][prop] = value
+        return result
 
