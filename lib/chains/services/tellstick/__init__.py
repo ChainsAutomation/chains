@@ -22,6 +22,7 @@ class TellstickService(chains.service.Service):
         log.info('Opened telldus')
 
         self.devices = self.parseDeviceConfig()
+        self.sendStartupEvents()
 
 
     def onShutdown(self):
@@ -285,3 +286,14 @@ class TellstickService(chains.service.Service):
                 result[deviceId][prop] = value
         return result
 
+    def sendStartupEvents(self):
+        for deviceId in self.devices:
+            log.info('send start ev: %s' % deviceId)
+            tmp = deviceId.split('-')
+            type = tmp.pop(0)
+            id = int(tmp.pop(0))
+            if type == 'device':
+                self.sendDeviceEvent(id, 0)
+            elif type == 'sensor':
+                dataType = int(tmp.pop(0))
+                self.sensorEventCallback('', '', id, dataType, 0, time.time(), 0)
