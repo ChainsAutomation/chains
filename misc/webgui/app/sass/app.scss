@@ -27,3 +27,72 @@ body {
     .data { margin-left: 30px; }
 
 }
+
+#view-devices {
+
+    .group-by {
+        width: 200px;
+        float: right;
+        margin-right: 10px;
+    }
+
+    .devices-container {
+        @include clearfix();
+        background: #eee;
+        padding: 10px;
+    }
+
+    .device {
+
+        background: white;
+
+        border: 1px solid #ccc;
+        width: 200px;
+        height: 80px;
+        float: left;
+        margin: 10px;
+        padding: 5px;
+
+        .icon {
+            float: left;
+            img {
+                max-width: 40px;
+                max-height: 40px;
+            }
+        }
+        .data {
+            float: right;
+            .value {
+                font-size: 20px;
+                text-align: right;
+            }
+            .name {
+                text-align: right;
+            }
+        }
+        .footer {
+            clear: both;
+            padding-top: 10px;
+            font-size: 11px;
+            color: #777;
+            .location {
+                float: right;
+            }
+            .type {
+                float: left;
+            } 
+        }
+        .end {
+            clear: both;
+        }
+    }
+
+    .device-generic {
+
+        .icon {
+            color: #aaa;
+        }
+        
+    }
+
+}

@@ -15,6 +15,7 @@ window.Chains.App = function() {
     self.views.services = new window.Chains.View.Services(self);
     self.views.system   = new window.Chains.View.System(self);
     self.views.state    = new window.Chains.View.State(self);
+    self.views.devices  = new window.Chains.View.Devices(self);
 
     self.setView = function(view) {
         $('.view').hide();
@@ -26,30 +27,32 @@ window.Chains.App = function() {
     // Init
 
     self.routes = function() {
-
+        routie('/', function(date) {
+            self.setView('index');
+        });
         routie('/services', function(date) {
             self.setView('services');
         });
-
         routie('/system', function(date) {
             self.setView('system');
         });
-
         routie('/state', function(date) {
             self.setView('state');
         });
-
+        routie('/devices', function(date) {
+            self.setView('devices');
+        });
     }
 
     self.init = function() {
         ko.applyBindings(self);
-        self.routes();
         self.setView('index');
+        self.routes();
         self.services.load(function(){
             self.managers.load(function(){
                 self.reactors.load(function(){
                     self.state.load(function(){
-console.log('all done!');
+                        console.log('Loaded...');
                     });
                 });
             });

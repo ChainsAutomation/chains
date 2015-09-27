@@ -1,0 +1,37 @@
+<div id="view-devices" class="view">
+
+    <div class="group-by">
+      <div class="input-group">
+        <span class="input-group-addon">Group by</span>
+        <select class="form-control" data-bind="value: views.devices.groupBy, options: views.devices.groupByOptions"></select>
+      </div>
+    </div>
+
+    <div data-bind="foreach: views.devices.data">
+
+        <h2 data-bind="text: name"></h2>
+
+        <div data-bind="foreach: devices" class="devices-container">
+
+            <div data-bind="css: cssClass">
+                <div class="icon">
+                    <img data-bind="attr: { src: icon }" />
+                </div>
+                <div class="data">
+                    <div class="value" data-bind="text: value"></div>
+                    <div class="name" data-bind="text: name"></div>
+                </div>
+                <div class="footer">
+                    <div class="location" data-bind="text: location"></div>
+                    <div class="type" data-bind="text: type"></div>
+                </div>
+                <div class="end">
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="clear"></div><!-- todo: use clearfix -->
+
+</div>

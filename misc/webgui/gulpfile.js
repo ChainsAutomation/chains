@@ -10,6 +10,7 @@ var gulp = require('gulp'), 
 
 var config = {
     sassDir:  './app/sass',
+    imgDir:   './app/images',
     jsDir:    './app/js',
     bowerDir: './bower_components',
     distDir:  './public',
@@ -24,6 +25,11 @@ gulp.task('bower', function() { 
 gulp.task('icons', function() { 
     return gulp.src(config.bowerDir + '/fontawesome/fonts/**.*') 
         .pipe(gulp.dest(config.distDir + '/fonts')); 
+});
+
+gulp.task('images', function() { 
+    return gulp.src(config.imgDir + '/**/**.*') 
+        .pipe(gulp.dest(config.distDir + '/images'));
 });
 
 gulp.task('css', function() { 
