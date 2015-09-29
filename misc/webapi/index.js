@@ -118,6 +118,8 @@ require('./controllers/orchestrator')(app, '/orchestrator');
 require('./controllers/state')(app, '/state/:path(*)');
 require('./controllers/state')(app, '/state');
 
+require('./controllers/event')(app, '/event');
+
 require('./controllers/index')(app, '/');
 
 

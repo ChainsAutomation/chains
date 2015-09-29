@@ -86,6 +86,11 @@ module.exports.rpc = function(daemonType, daemonId, command, args, callback) {
 
 }
 
+module.exports.sendEvent = function(service, key, args) {
+	var requestTopic  = 'se.' + service + '.' + key;
+	var correlationId = guid();
+	queue.publish(requestTopic, args, correlationId);
+}
 
 module.exports.callOrchestratorAction = function(command, args, callback) {
 	module.exports.rpc('o', 'main', command, args, callback);
