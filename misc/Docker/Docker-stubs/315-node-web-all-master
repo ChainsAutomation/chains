@@ -1,0 +1,14 @@
+# webapi
+npm install -g mocha
+WORKDIR /srv/chains/misc/webapi
+npm install
+
+# webgui
+apt-get install rubygems-integration
+npm install -g bower
+npm install -g gulp
+gem install sass
+WORKDIR /srv/chains/misc/webgui
+npm install
+bower install --allow-root --config.interactive=false
+gulp
