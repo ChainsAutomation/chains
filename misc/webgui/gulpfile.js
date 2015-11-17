@@ -82,7 +82,7 @@ gulp.task('js', ['js:app','js:vendor'], function(){ });
 
 gulp.task('html', function() {
     gulp.src([
-        config.htmlDir + '/index.html'
+        config.htmlDir + '/*.html'
     ])
     .pipe(fileinclude({
         prefix: '@@',
