@@ -10,6 +10,7 @@ class PhilipsHueService(chains.service.Service):
     def onInit(self):
         address, username = self.getBridgeConfig()
         self.bridge = pyhue.Bridge(address, username)
+        self.sendStartupEvents()
 
     def action_on(self, id):
         '''
@@ -154,3 +155,18 @@ class PhilipsHueService(chains.service.Service):
             return float(value)
     """
 
+    def sendStartupEvents(self):
+        for light in self.bridge.lights:
+            item = {
+                'id':    light.id,
+                'name':  light.name,
+                'type':  light.type,
+                'model': light.modelid,
+            }
+            for key in light.state:
+                item[key] = light.state[key]
+            item['type'] = 'lamp'
+            item['value'] = item.get('bri')
+            if not item.get('on'):
+                item['value'] = 0
+            self.sendEvent('change', item, 'lamp-%s' % item['id'])
