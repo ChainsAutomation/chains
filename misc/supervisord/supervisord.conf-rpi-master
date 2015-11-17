@@ -21,6 +21,8 @@ autorestart=false
 [program:rabbitmq]
 #command=/usr/sbin/rabbitmq-server
 command=/srv/rabbitmq.sh
+user=rabbitmq
+environment=HOME="/var/lib/rabbitmq",USER="rabbitmq"
 autostart=false
 redirect_stderr=true
 autorestart=true
