@@ -37,12 +37,70 @@ class SonosService(chains.service.Service):
         zone = self.getZone(zone)
         zone.stop()
 
-    def action_playUri(self, uri, zone=None):
+    def action_playUri(self, uri, zone=None, volume=None, playmode=None):
         zone = self.getZone(zone)
+
+        if volume:
+            log.info('vol:%s'%volume)
+            zone.volume = int(volume)
+        if playmode:
+            log.info('mode:%s'%playmode)
+            zone.play_mode = playmode
+
+        log.info('zone: %s' % zone)
+        log.info('playUri: %s' % uri)
+
         zone.play_uri(uri)
 
-    def action_playPlaylist(self, name, zone=None):
+    def action_setPlayMode(self, mode, zone=None):
         zone = self.getZone(zone)
+        zone.play_mode = mode
+
+    def action_getPlaylistNames(self):
+        zone = self.getZone(zone)
+        playlists = soc.get_music_library_information('sonos_playlists')
+        result = []
+        for playlist in playlists:
+            result.append( playlist.title )
+        return result
+
+    def action_getPlaylistDicts(self):
+        zone = self.getZone(zone)
+        playlists = soc.get_music_library_information('sonos_playlists')
+        result = []
+        for playlist in playlists:
+            result.append( playlist.to_dict )
+        return result
+
+    def action_getPlaylistTracks(self, playlist_name):
+        zone = self.getZone(zone)
+        playlists = soc.get_music_library_information('sonos_playlists')
+        result = []
+        for playlist in playlists:
+            if playlist.title == playlist_name:
+                track_list = zone.browse(playlist)
+                for item in track_list:
+                    result.append({
+                        title: item.title,
+                        album: item.album,
+                        artist: item.creator,
+                        uri:   item.uri,
+                        art:   item.album_art_uri
+                    })
+                return result
+        return result
+
+    def action_playPlaylist(self, name, zone=None, volume=None, playmode=None):
+        zone = self.getZone(zone)
+
+        if volume:
+            log.info('vol:%s'%volume)
+            zone.volume = int(volume)
+        if playmode:
+            log.info('mode:%s'%playmode)
+            zone.play_mode = playmode
+
+        log.info('pls')
         playlists = zone.get_sonos_playlists()
         if not playlists:
             return False
