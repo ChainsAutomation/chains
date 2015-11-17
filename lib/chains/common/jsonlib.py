@@ -2,6 +2,7 @@ encode = None
 decode = None
 mode = None
 
+"""
 try:
  import cjson
  def encode(val):
@@ -24,4 +25,8 @@ except:
   encode = simplejson.dumps
   decode = simplejson.loads
   mode = 'simplejson'
+"""
 
+import json
+encode = json.dumps
+decode = json.loads
