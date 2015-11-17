@@ -32,13 +32,19 @@ autorestart=true
 redirect_stderr=true
 priority=999
 
-[program:chains-webapi]
-command=uwsgi --enable-threads --http :8000 --static-map /data=/srv/chains/data --wsgi-file /srv/chains/lib/chains/services/webapi/__init__.py --callable app --master --processes 1 -l 50 -L
+#[program:chains-webapi]
+#command=uwsgi --enable-threads --http :8000 --static-map /data=/srv/chains/data --wsgi-file /srv/chains/lib/chains/services/webapi/__init__.py --callable app --master --processes 1 -l 50 -L
+#autostart=false
+#autorestart=true
+#redirect_stderr=true
+#priority=999
+#stopsignal=INT
+
+[program:nginx]
+command=/usr/sbin/nginx -c /srv/chains/misc/nginx/nginx-slave.conf
 autostart=false
 autorestart=true
-redirect_stderr=true
-priority=999
-stopsignal=INT
+priority=5
 
 [program:telldusd]
 command:/usr/sbin/telldusd --nodaemon

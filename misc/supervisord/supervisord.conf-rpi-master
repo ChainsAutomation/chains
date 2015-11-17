@@ -21,6 +21,8 @@ autorestart=false
 [program:rabbitmq]
 #command=/usr/sbin/rabbitmq-server
 command=/srv/rabbitmq.sh
+user=rabbitmq
+environment=HOME="/var/lib/rabbitmq",USER="rabbitmq"
 autostart=false
 redirect_stderr=true
 autorestart=true
@@ -57,12 +59,27 @@ redirect_stderr=true
 priority=999
 
 [program:chains-webapi]
-command=uwsgi --enable-threads --http :8000 --static-map /data=/srv/chains/data --wsgi-file /srv/chains/lib/chains/services/webapi/__init__.py --callable app --master --processes 1 -l 50 -L
+directory=/srv/chains/misc/webapi
+command=nodejs index.js
 autostart=false
 autorestart=true
 redirect_stderr=true
+#user=chainsuser
 priority=999
-stopsignal=INT
+
+#[program:chains-webapi]
+#command=uwsgi --enable-threads --http :8000 --static-map /data=/srv/chains/data --wsgi-file /srv/chains/lib/chains/services/webapi/__init__.py --callable app --master --processes 1 -l 50 -L
+#autostart=false
+#autorestart=true
+#redirect_stderr=true
+#priority=999
+#stopsignal=INT
+
+[program:nginx]
+command=/usr/sbin/nginx -c /srv/chains/misc/nginx/nginx-master.conf
+autostart=false
+autorestart=true
+priority=5
 
 [program:telldusd]
 command=/usr/sbin/telldusd --nodaemon
@@ -75,5 +92,5 @@ programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-publi
 priority=999
 
 [group:system]
-programs=rabbitmq,telldusd
+programs=rabbitmq,telldusd,nginx
 priority=10

@@ -8,7 +8,7 @@ if [ ! -f /chains-configured ]; then
     echo "First run, installing default configs"
     mkdir -p /etc/chains/services
     if [ ! -f /etc/chains/chains.conf ]; then
-        cp /srv/chains/misc/Docker/chains-config/chains.conf-master /etc/chains/
+        cp /srv/chains/misc/Docker/chains-config/chains.conf-master /etc/chains/chains.conf
     fi
     if [ ! -f /etc/chains/amqp.conf ]; then
         cp /srv/chains/misc/Docker/chains-config/amqp.conf /etc/chains/
@@ -36,6 +36,7 @@ fi
 supervisorctl start system:rabbitmq
 # supervisorctl start system:sshd
 supervisorctl start system:telldusd
+supervisorctl start system:nginx
 supervisorctl start chains:chains-zeroconf-publishd
 # wait a few seconds for rabbit to have started properly
 sleep 3
