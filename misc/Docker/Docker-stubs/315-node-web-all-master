@@ -4,7 +4,7 @@ WORKDIR /srv/chains/misc/webapi
 RUN npm install
 
 # webgui
-RUN apt-get install rubygems-integration
+RUN apt-get install -y rubygems-integration
 RUN npm install -g bower
 RUN npm install -g gulp
 RUN gem install sass
