@@ -1,7 +1,6 @@
 .PHONY: test
 
 deps:
-	sudo apt-get install -qqy python-pip
 	sudo /usr/bin/pip install pytest amqplib
 
 test:
