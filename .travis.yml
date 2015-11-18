@@ -1,34 +1,22 @@
-language: c
+sudo: required
 
-env:
-  global:
-    - "HOST_IP=$(/sbin/ifconfig venet0:0 | grep 'inet addr' | awk -F: '{print $2}' | awk '{print $1}')"
-    - DOCKER_HOST=tcp://$HOST_IP:2375
-    - DOCKER_PORT_RANGE=2400:2500
-    - SLIRP_PORTS=$(seq 2375 2500)
+language: python
+
+services:
+  - docker
 
 before_install:
-  - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
-  - sudo chmod +x /usr/sbin/policy-rc.d
-
-install:
-  - sudo curl -sSL https://get.docker.com/ubuntu | sudo sh
-  - sudo apt-get -qqy install lxc slirp
-  - sudo sudo usermod -aG docker "$USER"
-  - git clone git://github.com/cptactionhank/sekexe
-
-before_script:
-  - "sekexe/run 'mount -t tmpfs -o size=8g tmpfs /var/lib/docker && docker -d -H tcp://0.0.0.0:2375' &"
-  - "while ! docker info &> /dev/null ; do sleep 1; done"
-
-script:
   - sudo make travis
   - sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-master/chains.conf -O /etc/chains/chains.conf"
   - bin/dockerfile-assemble.py master
   - docker version
   - docker build --no-cache -t chains/chains-master .
   - docker run -d chains/chains-master
-  - docker ps
+  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker push chains/chains-master
+
+script:
+  - docker ps -a
   - sleep 60
   - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status
 
