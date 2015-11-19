@@ -18,7 +18,7 @@ script:
   - sleep 60
   - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status
 
-deploy:
+after_success:
   - sudo make deploy
 
 notifications:
