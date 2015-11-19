@@ -12,12 +12,14 @@ before_install:
   - docker version
   - docker build --no-cache -t chains/chains-master .
   - docker run -d chains/chains-master
-  - if [ -z "$DOCKER_EMAIL"]; then echo "Not pushing to Docker Hub"; else docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" && docker push chains/chains-master; fi
 
 script:
   - docker ps -a
   - sleep 60
   - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status
+
+deploy:
+  - sudo make deploy
 
 notifications:
   irc:
