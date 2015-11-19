@@ -54,6 +54,19 @@ While most home automation software focuses on supporting a single piece of hard
 
 We will eventually provide docker images from the docker registry, but for now dockerfiles can be created by bin/dockerfile-assemble.py and built on your own system.
 Docker is a good match for our project since we need a host of different libraries and daemons running to support the different services. Providing instructions for all distributions and testing these configurations would be too time consuming. The whole process, however, is described in the generated dockerfile. Feel free to install it locally.
+
+#### Docker install for chains master (simple)
+```sh
+# Create config and data dir:
+sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains/data"
+
+# Create chains master image:
+sudo docker pull chains/chains-master
+
+# Run chains master
+sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-master
+```
+
 ####Docker build/install for chains master node
 ```sh
 # Create config and data dir:
@@ -62,6 +75,7 @@ sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains/data"
 # Create chains master image:
 bin/dockerfile-assemble.py master
 sudo docker build --no-cache -t chains/chains-master .
+
 # Run chains master
 sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-master
 ```
@@ -75,6 +89,7 @@ sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains/data"
 # Create chains slave image:
 bin/dockerfile-assemble.py slave
 sudo docker build --no-cache -t chains/chains-slave .
+
 # Run chains slave
 sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-slave
 ```
