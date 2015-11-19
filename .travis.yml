@@ -19,7 +19,7 @@ script:
   - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status
 
 after_success:
-  - sudo make deploy
+  - ./deploy.sh
 
 notifications:
   irc:
