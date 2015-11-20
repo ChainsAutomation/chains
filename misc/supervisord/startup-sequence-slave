@@ -31,9 +31,9 @@ else
 fi
 
 # supervisorctl start system:sshd
-supervisorctl start system:telldusd
+#supervisorctl start system:telldusd
 supervisorctl start system:nginx
-supervisorctl start chains:chains-zeroconf-discoverd
+#supervisorctl start chains:chains-zeroconf-discoverd # Until it runs properly
 # wait a few seconds for rabbit to have started properly
 sleep 3
 supervisorctl start chains:chains-manager
