@@ -60,10 +60,7 @@ Docker is a good match for our project since we need a host of different librari
 # Create config and data dir:
 sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains/data"
 
-# Create chains master image:
-sudo docker pull chains/chains-master
-
-# Run chains master
+# Pull and run latest version
 sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-master
 ```
 
