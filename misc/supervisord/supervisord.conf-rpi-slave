@@ -53,9 +53,9 @@ autorestart=true
 priority=5
 
 [group:chains]
-programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-discoverd
+programs=chains-manager,chains-zeroconf-discoverd
 priority=999
 
 [group:system]
-programs=rabbitmq,telldusd
+programs=telldusd
 priority=10
