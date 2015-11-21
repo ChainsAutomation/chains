@@ -1,8 +1,6 @@
 #!/bin/bash
 
 TYPE="$1"
-REMOVE_VERSION=`git rev-parse origin/master`
-LOCAL_VERSION=`git rev-parse HEAD`
 OS=$(uname -m)
 
 if [ -z $TYPE ]; then
@@ -17,7 +15,9 @@ fi
 
 while true; do
     git fetch
-    if [ $REMOVE_VERSION != $LOCAL_VERSION ]; then
+    REMOTE_VERSION=`git rev-parse origin/master`
+    LOCAL_VERSION=`git rev-parse HEAD`
+    if [ $REMOTE_VERSION != $LOCAL_VERSION ]; then
         git pull
         make test
         if [ "$?" -eq 0 ]; then
