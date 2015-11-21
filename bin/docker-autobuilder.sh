@@ -9,7 +9,7 @@ if [ -z $TYPE ]; then
     TYPE="slave";
 fi
 
-if [ $OS = "_x86_64" ]; then
+if [ $OS = "x86_64" ]; then
     IMAGE="chains";
 else
     IMAGE="rpi-chains";
