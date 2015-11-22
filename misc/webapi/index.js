@@ -2,6 +2,7 @@
 
 var host         = '0.0.0.0',
 	port         = 7890,
+    chainsMaster = 'master',
 	enableDebug  = false,
 	enableNotice = false;
 
@@ -18,13 +19,6 @@ var Sockets           = require('./lib/sockets'),
 	queue             = new Queue(),
 	sockets           = new Sockets(server),
 	chains            = require('./lib/chains');
-
-
-// Chains
-
-chains.init(queue);
-app.chains = chains;
-
 
 // Common
 
@@ -51,6 +45,7 @@ function notice(msg, arg) {
 
 commander
 	.version('0.0.1')
+	.option('-m, --master <name>', 'Chains master name (default = ' + chainsMaster + ')')
 	.option('-h, --host <host>', 'Listen to address (default = ' + host + ')')
 	.option('-p, --port <port>', 'Listen to port (default = ' + port + ')')
 	.option('-v, --verbose',     'Enable verbose output (default = false)')
@@ -61,11 +56,18 @@ if (commander.host)
 	host = commander.host;
 if (commander.port)
 	port = commander.port;
+if (commander.master)
+	chainsMaster = commander.master;
 if (commander.verbose || commander.debug)
 	enableDebug = true;
 if (commander.debug)
 	enableNotice = true;
 
+// Chains
+
+chains.init(queue);
+app.chains = chains;
+app.chains.master = chainsMaster;
 
 // Queue
 

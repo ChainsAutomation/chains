@@ -12,7 +12,7 @@ module.exports = function(app, route) {
 
         var args = path ? [path] : [];
 
-		app.chains.callReactorAction('master', 'getState', args, function(err, response) {
+		app.chains.callReactorAction(app.chains.master, 'getState', args, function(err, response) {
 
             if (err)
                 res.send(err, 500);
@@ -23,4 +23,4 @@ module.exports = function(app, route) {
 
 	});
 
-}
+};
