@@ -112,5 +112,6 @@ gulp.task('default', ['clean'], function(){
     gulp.run('css');
     gulp.run('js:vendor');
     gulp.run('js:app');
+    gulp.run('images');
     gulp.run('html');
 });
