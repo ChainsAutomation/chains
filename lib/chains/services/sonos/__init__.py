@@ -1,7 +1,10 @@
+from threading import Timer
 import chains.service
 from chains.common import log
 import time, datetime, re, copy
+from Queue import Empty
 from soco import SoCo, discover
+from soco.events import event_listener
 
 class SonosService(chains.service.Service):
 
@@ -18,8 +21,14 @@ class SonosService(chains.service.Service):
                 self.defaultZone = self.getZone(defaultZone)
             else:
                 self.defaultZone = self.zones[0]
-            
-        
+
+        self.interval = None
+        self.subscribers = []
+        self.registerForEvents()
+
+    def onStart(self):
+        while True:
+            self.checkForNewEvents()
 
     def getZone(self, nameOrId):
         for zone in self.zones:
@@ -128,6 +137,14 @@ class SonosService(chains.service.Service):
         amount = int(amount)
         zone.volume += amount
 
+    def action_volumeUp(self, zone=None):
+        zone = self.getZone(zone)
+        zone.volume += 1
+
+    def action_volumeDown(self, zone=None):
+        zone = self.getZone(zone)
+        zone.volume -= 1
+
     def action_getTrackInfo(self, zone=None):
         zone = self.getZone(zone)
         info = zone.get_current_track_info()
@@ -169,3 +186,73 @@ class SonosService(chains.service.Service):
             result.append(zone.get_speaker_info())
         return result
 
+    def sendEventWrapper(self, property, zone, event):
+        name = zone.player_name
+
+        self.sendEvent(property, event, {
+            'device': name,
+            'type': 'speaker',
+            'location': name
+        })
+
+    def registerForEvent(self, zone=None):
+        if (zone == None): return
+
+        controlSubscriber = zone.renderingControl.subscribe()
+        soundSubscriber = zone.avTransport.subscribe()
+
+        self.subscribers.append({
+            'zone': zone,
+            'control': controlSubscriber,
+            'sound': soundSubscriber
+        })
+
+    def registerForEvents(self):
+        for zone in self.zones:
+            self.registerForEvent(zone)
+
+    def parseEvents(self, zone):
+        for subscriber in [zone['control'], zone['sound']]:
+            try:
+                event = subscriber.events.get(timeout=0.5)
+
+                if 'transport_state' in event.variables:
+                    self.sendEventWrapper('state', zone['zone'], {
+                        'value': event.variables['transport_state'],
+                        'actions': ['play', 'stop']
+                    })
+
+                if 'volume' in event.variables and 'Master' in event.variables['volume']:
+                    volume = int(event.variables['volume']['Master'])
+                    self.sendEventWrapper('volume', zone['zone'], {
+                        'value': volume,
+                        'actions': ['volumeUp', 'volumeDown']
+                    })
+
+                if 'mute' in event.variables and 'Master' in event.variables['mute']:
+                    self.sendEventWrapper('mute', zone['zone'], {
+                        'value': int(event.variables['mute']['Master'])
+                    })
+
+            except Empty:
+                pass
+
+    def checkForNewEvents(self):
+        for zone in self.subscribers:
+            self.parseEvents(zone)
+
+    def deRegisterForEvent(self, zone):
+        zone['control'].unsubscribe()
+        zone['sound'].unsubscribe()
+
+    def deRegisterForEvents(self):
+        for zone in self.subscribers:
+            self.deRegisterForEvent(zone)
+
+    def onShutdown(self):
+        if self.interval:
+            self.interval.cancel()
+
+        self.deRegisterForEvents()
+
+        event_listener.stop()

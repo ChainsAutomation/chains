@@ -211,6 +211,7 @@ class TellstickService(chains.service.Service):
 
         device = '%s-%s' % (type,id)
         config = self.devices.get(device)
+        deviceAttributes = {}
         if config:
             if config.get('suppress'):
                 log.debug('Config says suppress event: %s' % device)
@@ -218,16 +219,18 @@ class TellstickService(chains.service.Service):
             if config.get('id'):
                 device = config.get('id')
             if config.get('name'):
-                event['name'] = config.get('name')
+                deviceAttributes['name'] = config.get('name')
             if config.get('location'):
-                event['location'] = config.get('location')
+                deviceAttributes['location'] = config.get('location')
             # todo: infer these from telldus types instead (done for sensor, todo for device)
             if config.get('type') and not event.get('type'):
-                event['type'] = config.get('type')
+                deviceAttributes['type'] = config.get('type')
             elif type == 'device':
-                event['type'] = 'lamp'
+                deviceAttributes['type'] = 'lamp'
             
-        self.sendEvent('change', event, device)
+        deviceAttributes['device'] = device
+
+        self.sendEvent('change', event, deviceAttributes)
 
     def openTelldus(self):
 
