@@ -48,13 +48,11 @@ class Reactor(AmqpDaemon):
                         self.state.set(path, values)
 
                     # Other events are about a device inside the service
-                    # For these, we place each property in event.data as a property on the device,
-                    # independently of what event.key is used to send them.
-                    # In addition to that, we place each property outside event.data on the device
-                    # (like type, location, etc), but exclude sys-stuff like service etc.
+                    # For these, we merge in event.data under State.service.device.data,
+                    # and merge any other non-sys keys from event under State.service.device.
                     else:
                         for prop in values:
-                            path = '%s.%s.%s' % (service, device, prop)
+                            path = '%s.%s.data.%s' % (service, device, prop)
                             self.state.set(path, values[prop])
                         for prop in data:
                             if prop not in ['service','device','key','data']:
