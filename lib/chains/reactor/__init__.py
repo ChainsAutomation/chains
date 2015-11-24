@@ -35,11 +35,31 @@ class Reactor(AmqpDaemon):
         try:
             try:
                 if self.state:
-                    dev = data.get('device')
-                    if not dev:
-                        dev = '_service'
-                    key = '%s.%s.%s' % (data.get('service'), dev, data.get('key'))
-                    self.state.set(key, data['data'])
+
+                    service = data.get('service')
+                    device  = data.get('device')
+                    key     = data.get('key')
+                    values  = data.get('data')
+
+                    # Events without device are about the service itself
+                    # For these, event.data is "raw" so we just set values as data for the key
+                    if not device:
+                        path = '%s._service.%s' % (service, data.get('service'), key)
+                        self.state.set(path, values)
+
+                    # Other events are about a device inside the service
+                    # For these, we place each property in event.data as a property on the device,
+                    # independently of what event.key is used to send them.
+                    # In addition to that, we place each property outside event.data on the device
+                    # (like type, location, etc), but exclude sys-stuff like service etc.
+                    else:
+                        for prop in values:
+                            path = '%s.%s.%s' % (service, device, prop)
+                            self.state.set(path, values[prop])
+                        for prop in data:
+                            if prop not in ['service','device','key','data']:
+                                path = '%s.%s.%s' % (service, device, prop)
+                                self.state.set(path, data[prop])
             except Exception, e:
                 log.error(utils.e2str(e))
             try:
