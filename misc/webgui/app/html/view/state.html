@@ -6,17 +6,32 @@
 
         <div class="service-container">
 
-            <div class="service" data-bind="text: $root.services.getName(serviceId)"></div>
+            <div class="service">
+              <span class="service-name" data-bind="text: $root.services.getName(serviceId)"></span>
+              <span class="service-suffix">(service - <span data-bind="text: serviceId"></span>)</span>
+            </div>
 
             <div data-bind="foreach: devices">
 
-                <div class="device" data-bind="text: device"></div>
+                <div class="device">
+                  <span class="device-name" data-bind="text: device"></span>
+                  <span class="device-suffix">(device)</span>
+                </div>
 
                 <div data-bind="foreach: data">
 
                     <div class="key" data-bind="text: key"></div>
 
-                    <div class="data" data-bind="text: ko.toJSON(data)"></div>
+                    <div data-bind="if: key == 'data'">
+                      <div class="data" data-bind="foreach: {data: Object.keys(data), as: 'prop'}">
+                        <div class="data-key" data-bind="text: prop"></div>
+                        <div class="data-values" data-bind="text: ko.toJSON($parent.data[prop])"></div>
+                      </div>
+                    </div>
+
+                    <div data-bind="if: key != 'data'">
+                      <div class="data" data-bind="text: data"></div>
+                    </div>
 
                 </div>
 

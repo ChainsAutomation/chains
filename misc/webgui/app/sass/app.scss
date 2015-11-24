@@ -25,6 +25,23 @@ body {
     .device { margin-left: 10px; }
     .key { margin-left: 20px; }
     .data { margin-left: 30px; }
+	.data-values { margin-left: 10px; }
+
+	.service-suffix,
+	.device-suffix {
+		color: #777;
+	}
+
+	.service-name {
+		color: blue;
+		font-size: 16px;
+		font-weight: bold;
+	}
+	.device-name {
+		color: green;
+		font-size: 14px;
+		font-weight: bold;
+	}
 
 }
 

@@ -5,12 +5,13 @@ window.Chains.View.State = function(app) {
 
     var self = this;
 
+// <div class="data" data-bind="text: ko.toJSON(data)"></div>
     self.data = ko.computed(function() {
         var result = [];
         var data = app.state.data();
         for(var serviceId in data) {
             var srv = {
-                serviceId: serviceId, 
+                serviceId: serviceId,
                 devices: []
             };
             for(var device in data[serviceId]) {
