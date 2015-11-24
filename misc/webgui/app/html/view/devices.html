@@ -17,13 +17,21 @@
                 <div class="icon">
                     <img data-bind="attr: { src: icon }" />
                 </div>
-                <div class="data">
-                    <div class="value" data-bind="text: value"></div>
+                <div class="top">
                     <div class="name" data-bind="text: name"></div>
+                    <div class="type-location">
+                      <span class="type" data-bind="text: type"></span>
+                      at
+                      <span class="location" data-bind="text: location"></span>
+                    </div>
                 </div>
-                <div class="footer">
-                    <div class="location" data-bind="text: location"></div>
-                    <div class="type" data-bind="text: type"></div>
+                <div class="data">
+                    <table data-bind="foreach: data">
+                      <tr>
+                        <td class="data-key" data-bind="text: key"></td>
+                        <td class="data-value" data-bind="text: data.value"></td>
+                      </tr>
+                    </table>
                 </div>
                 <div class="end">
                 </div>

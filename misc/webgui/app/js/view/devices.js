@@ -34,43 +34,34 @@ window.Chains.View.Devices = function(app) {
 
         self.serviceId = ko.observable(data.serviceId);
         self.device    = ko.observable(data.device);
-        self.type      = ko.observable(data.type);
         self.name      = ko.observable(data.name);
-        self.location  = ko.observable(data.location);
-        self._value     = ko.observable(data.value);
-
-        // hack/todo: do something nice to cleanly and easily extend things with more types
-
-        self.icon = ko.computed(function(){
-            var prefix = '/images/type-icon/';
-            switch (self.type()) {
-                case 'lamp':
-                    return prefix + (
-                        self._value() > 0
-                        ? 'lamp-on.svg'
-                        : 'lamp-off.svg'
-                    );
-                case 'temperature':
-                case 'humidity':
-                    return prefix + self.type() + '.svg';
-                default:
-                    return prefix + 'generic.svg';
-            }
-        });
+        self._type     = ko.observable(data.type);
+        self._location = ko.observable(data.location);
+        self._data     = ko.observable(data.data);
 
         self.cssClass = ko.computed(function(){
-            return 'device device-type-' + (self.type() || 'generic');
+            return 'device device-type-' + (self._type() || 'generic');
         });
 
-        self.value = ko.computed(function(){
-            switch (self.type()) {
-                case 'temperature':
-                    return self._value() + ' ℃';
-                case 'humidity':
-                    return self._value() + ' %';
-                default:
-                    return self._value();
-            }
+        self.data = ko.computed(function(){
+			var result = [];
+			var data = self._data() || {};
+			for (key in data) {
+				result[result.length] = { key: key, data: data[key] };
+			}
+			return result;
+        });
+
+		self.location = ko.computed(function(){
+			return self._location() || 'unknown';
+		});
+
+		self.type = ko.computed(function(){
+			return self._type() || 'unknown';
+		});
+
+        self.icon = ko.computed(function(){
+			return '/images/type-icon/' + self.type() + '.svg';
         });
 
     }
@@ -88,12 +79,11 @@ window.Chains.View.Devices = function(app) {
                     device:    device,
                     name:      device,
                     location:  null,
-                    type:      null
+                    type:      null,
+					data:      {}
                 };
                 for (var key in data[serviceId][device]) {
-                    for (var attr in data[serviceId][device][key]) {
-                        dev[attr] = data[serviceId][device][key][attr];
-                    }
+                    dev[key] = data[serviceId][device][key];
                 }
 
                 var group = groupBy == 'none' ? 'none' : dev[groupBy];
