@@ -5,6 +5,7 @@ window.Chains.App = function() {
     var self = this;
 
     self.backend = new window.Chains.Backend();
+    self.socket = io.connect('http://' + window.location.hostname + ':7890');
 
     self.services = new window.Chains.Services(self);
     self.managers = new window.Chains.Managers(self);
@@ -45,9 +46,12 @@ window.Chains.App = function() {
     }
 
     self.init = function() {
+
         ko.applyBindings(self);
+
         self.setView('index');
         self.routes();
+
         self.services.load(function(){
             self.managers.load(function(){
                 self.reactors.load(function(){
@@ -57,14 +61,14 @@ window.Chains.App = function() {
                 });
             });
         });
+
+        self.socket.on('sa.web.reload', function() {
+            console.log('reloading');
+            document.location.reload();
+        });
+
     }
 
     self.init();
 
 };
-
-$(document).ready(function(){
-
-    window.Chains.app = new window.Chains.App();
-
-});
