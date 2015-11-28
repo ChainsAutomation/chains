@@ -8,16 +8,16 @@ window.Chains.Backend = function() {
 
         var baseUrl = '/api';
 
-console.log('backend.call:',baseUrl+url);
         if (typeof(data) == 'function') {
             callback = data;
             data = {};
         }
 
         $.ajax(baseUrl + url, {
-            data: data || {},
+            data: data ? JSON.stringify(data) : {},
             dataType: 'json',
             method: method,
+            contentType: "application/json",
             success: function(result) {
                 callback(result);
             }
