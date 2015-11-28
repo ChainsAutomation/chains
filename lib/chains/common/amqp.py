@@ -535,6 +535,7 @@ class AmqpDaemon:
         else:
             event['host'] = self.id
         event['key'] = key
+        event['time'] = time.time()
         log.info('sendEvent: %s = %s' % (topic, event))
         self.producer.put(topic, event)
 
