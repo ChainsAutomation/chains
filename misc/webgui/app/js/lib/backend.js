@@ -14,7 +14,7 @@ window.Chains.Backend = function() {
         }
 
         $.ajax(baseUrl + url, {
-            data: data ? JSON.stringify(data) : {},
+            data: data ? JSON.stringify(data) : null,
             dataType: 'json',
             method: method,
             contentType: "application/json",
