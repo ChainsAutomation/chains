@@ -67,7 +67,7 @@ module.exports = function(httpServer) {
         if (!ioTopic)
             return;
 
-        data['topic'] = chainsTopic;
+        //data['topic'] = chainsTopic;
 
 		for(var i=0; i < self.sockets.length; i++) {
 			self.sockets[i].debug('send: ' + ioTopic, data);
