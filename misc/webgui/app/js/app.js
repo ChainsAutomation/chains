@@ -7,6 +7,8 @@ window.Chains.App = function() {
     self.backend = new window.Chains.Backend();
     self.socket = io.connect('http://' + window.location.hostname + ':7890');
 
+    self.isSocketConnected = ko.observable(false);
+
     self.services = new window.Chains.Services(self);
     self.managers = new window.Chains.Managers(self);
     self.reactors = new window.Chains.Reactors(self);
@@ -66,6 +68,21 @@ window.Chains.App = function() {
             console.log('reloading');
             document.location.reload();
         });
+
+        self.socket.on('service-event', function(data) {
+console.log('service-event:', data);
+        });
+
+        self.socket.on('service-heartbeat', function(data) {
+console.log('service-heartbeat:', data);
+            // if (data == 2) service is still online
+        });
+
+        setInterval(function(){
+            //self.now(new Date());
+            self.isSocketConnected(self.socket.socket.connected);
+console.log('socket connected?', self.isSocketConnected());
+        }, 2000);
 
     }
 
