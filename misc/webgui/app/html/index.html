@@ -5,4 +5,12 @@
 @@include('./view/system.html')
 @@include('./view/state.html')
 @@include('./view/devices.html')
+@@include('./layout/scripts.html')
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        window.Chains.app = new window.Chains.App();
+    });
+</script>
+
 @@include('./layout/foot.html')
