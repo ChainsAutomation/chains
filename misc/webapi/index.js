@@ -2,7 +2,7 @@
 
 var host         = '0.0.0.0',
 	port         = 7890,
-    chainsMaster = 'master',
+    chainsMaster = 'chainsmaster',
 	enableDebug  = false,
 	enableNotice = false;
 
