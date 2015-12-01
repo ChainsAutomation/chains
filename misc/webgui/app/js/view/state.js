@@ -5,21 +5,23 @@ window.Chains.View.State = function(app) {
 
     var self = this;
 
-// <div class="data" data-bind="text: ko.toJSON(data)"></div>
+    // todo: instead of making huge computed, bind to each item in state
+    // so that update of one device only triggers recalc/redraw of that device
+
     self.data = ko.computed(function() {
         var result = [];
         var data = app.state.data();
-        for(var serviceId in data) {
+        for(var i=0; i<data.length; i++) {
             var srv = {
-                serviceId: serviceId,
+                serviceId: data[i].id(),
                 devices: []
             };
-            for(var device in data[serviceId]) {
-                if (device == '_service')
-                    continue;
-                var dev = {device: device, data: []};
-                for (var key in data[serviceId][device]) {
-                    var entry = {key: key, data: data[serviceId][device][key]};
+            var devs = data[i].devices();
+            for(var j=0; j < devs.length; j++) {
+                var dev = {device: devs[j].id(), data: []};
+                var devdata = devs[j].data();
+                for (var key in devdata) {
+                    var entry = {key: key, data: devdata[key]};
                     dev.data[dev.data.length] = entry;
                 }
                 srv.devices[srv.devices.length] = dev;

@@ -70,7 +70,23 @@ window.Chains.App = function() {
         });
 
         self.socket.on('service-event', function(data) {
+
+            var attrs = {};
+
+            for(var key in data) {
+                if (key == 'service' || key == 'device' || key == 'data' || key == 'key')
+                    continue;
+                attrs[key] = data[key];
+            }
+
 console.log('service-event:', data);
+            self.state.set(
+                data.service,
+                data.device,
+                data.data,
+                attrs
+            );
+
         });
 
         self.socket.on('service-heartbeat', function(data) {

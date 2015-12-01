@@ -70,20 +70,22 @@ window.Chains.View.Devices = function(app) {
         var result = {};
         var data = app.state.data();
         var groupBy = self.groupBy();
-        for(var serviceId in data) {
-            for(var device in data[serviceId]) {
-                if (device == '_service')
-                    continue;
+        for(var i=0; i < data.length; i++) {
+            var service = data[i];
+            var devices = service.devices();
+            for(var j=0; j<devices.length; j++) {
+                var device = devices[j];
                 var dev = {
-                    serviceId: serviceId,
-                    device:    device,
-                    name:      device,
+                    serviceId: service.id(),
+                    device:    device.id(),
+                    name:      device.id(),
                     location:  null,
                     type:      null,
 					data:      {}
                 };
-                for (var key in data[serviceId][device]) {
-                    dev[key] = data[serviceId][device][key];
+                var deviceData = device.data();
+                for(var key in deviceData) {
+                    dev[key] = deviceData[key];
                 }
 
                 var group = groupBy == 'none' ? 'none' : dev[groupBy];
