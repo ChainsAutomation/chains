@@ -100,7 +100,7 @@ In the Chains documentation we often refer to nodes, devices and services, these
 ###Node
 Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using RabbitMQ. If you run chains on only one machine you must run the "master" node, this is the hub of the chains system and takes cares of `rules` described below. Slave nodes are installed on additional computers that you may add to the chains network.
 
-###service
+### Service
 A `service` is a program that controls something in chains, usually a piece of hardware like a light controller or internet service like pushover.net.
 Example services: PhilipsHue, onewire, timer, pushover.
 
