@@ -36,10 +36,7 @@ class TimerService(chains.service.Service):
                     last[k] = current[k]
                     if k == 'second' and not self.sendSecond:
                         continue
-                    evt = {'value': current[k]}
-                    for k2 in current:
-                        evt[k2] = current[k2]
-                    self.sendEvent(k, evt)
+                    self.sendEvent(k, { 'time': current }, { 'device': 'timer' })
 
             self.checkTimers(time.time())
             time.sleep(self.interval)
