@@ -75,7 +75,7 @@ window.Chains.View.Devices = function(app) {
             var devices = service.devices();
             for(var j=0; j<devices.length; j++) {
                 var device = devices[j];
-                if (device == '_service')
+                if (device.id() == '_service')
                     continue;
                 var dev = {
                     serviceId: service.id(),
