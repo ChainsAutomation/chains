@@ -217,22 +217,22 @@ class SonosService(chains.service.Service):
                 event = subscriber.events.get(timeout=0.5)
 
                 if 'transport_state' in event.variables:
-                    self.sendEventWrapper('state', zone['zone'], {
+                    self.sendEventWrapper('state', zone['zone'], { 'transport': {
                         'value': event.variables['transport_state'],
                         'actions': ['play', 'stop']
-                    })
+                    }})
 
                 if 'volume' in event.variables and 'Master' in event.variables['volume']:
                     volume = int(event.variables['volume']['Master'])
-                    self.sendEventWrapper('volume', zone['zone'], {
+                    self.sendEventWrapper('volume', zone['zone'], { 'volume': {
                         'value': volume,
                         'actions': ['volumeUp', 'volumeDown']
-                    })
+                    }})
 
                 if 'mute' in event.variables and 'Master' in event.variables['mute']:
-                    self.sendEventWrapper('mute', zone['zone'], {
+                    self.sendEventWrapper('mute', zone['zone'], { 'mute': {
                         'value': int(event.variables['mute']['Master'])
-                    })
+                    }})
 
             except Empty:
                 pass
