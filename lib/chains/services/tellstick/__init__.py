@@ -13,6 +13,9 @@ class TellstickService(chains.service.Service):
         self.repeatedEventTimeout  = 1
         self.repeatedEventLastTime = {}
         self.states                = {}
+        self.suppressUnconfigured  = False
+        if self.config.get('suppressunconfigured') and self.config.get('suppressunconfigured') not in [0,'0','false',False]:
+            self.suppressUnconfigured = True
 
         self.eventCallbackId = None
         self.sensorCallbackId = None
@@ -142,7 +145,7 @@ class TellstickService(chains.service.Service):
     #   control them both from chains and external controllers.
     # - For dimmers, do it via Chains if you want correct state.
     #
-    def deviceEventCallback(self, deviceId, method, value, callbackId):
+    def deviceEventCallback(self, deviceId, method, value, callbackId, isStartup=False):
         if self.ignoreRepeatedEvent(deviceId, method, value):
             return
         self.states['device-%s' % deviceId] = value
@@ -150,12 +153,12 @@ class TellstickService(chains.service.Service):
             self.sendEventWrapper('device', deviceId, {
                 'state': {'value': 'on'},
                 'brightness': {'value': self.maxLampValue}
-            })
+            }, { 'ignore': isStartup })
         elif method == td.TELLSTICK_TURNOFF:
             self.sendEventWrapper('device', deviceId, {
                 'state': {'value': 'off'},
                 'brightness': {'value': self.minLampValue}
-            })
+            }, { 'ignore': isStartup })
         elif method == td.TELLSTICK_DIM:
             state = 'on'
             if value == self.minLampValue:
@@ -163,9 +166,9 @@ class TellstickService(chains.service.Service):
             self.sendEventWrapper('device', deviceId, {
                 'state': {'value': state},
                 'brightness': {'value': value}
-            })
+            }, { 'ignore': isStartup })
 
-    def sensorEventCallback(self, protocol, model, sensorId, dataType, value, timestamp, callbackId):
+    def sensorEventCallback(self, protocol, model, sensorId, dataType, value, timestamp, callbackId, isStartup=False):
         if dataType == td.TELLSTICK_TEMPERATURE:
             typeText = 'temperature'
             value    = self.parseFloat(value)
@@ -185,7 +188,8 @@ class TellstickService(chains.service.Service):
             {
                 'type':     typeText,
                 'protocol': protocol,
-                'model':    model
+                'model':    model,
+                'ignore':   isStartup
             }
         )
 
@@ -238,6 +242,8 @@ class TellstickService(chains.service.Service):
                 deviceAttributes['type'] = config.get('type')
             if not deviceAttributes.get('type') and type == 'device':
                 deviceAttributes['type'] = 'lamp'
+        elif self.suppressUnconfigured:
+            return
 
         deviceAttributes['device'] = device
 
@@ -307,7 +313,7 @@ class TellstickService(chains.service.Service):
             type = tmp.pop(0)
             id = int(tmp.pop(0))
             if type == 'device':
-                self.deviceEventCallback(id, td.TELLSTICK_TURNOFF, 0, 1)
+                self.deviceEventCallback(id, td.TELLSTICK_TURNOFF, 0, 1, True)
             elif type == 'sensor':
                 dataType = int(tmp.pop(0))
-                self.sensorEventCallback('', '', id, dataType, 0, time.time(), 0)
+                self.sensorEventCallback('', '', id, dataType, 0, time.time(), 0, True)
