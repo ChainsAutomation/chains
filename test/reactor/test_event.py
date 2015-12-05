@@ -160,3 +160,8 @@ class TestEvent(unittest.TestCase):
         e2 = Event(service='srv', key='key', data={'value': 2, 'extra': {'type': 'humidity'}})  # rule
         self.assertFalse(e1.match(e2))
 
+    def test_When_events_have_different_times_They_are_still_matched(self):
+        e1 = Event(service='srv', key='key', time=1234)
+        e2 = Event(service='srv', key='key', time=2345)
+        self.assertTrue(e1.match(e2))
+

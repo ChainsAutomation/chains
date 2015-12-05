@@ -2,11 +2,12 @@ import types
 
 class Event:
 
-    def __init__(self, service='*', device='*', key='*', data='*'):
+    def __init__(self, service='*', device='*', key='*', data='*', time=None):
         self.service = service
         self.device  = device
         self.key     = key
         self.data    = data
+        self.time    = None
 
     # Check if this event is matched by "event" passed to this function
     # 
@@ -34,7 +35,7 @@ class Event:
     # Match a single event
     def _matchEvent(self, event):
         for key in dir(self):
-            if key[0] == '_': 
+            if key[0] == '_' or key == 'time':
                 continue
             val1 = self._tryattr(self, key)
             val2 = self._tryattr(event, key)

@@ -66,7 +66,8 @@ class Reactor(AmqpDaemon):
                         service = data.get('service'),
                         device  = data.get('device'),
                         key     = data.get('key'),
-                        data    = data.get('data')
+                        data    = data.get('data'),
+                        time    = data.get('time')
                     ))
             except Exception, e:
                 log.error('Ignore error when running rules for event: %s = %s\n%s' % (topic,data,utils.e2str(e)))
