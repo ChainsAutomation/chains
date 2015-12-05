@@ -7,7 +7,7 @@ class Event:
         self.device  = device
         self.key     = key
         self.data    = data
-        self.time    = None
+        self.time    = time
 
     # Check if this event is matched by "event" passed to this function
     # 
