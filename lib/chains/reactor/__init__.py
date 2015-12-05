@@ -44,7 +44,7 @@ class Reactor(AmqpDaemon):
                     # Events without device are about the service itself
                     # For these, event.data is "raw" so we just set values as data for the key
                     if not device:
-                        path = '%s._service.%s' % (service, data.get('service'), key)
+                        path = '%s._service.%s' % (service, key)
                         self.state.set(path, values)
 
                     # Other events are about a device inside the service
@@ -59,7 +59,7 @@ class Reactor(AmqpDaemon):
                                 path = '%s.%s.%s' % (service, device, prop)
                                 self.state.set(path, data[prop])
             except Exception, e:
-                log.error(utils.e2str(e))
+                log.error('Ignore error when setting state for event: %s = %s\n%s' % (topic,data,utils.e2str(e)))
             try:
                 if self.ruleset:
                     self.ruleset.onEvent(Event(
@@ -69,7 +69,7 @@ class Reactor(AmqpDaemon):
                         data    = data.get('data')
                     ))
             except Exception, e:
-                log.error(utils.e2str(e))
+                log.error('Ignore error when running rules for event: %s = %s\n%s' % (topic,data,utils.e2str(e)))
         except Exception, e:
             log.error(utils.e2str(e))
 
