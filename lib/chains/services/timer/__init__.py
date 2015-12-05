@@ -41,7 +41,7 @@ class TimerService(chains.service.Service):
                     }
                     for key in current:
                         eventData[key] = current[key]
-                    self.sendEvent(k, { 'time': eventData }, { 'device': 'timer' })
+                    self.sendEvent(k, { 'time': eventData }, { 'device': 'timer', 'type': 'time' })
 
             self.checkTimers(time.time())
             time.sleep(self.interval)
