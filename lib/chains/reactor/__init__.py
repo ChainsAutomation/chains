@@ -62,13 +62,14 @@ class Reactor(AmqpDaemon):
                 log.error('Ignore error when setting state for event: %s = %s\n%s' % (topic,data,utils.e2str(e)))
             try:
                 if self.ruleset:
-                    self.ruleset.onEvent(Event(
-                        service = data.get('service'),
-                        device  = data.get('device'),
-                        key     = data.get('key'),
-                        data    = data.get('data'),
-                        time    = data.get('time')
-                    ))
+                    if not data.get('ignore'):
+                        self.ruleset.onEvent(Event(
+                            service = data.get('service'),
+                            device  = data.get('device'),
+                            key     = data.get('key'),
+                            data    = data.get('data'),
+                            time    = data.get('time')
+                        ))
             except Exception, e:
                 log.error('Ignore error when running rules for event: %s = %s\n%s' % (topic,data,utils.e2str(e)))
         except Exception, e:
