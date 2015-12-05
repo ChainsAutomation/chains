@@ -72,7 +72,9 @@ reactor
   action <reactorId> <action> [args...]   Run reactor action
 
 amqp
-  event <serviceId> <key> <value> [extra]
+  event <serviceId> <device> <key> <data> Data can be either scalar value or json
+                                          If scalar, data will be {"test": {"value": <value>}}
+                                          If starts with { will be interpreted as json
   rpc <topic> [data]                      Todo
   send <topic> [data]                     Todo
   recv [topics]                           Todo
