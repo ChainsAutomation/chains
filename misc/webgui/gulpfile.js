@@ -60,12 +60,12 @@ gulp.task('js:app', function() {
 
 });
 
-gulp.task('js:config', function() {
+gulp.task('js:root', function() {
 
     // Config
 
     return gulp.src([
-        './app/config.js'
+        './app/*.js'
     ])
     .pipe(gulp.dest(config.distDir + '/js'));
 
@@ -83,13 +83,15 @@ gulp.task('js:vendor', function() {
         config.bowerDir + '/knockout/dist/knockout.js',
         config.bowerDir + '/routie/dist/routie.min.js',
         config.bowerDir + '/moment/min/*.min.js',
-        config.bowerDir + '/moment-timezone/moment-timezone.js'
+        config.bowerDir + '/moment-timezone/moment-timezone.js',
+        config.bowerDir + '/requirejs/require.js',
+        config.bowerDir + '/text/text.js'
     ])
     .pipe(gulp.dest(config.distDir + '/js'));
 
 });
 
-gulp.task('js', ['js:app','js:vendor','js:config'], function(){ });
+gulp.task('js', ['js:app','js:vendor','js:root'], function(){ });
 
 gulp.task('html', function() {
     gulp.src([
@@ -123,7 +125,7 @@ gulp.task('default', ['clean'], function(){
     gulp.run('css');
     gulp.run('js:vendor');
     gulp.run('js:app');
-    gulp.run('js:config');
+    gulp.run('js:root');
     gulp.run('images');
     gulp.run('html');
 });

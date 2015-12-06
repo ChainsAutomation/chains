@@ -4,12 +4,16 @@ window.Chains.App = function() {
 
     var self = this;
 
-// tuba
-    self.config = new window.Chains.Config();
-    self.router = routie;
+    window.Chains.instance = self;
 
-    self.backend = new window.Chains.Backend(self.config.restUrl);
-    self.socket = io.connect(self.config.socketUrl);
+    self.config = {
+        restUrl:   '/api',
+        socketUrl: 'http://' + window.location.hostname + ':7890'
+    }
+
+    self.router = routie;
+    self.backend = null; // set in start()
+    self.socket = null; // set in start()
 
     self.isSocketConnected = ko.observable(false);
 
@@ -24,14 +28,21 @@ window.Chains.App = function() {
     self.views.state    = new window.Chains.View.State(self);
     self.views.devices  = new window.Chains.View.Devices(self);
 
+    self.configure = function(key, data) {
+        if (self.config[key] === undefined) {
+            console.error('No such configurable key: ' + key);
+            return;
+        }
+        self.config[key] = data;
+    }
+
     self.setView = function(view) {
         $('.view').hide();
         $('#view-' + view).show();
+        $('body').removeClass().addClass('active-view-' + view);
         if (self.views[view] && self.views[view].resume)
             self.views[view].resume();
     }
-
-    // Init
 
     self.navbar = ko.observableArray([
         { url: '#/devices', name: 'Devices' },
@@ -40,9 +51,10 @@ window.Chains.App = function() {
         { url: '#/state', name: 'State' },
     ]);
 
-    self.init = function() {
+    self.start = function() {
 
-        self.config.init(self);
+        self.backend = new window.Chains.Backend(self.config.restUrl);
+        self.socket = io.connect(self.config.socketUrl);
 
         ko.applyBindings(self);
         self.setView('index');
@@ -104,7 +116,5 @@ window.Chains.App = function() {
         }, 2000);
 
     }
-
-    self.init();
 
 };

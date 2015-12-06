@@ -25,6 +25,8 @@
     "knockout": "~3.3.0",
     "routie": "~0.3.2",
     "moment": "~2.9.0",
-    "moment-timezone": "~0.3.0"
+    "moment-timezone": "~0.3.0",
+    "requirejs": "~2.1.22",
+    "text": "requirejs/text#~2.0.14"
   }
 }

@@ -52,6 +52,25 @@ window.Chains.State = function(app) {
         }
     }
 
+    self.get = function(path) {
+        if (!path)
+            return;
+        var parts = path.split('.');
+        var service = self.getService(parts[0]);
+        if (parts.length == 1 || !service)
+            return service;
+        var device = self.getDevice(service, parts[1]);
+        if (parts.length == 2 || !device)
+            return device;
+        var data = device.data();
+        for(var i=2; i < parts.length; i++) {
+            data = data[ parts[i] ];
+            if (!data)
+                return data;
+        }
+        return data;
+    }
+
     self.set = function(serviceId, deviceId, data, attrs) {
         var service = self.getService(serviceId);
 

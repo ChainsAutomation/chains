@@ -13,10 +13,7 @@
 
 @@include('./layout/scripts.html')
 
-<script type="text/javascript">
-    $(document).ready(function(){
-        window.Chains.app = new window.Chains.App();
-    });
-</script>
+<script src="js/app.js"></script>
+<script data-main="js/startup" src="js/require.js"></script>
 
 @@include('./layout/foot.html')
