@@ -4,8 +4,12 @@ window.Chains.App = function() {
 
     var self = this;
 
-    self.backend = new window.Chains.Backend();
-    self.socket = io.connect('http://' + window.location.hostname + ':7890');
+// tuba
+    self.config = new window.Chains.Config();
+    self.router = routie;
+
+    self.backend = new window.Chains.Backend(self.config.restUrl);
+    self.socket = io.connect(self.config.socketUrl);
 
     self.isSocketConnected = ko.observable(false);
 
@@ -29,30 +33,29 @@ window.Chains.App = function() {
 
     // Init
 
-    self.routes = function() {
-        routie('/', function(date) {
-            self.setView('index');
-        });
-        routie('/services', function(date) {
-            self.setView('services');
-        });
-        routie('/system', function(date) {
-            self.setView('system');
-        });
-        routie('/state', function(date) {
-            self.setView('state');
-        });
-        routie('/devices', function(date) {
-            self.setView('devices');
-        });
-    }
+    self.navbar = ko.observableArray([
+        { url: '#/devices', name: 'Devices' },
+        { url: '#/services', name: 'Services' },
+        { url: '#/system', name: 'System' },
+        { url: '#/state', name: 'State' },
+    ]);
 
     self.init = function() {
 
-        ko.applyBindings(self);
+        self.config.init(self);
 
+        ko.applyBindings(self);
         self.setView('index');
-        self.routes();
+
+        // Init routes
+
+        self.router('/', function(){ self.setView('index'); });
+        self.router('/devices', function(){ self.setView('devices'); });
+        self.router('/services', function(){ self.setView('services'); });
+        self.router('/system', function(){ self.setView('system'); });
+        self.router('/state', function(){ self.setView('state'); });
+
+        // Load backend data
 
         self.services.load(function(){
             self.managers.load(function(){
@@ -63,6 +66,8 @@ window.Chains.App = function() {
                 });
             });
         });
+
+        // Socket events
 
         self.socket.on('sa.web.reload', function() {
             console.log('reloading');
@@ -79,7 +84,6 @@ window.Chains.App = function() {
                 attrs[key] = data[key];
             }
 
-console.log('service-event:', data);
             self.state.set(
                 data.service,
                 data.device,
@@ -90,14 +94,13 @@ console.log('service-event:', data);
         });
 
         self.socket.on('service-heartbeat', function(data) {
-console.log('service-heartbeat:', data);
             // if (data == 2) service is still online
         });
 
+        // Socket connection status
+
         setInterval(function(){
-            //self.now(new Date());
             self.isSocketConnected(self.socket.socket.connected);
-console.log('socket connected?', self.isSocketConnected());
         }, 2000);
 
     }

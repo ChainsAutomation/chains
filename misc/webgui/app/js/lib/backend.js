@@ -1,19 +1,19 @@
 window.Chains = window.Chains || {};
 
-window.Chains.Backend = function() {
+window.Chains.Backend = function(baseUrl) {
 
     var self = this;
 
-    self.call = function(method, url, data, callback) {
+    self.baseUrl = baseUrl;
 
-        var baseUrl = '/api';
+    self.call = function(method, url, data, callback) {
 
         if (typeof(data) == 'function') {
             callback = data;
             data = {};
         }
 
-        $.ajax(baseUrl + url, {
+        $.ajax(self.baseUrl + url, {
             data: data ? JSON.stringify(data) : null,
             dataType: 'json',
             method: method,

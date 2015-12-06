@@ -60,6 +60,17 @@ gulp.task('js:app', function() {
 
 });
 
+gulp.task('js:config', function() {
+
+    // Config
+
+    return gulp.src([
+        './app/config.js'
+    ])
+    .pipe(gulp.dest(config.distDir + '/js'));
+
+});
+
 gulp.task('js:vendor', function() {
 
     // Vendor
@@ -78,7 +89,7 @@ gulp.task('js:vendor', function() {
 
 });
 
-gulp.task('js', ['js:app','js:vendor'], function(){ });
+gulp.task('js', ['js:app','js:vendor','js:config'], function(){ });
 
 gulp.task('html', function() {
     gulp.src([
@@ -112,6 +123,7 @@ gulp.task('default', ['clean'], function(){
     gulp.run('css');
     gulp.run('js:vendor');
     gulp.run('js:app');
+    gulp.run('js:config');
     gulp.run('images');
     gulp.run('html');
 });
