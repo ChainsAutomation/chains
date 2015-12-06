@@ -19,13 +19,16 @@ window.Chains.Config = function() {
         });
 
         // Add a route for it
-        app.router('/test', function(){ app.setView('hello'); });
+        app.router('/hello', function(){ app.setView('hello'); });
 
         // Create the view model
         app.views.hello = new function(){
 
-            this.text = ko.observable('Hello');
-            this.click = function() { this.text('World'); }
+            var self = this;
+
+            self.text = ko.observable('Hello');
+            self.click = function() { self.text('World'); }
+            self.resume = function() { self.text('Hello'); }
 
         };
 
@@ -34,7 +37,7 @@ window.Chains.Config = function() {
             '<div id="view-hello" class="view">' +
             '<h1>Example view</h1>' +
             '<div>Text: <span data-bind="text: views.hello.text"></span></div>' +
-            '<button class="btn btn-primary" data-bind="click: views.hello.click"></button>' +
+            '<button class="btn btn-primary" data-bind="click: views.hello.click">Change text</button>' +
             '</div>'
         );
         view.appendTo($('#views'));
