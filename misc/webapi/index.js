@@ -108,8 +108,8 @@ require('./controllers/reactorAction')(app, '/reactors/:id/:action');
 require('./controllers/reactor')(app, '/reactors/:id');
 require('./controllers/reactors')(app, '/reactors');
 
-require('./controllers/serviceStart')(app, '/services/:id/start');
-require('./controllers/serviceStop')(app, '/services/:id/stop');
+require('./controllers/serviceStart')(app, '/services/:id/start-service');
+require('./controllers/serviceStop')(app, '/services/:id/stop-service');
 require('./controllers/serviceAction')(app, '/services/:id/:action');
 require('./controllers/service')(app, '/services/:id');
 require('./controllers/services')(app, '/services');
