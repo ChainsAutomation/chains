@@ -33,16 +33,10 @@
                       </tr>
                     </table>
                 </div>
-                <div class="actions">
-                    <table data-bind="foreach: actions">
-                      <tr>
-                        <td>
-                            <button class="data-value" data-bind="click: $parent.callAction">
+                <div class="actions" data-bind="foreach: actions">
+                    <button class="data-value" data-bind="click: $parent.callAction">
                                 <span data-bind="text: $data"></span>
-                            </button>
-                        </td>
-                      </tr>
-                    </table>
+                    </button>
                 </div>
                 <div class="end">
                 </div>
