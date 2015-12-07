@@ -32,20 +32,8 @@ window.Chains.View.Devices = function(app) {
         var self = this;
 
         self.callAction = function(actionName, event) {
-            $.ajax({
-                url: Chains.instance.config.restUrl + '/services/' + data.serviceId + '/' + actionName,
-                method: 'POST',
-                data: JSON.stringify([
-                    data.device
-                ]),
-                contentType: 'application/json',
-                success: function() {
-                    console.log('Success');
-                },
-                error: function() {
-                    console.error('Something when wrong');
-                }
-            });
+            var url = '/services/' + data.serviceId + '/' + actionName;
+            app.backend.post(url, [data.device]);
         };
 
         self.serviceId = ko.observable(data.serviceId);
