@@ -61,5 +61,6 @@ class RuterService(Service):
                 'lineNumber':      { 'value': proposal['lineNumber']}
             }, {
                 'device': eventName,
+                'type': 'train',
                 'location': proposal['departure']
             })
