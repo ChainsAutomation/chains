@@ -3,7 +3,19 @@ from chains.common import log
 import hashlib, time, urllib2, urllib, sys, json
 
 class RuterService(Service):
-    """Service implementing Ruter API"""
+    """
+    Service implementing Ruter API
+    Needs fromplace, toplace and transporttypes in config to work.
+
+    How to get fromplace and toplace:
+    1) Find your line number: http://reisapi.ruter.no/Line/GetLines
+    2) Find your stopids: http://reisapi.ruter.no/Line/GetStopsByLineID/9110 9110 = R10 (train)
+    3) Put it in your config:
+    Example (from Asker to Drammen):
+    fromplace = 2200500
+    toplace = 6021000
+    transporttypes = bus,tram,train
+    """
 
     def onInit(self):
         self.fromPlace = self.config.get('fromplace')
