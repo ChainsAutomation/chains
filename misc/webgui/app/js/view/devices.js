@@ -5,7 +5,7 @@ window.Chains.View.Devices = function(app) {
 
     var self = this;
 
-    self.groupBy = ko.observable('location');
+    self.groupBy = ko.observable('type');
 
     self.groupByOptions = ko.observableArray(['none','type','location']);
 
@@ -26,11 +26,27 @@ window.Chains.View.Devices = function(app) {
             }
         });
 
-    }
+    };
 
     self.Device = function(data) {
-
         var self = this;
+
+        self.callAction = function(actionName, event) {
+            $.ajax({
+                url: Chains.instance.config.restUrl + '/services/' + data.serviceId + '/' + actionName,
+                method: 'POST',
+                data: JSON.stringify([
+                    data.device
+                ]),
+                contentType: 'application/json',
+                success: function() {
+                    console.log('Success');
+                },
+                error: function() {
+                    console.error('Something when wrong');
+                }
+            });
+        };
 
         self.serviceId = ko.observable(data.serviceId);
         self.device    = ko.observable(data.device);
@@ -38,6 +54,7 @@ window.Chains.View.Devices = function(app) {
         self._type     = ko.observable(data.type);
         self._location = ko.observable(data.location);
         self._data     = ko.observable(data.data);
+        self.actions   = ko.observable(data.actions);
 
         self.cssClass = ko.computed(function(){
             return 'device device-type-' + (self._type() || 'generic');
@@ -46,7 +63,7 @@ window.Chains.View.Devices = function(app) {
         self.data = ko.computed(function(){
 			var result = [];
 			var data = self._data() || {};
-			for (key in data) {
+			for (var key in data) {
 				result[result.length] = { key: key, data: data[key] };
 			}
 			return result;
@@ -63,8 +80,7 @@ window.Chains.View.Devices = function(app) {
         self.icon = ko.computed(function(){
 			return '/images/type-icon/' + self.type() + '.svg';
         });
-
-    }
+    };
 
     self.data = ko.computed(function() {
         var result = {};
@@ -83,13 +99,20 @@ window.Chains.View.Devices = function(app) {
                     name:      device.id(),
                     location:  null,
                     type:      null,
-					data:      {}
+					data:      {},
+                    actions: []
                 };
                 var deviceData = device.data();
+
+                for (var prop in deviceData.data) {
+                    if (deviceData.data[prop].actions) {
+                        dev.actions = dev.actions.concat(deviceData.data[prop].actions);
+                    }
+                }
+
                 for(var key in deviceData) {
                     dev[key] = deviceData[key];
                 }
-
                 var group = groupBy == 'none' ? 'none' : dev[groupBy];
                 if (group === null || group === undefined) group = 'none';
                 if (!result[group])
@@ -110,7 +133,7 @@ window.Chains.View.Devices = function(app) {
             result2[result2.length] = group;
         }
 
-        if (result['none']) {
+        if (result.none) {
             var groupId = 'none';
             var group = new self.Group({
                 id: groupId,
@@ -120,7 +143,5 @@ window.Chains.View.Devices = function(app) {
         }
 
         return result2;
-
     });
-
-}
+};

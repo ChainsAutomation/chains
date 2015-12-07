@@ -9,7 +9,7 @@ window.Chains.App = function() {
     self.config = {
         restUrl:   '/api',
         socketUrl: 'http://' + window.location.hostname + ':7890'
-    }
+    };
 
     self.router = routie;
     self.backend = null; // set in start()
@@ -34,7 +34,7 @@ window.Chains.App = function() {
             return;
         }
         self.config[key] = data;
-    }
+    };
 
     self.setView = function(view) {
         $('.view').hide();
@@ -42,7 +42,7 @@ window.Chains.App = function() {
         $('body').removeClass().addClass('active-view-' + view);
         if (self.views[view] && self.views[view].resume)
             self.views[view].resume();
-    }
+    };
 
     self.navbar = ko.observableArray([
         { url: '#/devices', name: 'Devices' },
@@ -114,7 +114,6 @@ window.Chains.App = function() {
         setInterval(function(){
             self.isSocketConnected(self.socket.socket.connected);
         }, 2000);
-
-    }
+    };
 
 };

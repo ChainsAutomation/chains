@@ -15,7 +15,7 @@ window.Chains.Services = function(app) {
         self.online = ko.observable(data.online);
         self.autostart = ko.observable(data.autostart);
 
-    }
+    };
 
     self.data = ko.observableArray();
 
@@ -26,12 +26,12 @@ window.Chains.Services = function(app) {
                 return services[i];
         }
         return;
-    }
+    };
 
     self.getName = function(id) {
         var service = self.find(id);
         return service ? service.name() : '(' + id + ')';
-    }
+    };
 
     self.load = function(callback) {
         app.backend.get('/services', function(response){
@@ -42,6 +42,6 @@ window.Chains.Services = function(app) {
             if (callback)
                 callback();
         });
-    }
+    };
 
-}
+};
