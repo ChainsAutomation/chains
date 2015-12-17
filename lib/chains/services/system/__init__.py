@@ -11,6 +11,7 @@ class SystemService(Service):
 
     def onInit(self):
         self.interval = self.config.getInt('interval') or 60
+        self.location = self.config.get('location')
         log.info('SystemService interval is: ')
         log.info(self.interval)
 
@@ -31,32 +32,50 @@ class SystemService(Service):
     def action_sysinfo(self):
         """ Get system information """
         sysinfo = self._get_sysinfo()
-        self.sendEvent('system', sysinfo)
+        meta = {'device': 'system'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('system_update', sysinfo, meta)
 
     def action_meminfo(self):
         """ Get memory information """
         meminfo = self._get_meminfo()
-        self.sendEvent('memory', meminfo)
+        meta = {'device': 'memory'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('memory_update', meminfo, meta)
 
     def action_cpuinfo(self):
         """ Get cpu information """
         cpuinfo = self._get_cpuinfo()
-        self.sendEvent('cpu', cpuinfo)
+        meta = {'device': 'cpu'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('cpu_update', cpuinfo, meta)
 
     def action_userprocinfo(self):
         """ Get user and process information """
         userproc = self._get_userprocinfo()
-        self.sendEvent('userprocess', userproc)
+        meta = {'device': 'userproc'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('userprocess_update', userproc, meta)
 
     def action_diskinfo(self):
         """ Get disk information """
         disk = self._get_diskinfo()
-        self.sendEvent('disk', disk)
+        meta = {'device': 'disk'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('disk_update', disk, meta)
 
     def action_netinfo(self):
         """ Get network information """
         net = self._get_netinfo()
-        self.sendEvent('network', net)
+        meta = {'device': 'network'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('network_update', net, meta)
 
     def _get_sysinfo(self):
         """ Gather system info into a dictionary for sendEvent.
