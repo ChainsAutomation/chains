@@ -22,16 +22,16 @@ class SystemService(Service):
         log.info('SystemService main loop starting')
         while not self._shutdown:
             log.info('Main loop running')
-            self.send_sysinfo()
-            self.send_meminfo()
-            self.send_cpuinfo()
-            self.send_userprocinfo()
-            self.send_diskinfo()
-            self.send_netinfo()
+            self.action_sysinfo()
+            self.action_meminfo()
+            self.action_cpuinfo()
+            self.action_userprocinfo()
+            self.action_diskinfo()
+            self.action_netinfo()
             # wait a while before sending system info again
             time.sleep(self.interval)
 
-    def send_sysinfo(self):
+    def action_sysinfo(self):
         """ Get system information """
         sysinfo = SS.get_sysinfo()
         meta = {'device': 'system'}
@@ -39,10 +39,7 @@ class SystemService(Service):
             meta.update({'location': self.location})
         self.sendEvent('system_update', sysinfo, meta)
 
-    # aliases for chains actions
-    action_sysinfo = send_sysinfo
-
-    def send_meminfo(self):
+    def action_meminfo(self):
         """ Get memory information """
         meminfo = SS.get_meminfo()
         meta = {'device': 'memory'}
@@ -50,10 +47,7 @@ class SystemService(Service):
             meta.update({'location': self.location})
         self.sendEvent('memory_update', meminfo, meta)
 
-    # aliases for chains actions
-    action_meminfo = send_meminfo
-
-    def send_cpuinfo(self):
+    def action_cpuinfo(self):
         """ Get cpu information """
         cpuinfo = SS.get_cpuinfo()
         meta = {'device': 'cpu'}
@@ -61,10 +55,7 @@ class SystemService(Service):
             meta.update({'location': self.location})
         self.sendEvent('cpu_update', cpuinfo, meta)
 
-    # aliases for chains actions
-    action_cpuinfo = send_cpuinfo
-
-    def send_userprocinfo(self):
+    def action_userprocinfo(self):
         """ Get user and process information """
         userproc = SS.get_userprocinfo()
         meta = {'device': 'userproc'}
@@ -72,10 +63,7 @@ class SystemService(Service):
             meta.update({'location': self.location})
         self.sendEvent('userprocess_update', userproc, meta)
 
-    # aliases for chains actions
-    action_userprocinfo = send_userprocinfo
-
-    def send_diskinfo(self):
+    def action_diskinfo(self):
         """ Get disk information """
         disk = SS.get_diskinfo()
         meta = {'device': 'disk'}
@@ -83,16 +71,10 @@ class SystemService(Service):
             meta.update({'location': self.location})
         self.sendEvent('disk_update', disk, meta)
 
-    # aliases for chains actions
-    action_diskinfo = send_diskinfo
-
-    def send_netinfo(self):
+    def action_netinfo(self):
         """ Get network information """
         net = SS.get_netinfo()
         meta = {'device': 'network'}
         if self.location:
             meta.update({'location': self.location})
         self.sendEvent('network_update', net, meta)
-
-    # aliases for chains actions
-    action_netinfo = send_netinfo
