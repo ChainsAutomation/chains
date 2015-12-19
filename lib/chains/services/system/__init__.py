@@ -13,6 +13,7 @@ class SystemService(Service):
     def onInit(self):
         self.interval = self.config.getInt('interval') or 60
         self.location = self.config.get('location')
+        self.cs = SS()
         log.info('SystemService interval is: ')
         log.info(self.interval)
 
@@ -33,7 +34,7 @@ class SystemService(Service):
 
     def action_sysinfo(self):
         """ Get system information """
-        sysinfo = SS.get_sysinfo()
+        sysinfo = self.cs.get_sysinfo()
         meta = {'device': 'system'}
         if self.location:
             meta.update({'location': self.location})
@@ -41,7 +42,7 @@ class SystemService(Service):
 
     def action_meminfo(self):
         """ Get memory information """
-        meminfo = SS.get_meminfo()
+        meminfo = self.cs.get_meminfo()
         meta = {'device': 'memory'}
         if self.location:
             meta.update({'location': self.location})
@@ -49,7 +50,7 @@ class SystemService(Service):
 
     def action_cpuinfo(self):
         """ Get cpu information """
-        cpuinfo = SS.get_cpuinfo()
+        cpuinfo = self.cs.get_cpuinfo()
         meta = {'device': 'cpu'}
         if self.location:
             meta.update({'location': self.location})
@@ -57,7 +58,7 @@ class SystemService(Service):
 
     def action_userprocinfo(self):
         """ Get user and process information """
-        userproc = SS.get_userprocinfo()
+        userproc = self.cs.get_userprocinfo()
         meta = {'device': 'userproc'}
         if self.location:
             meta.update({'location': self.location})
@@ -65,7 +66,7 @@ class SystemService(Service):
 
     def action_diskinfo(self):
         """ Get disk information """
-        disk = SS.get_diskinfo()
+        disk = self.cs.get_diskinfo()
         meta = {'device': 'disk'}
         if self.location:
             meta.update({'location': self.location})
@@ -73,7 +74,7 @@ class SystemService(Service):
 
     def action_netinfo(self):
         """ Get network information """
-        net = SS.get_netinfo()
+        net = self.cs.get_netinfo()
         meta = {'device': 'network'}
         if self.location:
             meta.update({'location': self.location})
