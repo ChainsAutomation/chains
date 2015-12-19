@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 
+### ALL THIS IS LIFTED DIRECTLY FROM runservice.py
+
 import sys, signal, os, json
 from chains.service import process
 from chains.service import config # as serviceConfig
 from chains import service
 from chains.common import log, utils
 #from chains.common import config as globalConfig
+
+from .runservice import signalHandler, parseConfigParam, checkNotRunning
 
 serviceObject = None
 
