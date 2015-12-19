@@ -1,7 +1,7 @@
 from chains.service import Service
 from chains.common import log
 
-from . import system as SS
+from .system import System as SS
 
 import os
 import datetime
