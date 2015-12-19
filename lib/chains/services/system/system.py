@@ -23,18 +23,18 @@ class System(object):
 
     def get_meminfo(self):
         """ gather memory info into a dictionary """
-        usage = ps.phymem_usage()
-        meminfo = {
-            'mem_percent': ps.phymem_usage().percent,
-            'mem_free': self._try_get_mem_attr(usage, 'free'),
-            'mem_used': self._try_get_mem_attr(usage, 'used'),
-            'mem_available': self._try_get_mem_attr(usage, 'available'),
-            'mem_total': self._try_get_mem_attr(usage, 'total'),
-            'mem_active': self._try_get_mem_attr(usage, 'active'),
-            'mem_buffer': self._try_get_mem_attr(usage, 'buffers'),
-            'mem_cached': self._try_get_mem_attr(usage, 'cached'),
-            'mem_inactive': self._try_get_mem_attr(usage, 'inactive'),
-        }
+        meminfo = {}
+        if 'phymem_usage' in vars(ps):
+            usage = ps.phymem_usage()
+            meminfo.update({'mem_percent': ps.phymem_usage().percent})
+        meminfo.update({'mem_free': self._try_get_mem_attr(usage, 'free')}
+        meminfo.update({'mem_used': self._try_get_mem_attr(usage, 'used')}
+        meminfo.update({'mem_available': self._try_get_mem_attr(usage, 'available')}
+        meminfo.update({'mem_total': self._try_get_mem_attr(usage, 'total')}
+        meminfo.update({'mem_active': self._try_get_mem_attr(usage, 'active')}
+        meminfo.update({'mem_buffer': self._try_get_mem_attr(usage, 'buffers')}
+        meminfo.update({'mem_cached': self._try_get_mem_attr(usage, 'cached')}
+        meminfo.update({'mem_inactive': self._try_get_mem_attr(usage, 'inactive')}
         return meminfo
 
     def get_cpuinfo(self):
