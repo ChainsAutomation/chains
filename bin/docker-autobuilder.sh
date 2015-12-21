@@ -1,10 +1,15 @@
 #!/bin/bash
 
+USE_FORCE=0
 TYPE="$1"
 OS=$(uname -m)
 
 if [ -z $TYPE ]; then
     TYPE="slave";
+fi
+
+if [[ $2 == --force* ]]; then
+    USE_FORCE=1;
 fi
 
 if [ $OS = "x86_64" ]; then
@@ -17,7 +22,7 @@ while true; do
     git fetch
     REMOTE_VERSION=`git rev-parse origin/master`
     LOCAL_VERSION=`git rev-parse HEAD`
-    if [ $REMOTE_VERSION != $LOCAL_VERSION ]; then
+    if [ $REMOTE_VERSION != $LOCAL_VERSION ] || [ $USE_FORCE -gt 0  ]; then
         git pull
         make test
         if [ "$?" -eq 0 ]; then

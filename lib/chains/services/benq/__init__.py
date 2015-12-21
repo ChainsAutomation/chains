@@ -1,6 +1,5 @@
 #!/usr/bin/python2
 
-import sys
 import time
 
 from chains.service import Service
@@ -14,6 +13,7 @@ class BenqService(Service):
     def onInit(self):
         log('BenqService init.')
         self.model = self.config.get('model') or 'W6000'
+        self.location = self.config.get('location')
         self.ser_dev = self.config.get('serial') or '/dev/ttyUSB0'
         self.ser = serial.Serial(port=self.ser_dev,
                                  baudrate=115200,
@@ -25,10 +25,14 @@ class BenqService(Service):
 
     def onStart(self):
         log('BenqService starting.')
+        meta = {'type': 'screen', 'device': 'projector'}
+        if self.location:
+            meta.update({'location': self.location})
         while not self._shutdown:
             line = self.ser.readline()
             if line:
-                self.sendEvent(line, {'device': 'projector', 'value': line})
+                change = benq.parse(line)
+                self.sendEvent('change', change, meta)
             # TODO: sleep probably not needed?
             time.sleep(0.1)
 

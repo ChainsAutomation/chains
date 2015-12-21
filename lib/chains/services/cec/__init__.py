@@ -18,9 +18,8 @@ class CECService(Service):
             self.sendEvent('current_adapter', {'id': 0})
         cec.init(self.adapter)
         # Service config
-        self.interval = self.config.get('interval')
-        if not self.interval:
-            self.interval = 60
+        self.interval = self.config.get('interval') or 60
+        self.location = self.config.get('location')
         self.cur_service = None
 
     def onStart(self):
@@ -37,7 +36,10 @@ class CECService(Service):
         '''
         cec.init(adapter)
         self.adapter = adapter
-        self.sendEvent('current_adapter', {'id': adapter})
+        meta = {'device': self.adapter}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('set_adapter', {'active_adapter': {'value': self.adapter}}, meta)
 
     def action_set_service(self, service):
         '''
@@ -46,31 +48,44 @@ class CECService(Service):
         '''
         self.cur_service = cec.Service(service)
         self.action_describe_service(service)
+        meta = {'device': self.adapter}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('set_service', {'active_service': {'value': self.cur_service}}, meta)
 
     def action_list_adapters(self):
         '''
         Find connected CEC adapters
         '''
         self.adapters = cec.list_adapters()
-        self.sendEvent('adapters', {'detected': self.adapters})
+        meta = {'device': self.adapter}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('adapters', {'adapters': {'value': self.adapters}}, meta)
 
     def action_list_services(self):
         '''
         Find connected CEC services
         '''
         self.services = cec.list_services()
-        self.sendEvent('services', {'detected': self.services})
+        meta = {'device': self.adapter}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('services_list', {'services': {'value': self.services}}, meta)
 
     def action_describe_service(self, cecdev):
         '''
         Describe a connected CEC service
         '''
         dev = cec.Service(cecdev)
-        self.sendEvent(cecdev, {'address': dev.address, 'phy': dev.physical_address,
+        meta = {'device': cecdev}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('service_describe', {'address': dev.address, 'phy': dev.physical_address,
                                 'vendor': dev.vendor, 'OSD': dev.osd_string,
                                 'cec_version': dev.cec_version,
                                 'language': dev.language
-                                })
+                                }, meta)
 
     def action_power_on(self, cecdev=None):
         '''

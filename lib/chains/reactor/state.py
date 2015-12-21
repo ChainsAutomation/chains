@@ -2,6 +2,12 @@ class State:
 
     def __init__(self):
         self.data = {}
+        
+    def __getitem__(self, *args, **kwargs):
+        return self.get(*args, **kwargs)
+    
+    def __setitem__(self, *args, **kwargs):
+        self.set(*args, **kwargs)
 
     def set(self, key, value):
         key = key.split('.')
