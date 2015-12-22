@@ -41,17 +41,17 @@ class System(object):
         """ gather cpu info into a dictionary """
         cpu = ps.cpu_times()
         cpuinfo = {
-            'cpu_percent':    ps.cpu_percent(),  # set interval=1?0.5?
-            'cpu_user':       self._try_get_attr(cpu, 'user'),
-            'cpu_nice':       self._try_get_attr(cpu, 'nice'),
-            'cpu_system':     self._try_get_attr(cpu, 'system'),
-            'cpu_idle':       self._try_get_attr(cpu, 'idle'),
-            'cpu_iowait':     self._try_get_attr(cpu, 'iowait'),
-            'cpu_irq':        self._try_get_attr(cpu, 'irq'),
-            'cpu_softirq':    self._try_get_attr(cpu, 'softirq'),
-            'cpu_guest':      self._try_get_attr(cpu, 'guest'),
-            'cpu_guest_nice': self._try_get_attr(cpu, 'guest_nice'),
-            'cpu_steal':      self._try_get_attr(cpu, 'steal'),
+            'percent':    ps.cpu_percent(),  # set interval=1?0.5?
+            'user':       self._try_get_attr(cpu, 'user'),
+            'nice':       self._try_get_attr(cpu, 'nice'),
+            'system':     self._try_get_attr(cpu, 'system'),
+            'idle':       self._try_get_attr(cpu, 'idle'),
+            'iowait':     self._try_get_attr(cpu, 'iowait'),
+            'irq':        self._try_get_attr(cpu, 'irq'),
+            'softirq':    self._try_get_attr(cpu, 'softirq'),
+            'guest':      self._try_get_attr(cpu, 'guest'),
+            'guest_nice': self._try_get_attr(cpu, 'guest_nice'),
+            'steal':      self._try_get_attr(cpu, 'steal'),
         }
         return cpuinfo
 

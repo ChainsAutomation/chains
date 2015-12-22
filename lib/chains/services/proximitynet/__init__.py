@@ -19,7 +19,7 @@ class ProximitynetService(Service):
             if pkt[ARP].op == 1:  # who-has (request)
                 log.info("ARP Request: " + pkt[ARP].psrc + " is asking about " + pkt[ARP].pdst)
                 # self.sendEvent(pkt.psrc, {'type': 'arp_query'})
-                props = {'request': {'value': pkt[ARP].pdst}}
+                props = {'ip_address': {'value': pkt[ARP].pdst}}
                 meta = {'device': pkt[ARP].psrc, 'type': 'proximity'}
                 if self.location:
                     meta.update({'location': self.location})
@@ -29,8 +29,8 @@ class ProximitynetService(Service):
                 log.info("ARP Response: " + pkt[ARP].hwsrc + " has address " + pkt[ARP].psrc)
                 # self.sendEvent(pkt[ARP].hwsrc, {'device': 'ARP', 'address': pkt[ARP].psrc, 'type': 'arp_response'})
                 # TODO: Lookup to see if MAC is in friends dictionary and replace MAC with name
-                props = {'response': {'value': pkt[ARP].psrc}}
+                props = {'ip_address': {'value': pkt[ARP].psrc}}
                 meta = {'device': pkt[ARP].hwsrc, 'type': 'proximity'}
                 if self.location:
                     meta.update({'location': self.location})
-                self.sendEvent('response', props, meta)
+                self.sendEvent('arp_response', props, meta)
