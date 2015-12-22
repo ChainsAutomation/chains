@@ -9,6 +9,7 @@ class PhilipsHueService(chains.service.Service):
 
     def onInit(self):
         address, username = self.getBridgeConfig()
+        self.location = self.config.get('location')
         self.bridge = pyhue.Bridge(address, username)
         self.sendStartupEvents()
 
@@ -42,7 +43,7 @@ class PhilipsHueService(chains.service.Service):
     def action_saturation(self, id, saturation):
         self.getLight(id).on  = True
         self.getLight(id).sat = self.parseLevel(saturation)
-        
+
     def action_alert(self, id, enable):
         self.getLight(id).on = True
         if enable:
@@ -167,6 +168,10 @@ class PhilipsHueService(chains.service.Service):
                 item[key] = light.state[key]
             item['type'] = 'lamp'
             item['value'] = item.get('bri')
+            meta = {}
+            if self.location:
+                meta.update({'location': self.location})
             if not item.get('on'):
                 item['value'] = 0
-            self.sendEvent('change', item, 'lamp-%s' % item['id'])
+            meta.update({'device': 'lamp-%s' % item['id']})
+            self.sendEvent('change', item, meta)
