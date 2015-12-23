@@ -168,7 +168,7 @@ class PhilipsHueService(chains.service.Service):
                 item[key] = light.state[key]
             item['type'] = 'lamp'
             item['value'] = item.get('bri')
-            meta = {}
+            meta = {'type': 'light'}
             if self.location:
                 meta.update({'location': self.location})
             if not item.get('on'):
