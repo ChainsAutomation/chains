@@ -174,4 +174,6 @@ class PhilipsHueService(chains.service.Service):
             if not item.get('on'):
                 item['value'] = 0
             meta.update({'device': 'lamp-%s' % item['id']})
+            for key, value in item.items():
+                item[key] = {'value': value}
             self.sendEvent('change', item, meta)
