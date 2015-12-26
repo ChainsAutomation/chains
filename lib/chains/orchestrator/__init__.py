@@ -421,19 +421,25 @@ class Orchestrator(amqp.AmqpDaemon):
     # ===================================================
 
     def action_startService(self, service):
-        #self.reloadServiceConfigs()
-        serviceId, managerId = self.parseServiceParam(service)
-        return self.startService(managerId, serviceId)
+        if service == 'all':
+            service = 'autostart'
+        for serviceId, managerId in self.parseServiceParam(service, True):
+            self.startService(managerId, serviceId)
 
     def action_stopService(self, service):
-        serviceId, managerId = self.parseServiceParam(service)
-        #return self.callManagerAction(managerId, 'stopService', [serviceId])
+        if service == 'all':
+            service = 'online'
+        for serviceId, managerId in self.parseServiceParam(service, True):
+            self.stopService(managerId, serviceId)
+
+    def stopService(self, managerId, serviceId):
+        log.info('Stop service: %s @ %s' % (serviceId, managerId))
         self.data['service'][serviceId]['manuallyStopped'] = True
         self.sendManagerAction(managerId, 'stopService', [serviceId])
 
     def startService(self, managerId, serviceId):
+        log.info('Start service: %s @ %s' % (serviceId, managerId))
         config = self.data['service'][serviceId]
-        #self.sendManagerAction(managerId, 'startService', [config])
         self.data['service'][serviceId]['manuallyStopped'] = False
         self.sendManagerAction(managerId, 'startService', [config])
 
@@ -455,10 +461,46 @@ class Orchestrator(amqp.AmqpDaemon):
     def generateUuid(self):
         return uuid.uuid4().hex
 
-    def parseServiceParam(self, value):
-        service, manager = self._parseServiceParam(value)
-        log.debug('Parsed service id: %s => %s @ %s' % (value, service, manager))
-        return service, manager
+    def parseServiceParam(self, value, multiple=False):
+
+        results = []
+
+        # Magic keywords:
+        #
+        #  - forceall   *all* services
+        #  - online     all services that are online
+        #  - offline    all services that are offline
+        #  - autostart  all services that are configured to autostart but is currently offline
+        #
+        # Note that any service at at manager that is offline will be excluded in all of the above
+        #
+        if multiple and (value == 'forceall' or value == 'online' or value == 'offline' or value == 'autostart'):
+            for serviceId in self.data['service']:
+
+                mainConfig = self.data['service'][serviceId]['main']
+                isAutoStart = mainConfig.get('autostart')
+                isOnline = self.data['service'][serviceId].get('online')
+                managerId = mainConfig.get('manager')
+
+                managerInfo = self.data['manager'].get(managerId)
+                if not managerInfo or not managerInfo.get('online'):
+                    log.info('Exclude service %s because manager %s is offline' % (serviceId, managerId))
+                    continue
+                
+                if value == 'forceall' or (value == 'online' and isOnline) or (value == 'offline' and not isOnline) or (value == 'autostart' and isAutoStart and not isOnline):
+                    results.append(( serviceId, managerId ))
+        else:
+            values = value.split(',')
+            for _value in values:
+                service, manager = self._parseServiceParam(_value)
+                results.append(( service, manager ))
+
+        log.info('Parsed service id: %s => %s' % (value, results))
+
+        if multiple:
+            return results
+        else:
+            return results[0]
 
     def _parseServiceParam(self, value):
 
