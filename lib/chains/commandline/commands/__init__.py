@@ -64,7 +64,19 @@ class Command:
         rpc = self.connection.rpc(queuePrefix='rpc-chains-admin')
         return rpc.call(*args)
     def help(self):
-        return 'No help available'
+        return """
+            No help available
+
+            Be a sport and contribute by adding help to the command :)
+
+              1. Locate the apropriate Command in /srv/chains/lib/chains/commandline/commands/
+              2. Add a help description line this:
+
+                 def help(self):
+                     return '''
+                         My help text
+                     '''
+        """
 
 """
 if __name__ == '__main__':
