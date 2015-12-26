@@ -1,8 +1,12 @@
 @import "bootstrap";
 @import "font-awesome";
 
+html {
+  height: 100%;
+}
 body {
   padding-top: 55px;
+  height: 100%;
 }
 
 .daemon-list {
