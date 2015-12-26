@@ -10,42 +10,41 @@ body {
 }
 
 .daemon-list {
-    tr td.name, 
-    tr td.id, 
+    tr td.name,
+    tr td.id,
     tr td.online {
         color: red;
     }
-    tr.is-online td.id, 
-    tr.is-online td.name, 
+    tr.is-online td.id,
+    tr.is-online td.name,
     tr.is-online td.online {
         color: green;
     }
 }
 
 #view-state {
-
     .service-container { margin-bottom: 20px; }
     .service { }
     .device { margin-left: 10px; }
     .key { margin-left: 20px; }
     .data { margin-left: 30px; }
-	.data-values { margin-left: 10px; }
+        .data-values { margin-left: 10px; }
 
-	.service-suffix,
-	.device-suffix {
-		color: #777;
-	}
+        .service-suffix,
+        .device-suffix {
+                color: #777;
+        }
 
-	.service-name {
-		color: blue;
-		font-size: 16px;
-		font-weight: bold;
-	}
-	.device-name {
-		color: green;
-		font-size: 14px;
-		font-weight: bold;
-	}
+        .service-name {
+                color: blue;
+                font-size: 16px;
+                font-weight: bold;
+        }
+        .device-name {
+                color: green;
+                font-size: 14px;
+                font-weight: bold;
+        }
 
 }
 
@@ -64,15 +63,19 @@ body {
     }
 
     .device {
-
         background: white;
-
         border: 1px solid #ccc;
-        width: 200px;
+        min-width: 200px;
         min-height: 100px;
         float: left;
         margin: 10px;
         padding: 5px;
+
+        @media (max-width: 460px) {
+            width: 100%;
+            padding : 2px;
+            margin: 3px 1px 10px 1px;
+        }
 
         .icon {
             float: left;
@@ -82,33 +85,43 @@ body {
             }
         }
         .top {
-            float: right;
             .name {
                 text-align: right;
-				font-size: 16px;
-				font-weight: bold;
+                font-size: 16px;
+                font-weight: bold;
             }
             .type-location {
                 font-size: 12px;
                 text-align: right;
-            	color: #666;
+                color: #666;
             }
         }
         .data {
-            clear: both;
             padding-top: 10px;
             font-size: 14px;
-			table {
-				float: right;
-				td { text-align: right; }
-				.data-key {
-					padding-right: 10px;
-					color: #666;
-				}
-				.data-value {
-					font-weight: bold;
-				}
-			}
+
+            table {
+                display: block;
+
+                .data-key {
+                    padding-right: 10px;
+                    color: #666;
+                }
+                .data-value {
+                    font-weight: bold;
+                }
+            }
+        }
+        .actions {
+            display: block;
+            overflow: auto;
+            margin-top: 5px;
+
+            button {
+                display: block;
+                width: 100%;
+                margin-bottom: 5px;
+            }
         }
         .end {
             clear: both;
@@ -116,11 +129,9 @@ body {
     }
 
     .device-generic {
-
         .icon {
             color: #aaa;
         }
-        
-    }
 
+    }
 }

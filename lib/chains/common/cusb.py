@@ -100,7 +100,7 @@ def service_strings(bus, address):
     usb_str = {
         'manufacturer_name': 'unknown',
         'product_name': 'unknown',
-        'serialnumber': 'unkmown',
+        'serialnumber': 'unknown',
     }
     """
     dev = usb.core.find(bus=bus, address=address)

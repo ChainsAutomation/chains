@@ -8,15 +8,21 @@ import time
 
 
 class USBInfoService(chains.service.Service):
+    """ In USB terms:
+        * Service: A USB device
+        ** Interface: A service can have multiple interfaces (e.g. keyboard and touchoad on same unit)
+        *** Endpoint: Each interface can have multiple endpoints
+    """
 
     def onInit(self):
         # ## Service config
         self.interval = self.config.getInt('interval') or 600
+        self.location = self.config.get('location')
 
     def onStart(self):
         while not self._shutdown:
             devs = self._get_all_services()
-            self._send_usbtree(devs)
+            # self._send_usbtree(devs)
             self._send_all_services(devs)
             time.sleep(self.interval)
 
@@ -36,13 +42,14 @@ class USBInfoService(chains.service.Service):
     def _send_all_services(self, usbtree):
         log.info('Running _send_all_services')
         for devkey in usbtree:
-            self.sendEvent(devkey, usbtree[devkey])
+            self.sendEvent('usb_device', usbtree[devkey], {'device': devkey, 'type': 'usb'})
 
     def _send_service(self, bus, address):
+        # TODO: This enumerates all service and sends just the one, maybe fix
         log.info('Running _send_service')
         dev = self._get_dev_path(bus, address)
         devkey = "%03d:%03d" % (bus, address)
-        self.sendEvent(devkey, dev)
+        self.sendEvent('usb_device', usbtree[devkey], {'device': devkey, 'type': 'usb'})
 
     def _get_all_services(self):
         log.info('Running _get_all_services')
@@ -57,24 +64,16 @@ class USBInfoService(chains.service.Service):
 
     def _get_service(self, dev):
         log.info('Running _get_service')
-        devdict = {}
         devkey = "%03d:%03d" % (dev.bus, dev.address)
-        devdict.update({devkey: {
-            'bLength': dev.bLength,
-            'bDescriptorType': dev.bDescriptorType,
-            'bcdUSB': dev.bcdUSB,
-            'bServiceClass': dev.bServiceClass,
-            'bServiceSubClass': dev.bServiceSubClass,
-            'bServiceProtocol': dev.bServiceProtocol,
-            'bMaxPacketSize0': dev.bMaxPacketSize0,
-            'idVendor': dev.idVendor,
-            'idProduct': dev.idProduct,
-            'bcdService': dev.bcdService,
-            'iManufacturer': dev.iManufacturer,
-            'iProduct': dev.iProduct,
-            'iSerialNumber': dev.iSerialNumber,
-            'bNumConfigurations': dev.bNumConfigurations,
-        }})
+        devdict = {devkey: {}}
+        for key, value in vars(dev).items():
+            if not key.startswith('_'):
+                devdict[devkey].update({key: value})
+        usb_strings = cusb.service_strings(dev.bus, dev.address)
+        devdict[devkey].update(usb_strings)
+        # chainsify the dictionary
+        for key, value in devdict[devkey].items():
+            devdict[devkey].update({key: {'value': value}})
         devconf = {
             'conf': {
                 'bLength': dev[0].bLength,
@@ -87,8 +86,6 @@ class USBInfoService(chains.service.Service):
             }
         }
         devdict[devkey].update(devconf)
-        usb_strings = cusb.service_strings(dev.bus, dev.address)
-        devdict[devkey].update(usb_strings)
         # dev[0] since we only check first configuration
         devdict[devkey].update({'interfaces': self._get_all_interfaces(dev[0])})
         return devdict

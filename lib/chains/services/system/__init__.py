@@ -1,16 +1,19 @@
 from chains.service import Service
 from chains.common import log
 
+from .system import System as SS
+
 import os
 import datetime
 import time
-import psutil as ps
-import platform as pf
+
 
 class SystemService(Service):
 
     def onInit(self):
         self.interval = self.config.getInt('interval') or 60
+        self.location = self.config.get('location')
+        self.cs = SS()
         log.info('SystemService interval is: ')
         log.info(self.interval)
 
@@ -20,148 +23,72 @@ class SystemService(Service):
         log.info('SystemService main loop starting')
         while not self._shutdown:
             log.info('Main loop running')
-            self.action_cpuinfo()
-            self.action_meminfo()
-            self.action_netinfo()
             self.action_sysinfo()
+            self.action_meminfo()
+            self.action_cpuinfo()
+            self.action_userprocinfo()
             self.action_diskinfo()
+            self.action_netinfo()
             # wait a while before sending system info again
             time.sleep(self.interval)
 
     def action_sysinfo(self):
         """ Get system information """
-        sysinfo = self._get_sysinfo()
-        self.sendEvent('system', sysinfo)
+        sysinfo = self.cs.get_sysinfo()
+        sysinfo = self.cdictify(sysinfo)
+        meta = {'device': 'system'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('system_update', sysinfo, meta)
 
     def action_meminfo(self):
         """ Get memory information """
-        meminfo = self._get_meminfo()
-        self.sendEvent('memory', meminfo)
+        meminfo = self.cs.get_meminfo()
+        meminfo = self.cdictify(meminfo)
+        meta = {'device': 'memory'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('memory_update', meminfo, meta)
 
     def action_cpuinfo(self):
         """ Get cpu information """
-        cpuinfo = self._get_cpuinfo()
-        self.sendEvent('cpu', cpuinfo)
+        cpuinfo = self.cs.get_cpuinfo()
+        cpuinfo = self.cdictify(cpuinfo)
+        meta = {'device': 'cpu'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('cpu_update', cpuinfo, meta)
 
     def action_userprocinfo(self):
         """ Get user and process information """
-        userproc = self._get_userprocinfo()
-        self.sendEvent('userprocess', userproc)
+        userproc = self.cs.get_userprocinfo()
+        userproc = self.cdictify(userproc)
+        meta = {'device': 'userproc'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('userprocess_update', userproc, meta)
 
     def action_diskinfo(self):
         """ Get disk information """
-        disk = self._get_diskinfo()
-        self.sendEvent('disk', disk)
+        disk = self.cs.get_diskinfo()
+        disk = self.cdictify(disk)
+        meta = {'device': 'disk'}
+        if self.location:
+            meta.update({'location': self.location})
+        self.sendEvent('disk_update', disk, meta)
 
     def action_netinfo(self):
         """ Get network information """
-        net = self._get_netinfo()
-        self.sendEvent('network', net)
+        net = self.cs.get_netinfo()
+        for neti in net:
+            meta = {'device': 'net-%s' % neti}
+            ndict = self.cdictify(net[neti])
+            if self.location:
+                meta.update({'location': self.location})
+            self.sendEvent('network_update', ndict, meta)
 
-    def _get_sysinfo(self):
-        """ Gather system info into a dictionary for sendEvent.
-            This is information that rarely if ever changes. Well, yeah, this changed with the uptime stats.
-        """
-        sysinfo = {
-            'hostname': os.uname()[1],
-            'cpus': ps.cpu_count(logical=False),
-            'cpu_cores': ps.cpu_count(),
-            'architecture': pf.architecture()[0],
-            'bin_format': pf.architecture()[1],
-            'up_since': datetime.datetime.fromtimestamp(ps.boot_time()).strftime("%Y-%m-%d %H:%M:%S"),
-            'uptime': int((datetime.datetime.now() - datetime.datetime.fromtimestamp(ps.boot_time())).total_seconds() / 60),
-        }
-        return sysinfo
-
-    def _get_meminfo(self):
-        """ gather memory info into a dictionary for sendEvent """
-        usage = ps.phymem_usage()
-        meminfo = {
-            'mem_percent': ps.phymem_usage().percent,
-            'mem_free': self._try_get_mem_attr(usage, 'free'),
-            'mem_used': self._try_get_mem_attr(usage, 'used'),
-            'mem_available': self._try_get_mem_attr(usage, 'available'),
-            'mem_total': self._try_get_mem_attr(usage, 'total'),
-            'mem_active': self._try_get_mem_attr(usage, 'active'),
-            'mem_buffer': self._try_get_mem_attr(usage, 'buffers'),
-            'mem_cached': self._try_get_mem_attr(usage, 'cached'),
-            'mem_inactive': self._try_get_mem_attr(usage, 'inactive'),
-        }
-        return meminfo
-
-    def _get_cpuinfo(self):
-        """ gather cpu info into a dictionary for sendEvent """
-        cpu = ps.cpu_times()
-        cpuinfo = {
-            'cpu_percent':    ps.cpu_percent(),  # set interval=1?0.5?
-            'cpu_user':       self._try_get_attr(cpu, 'user'),
-            'cpu_nice':       self._try_get_attr(cpu, 'nice'),
-            'cpu_system':     self._try_get_attr(cpu, 'system'),
-            'cpu_idle':       self._try_get_attr(cpu, 'idle'),
-            'cpu_iowait':     self._try_get_attr(cpu, 'iowait'),
-            'cpu_irq':        self._try_get_attr(cpu, 'irq'),
-            'cpu_softirq':    self._try_get_attr(cpu, 'softirq'),
-            'cpu_guest':      self._try_get_attr(cpu, 'guest'),
-            'cpu_guest_nice': self._try_get_attr(cpu, 'guest_nice'),
-            'cpu_steal':      self._try_get_attr(cpu, 'steal'),
-        }
-        return cpuinfo
-
-    def _get_userprocinfo(self):
-        """ gather process info into a dictionary for sendEvent """
-        terms = {}
-        logins = {}
-        for user in ps.users():
-            terms.update({user.terminal: {'user': user.name, 'host': user.host, 'time': int((datetime.datetime.now() - datetime.datetime.fromtimestamp(user.started)).total_seconds() / 60)}})
-            if user.name not in logins:
-                logins.update({user.name: True})
-        userprocinfo = {
-            'pids': len(ps.pids()),
-        }
-        userprocinfo.update(terms)
-        userprocinfo.update(logins)
-        return userprocinfo
-
-    def _get_diskinfo(self):
-        """ gather disk info into a dictionary for sendEvent """
-        mounts = {}
-        for m in ps.disk_partitions():
-            mounts.update({m.mountpoint: ps.disk_usage(m.mountpoint).percent})
-        diskinfo = {
-            'read_count': ps.disk_io_counters(perdisk=False).read_count,
-            'write_count': ps.disk_io_counters(perdisk=False).write_count,
-            'read_bytes': ps.disk_io_counters(perdisk=False).read_bytes,
-            'write_bytes': ps.disk_io_counters(perdisk=False).write_bytes,
-            'read_time': ps.disk_io_counters(perdisk=False).read_time,
-            'write_time': ps.disk_io_counters(perdisk=False).write_time,
-            # '': ,
-        }
-        diskinfo.update(mounts)
-        return diskinfo
-
-    def _get_netinfo(self):
-        """ gather neetwork info into a dictionary for sendEvent """
-        nics = {}
-        try:
-            niclist = ps.net_io_counters(pernic=True)
-        except AttrbuteError:
-            niclist = ps.network_io_counters(pernic=True)
-        for nic in niclist:
-            nics.update({nic: {}})
-            for name in niclist[nic]._fields:
-                nics[nic].update({name: getattr(niclist[nic], name)})
-        return nics
-
-    def _try_get_attr(self, obj, attr):
-        try:
-            return getattr(obj, attr)
-        except AttributeError:
-            return None
-
-    def _try_get_mem_attr(self, obj, attr):
-        value = None
-        try:
-            value = getattr(obj, attr)
-        except AttributeError:
-            return None
-        return int(value / (1024 * 1024))
+    def cdictify(self, flat_dict):
+        cdict = {}
+        for key, value in flat_dict.items():
+            cdict.update({key: {'value': value}})
+        return cdict

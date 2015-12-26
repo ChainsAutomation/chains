@@ -7,6 +7,9 @@ window.Chains.Backend = function(baseUrl) {
     self.baseUrl = baseUrl;
 
     self.call = function(method, url, data, callback) {
+        if (!callback) {
+            callback = function noop() {};
+        }
 
         if (typeof(data) == 'function') {
             callback = data;
