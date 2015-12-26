@@ -46,42 +46,6 @@ def help():
     txt += '\n'
     return txt.strip()
 
-def OLD_help():
-    return '''
-service
-  list                                    List all services with status (at online managers)
-  describe <serviceId>                     Describe service actions and events
-  start <serviceId>                        Start service
-  stop <serviceId>                         Stop service
-  #restart <serviceId>                     Restart service [todo]
-  #reload <serviceId>                      Reload service config [todo]
-  enable <serviceId>                       Enable service
-  disable <serviceId>                      Disable service
-  action <serviceId> <action> [args...]    Run service action
-  config <serviceId>                       Dump service config
-
-manager
-  list                                    List all (online) managers
-  describe <managerId>                    Describe manager actions
-  reload <managerId>                      Reload manager config
-  action <managerId> <action> [args...]   Run manager action
-
-reactor
-  list                                    List all (online) reactors
-  describe <reactorId>                    Describe reactor actions
-  action <reactorId> <action> [args...]   Run reactor action
-
-amqp
-  event <serviceId> <device> <key> <data> Data can be either scalar value or json
-                                          If scalar, data will be {"test": {"value": <value>}}
-                                          If starts with { will be interpreted as json
-  rpc <topic> [data]                      Todo
-  send <topic> [data]                     Todo
-  recv [topics]                           Todo
-
-shell                                     Start interactive shell
-    '''.strip()
-
 
 class ChainsCommandException(Exception):
     pass
@@ -114,9 +78,16 @@ def parse(_req):
                 if a[0] in ['{', '[']:
                     a = json.decode(a)
                 args.append(a)
-    options.section = section
-    options.command = command
-    options.args = args
+    if section == 'help':
+        options.section = command
+        options.command = args[0]
+        options.args = []
+        options.help = True
+    else:
+        options.section = section
+        options.command = command
+        options.args = args
+        options.help = False
     return options
 
 def getCommandObject(section, command):
@@ -140,40 +111,63 @@ def main(req):
     if not obj:
         print 'No such command: %s %s' % (opt.section,opt.command)
         sys.exit(1)
-    try:
-        result = obj.main(*opt.args)
-        if opt.json:
-            fmt = formatter.load('json')
-        elif opt.raw:
-            fmt = formatter.load('generic')
-        else:
-            fmt = formatter.load(obj.getFormatter())
-        if not opt.json:
-            print ''
-        result = fmt.main(result)
-        if result: print result
-        if not opt.json:
-            print ''
-    except amqp.RemoteException, e:
-        error = e.message + '\n\n'
-        if opt.verbose or opt.debug:
-            line  = '='*60
-            error += e.getRemoteTraces()
-            error += '\n'
-            error += '%s\n' % line
-            error += 'chains-admin %s %s\n' % (opt.section, opt.command)
-            error += '%s\n' % line
-            error += utils.e2str(e)
-        else:
-            error += 'Add -v to see error trace\n'
-    except Exception, e:
-        error = e.message + '\n'
-        if opt.verbose or opt.debug:
-            error += '\n' + utils.e2str(e)
-        else:
-            error += 'Add -v to see error trace\n'
-    finally:
-        obj.close()
+    if opt.help:
+        print ""
+        lines = obj.help()
+        first = True
+        tail = False
+        indent = 0
+        for line in lines.split("\n"):
+            if first:
+                _line = line.strip()
+                if not _line:
+                    continue
+                for c in line:
+                    if c != ' ':
+                        break
+                    indent += 1
+            first = False
+            line = line[indent:]
+            print line
+            if not line:
+                tail = True
+        if not tail:
+            print ""
+    else:
+        try:
+            result = obj.main(*opt.args)
+            if opt.json:
+                fmt = formatter.load('json')
+            elif opt.raw:
+                fmt = formatter.load('generic')
+            else:
+                fmt = formatter.load(obj.getFormatter())
+            if not opt.json:
+                print ''
+            result = fmt.main(result)
+            if result: print result
+            if not opt.json:
+                print ''
+        except amqp.RemoteException, e:
+            error = e.message + '\n\n'
+            if opt.verbose or opt.debug:
+                line  = '='*60
+                error += e.getRemoteTraces()
+                error += '\n'
+                error += '%s\n' % line
+                error += 'chains-admin %s %s\n' % (opt.section, opt.command)
+                error += '%s\n' % line
+                error += utils.e2str(e)
+            else:
+                error += 'Add -v to see error trace\n'
+        except Exception, e:
+            error = e.message + '\n'
+            if opt.verbose or opt.debug:
+                error += '\n' + utils.e2str(e)
+            else:
+                error += 'Add -v to see error trace\n'
+        finally:
+            obj.close()
 
     if error:
         print ''

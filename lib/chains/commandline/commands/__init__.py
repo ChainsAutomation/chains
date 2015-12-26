@@ -63,6 +63,8 @@ class Command:
     def rpc(self, *args):
         rpc = self.connection.rpc(queuePrefix='rpc-chains-admin')
         return rpc.call(*args)
+    def help(self):
+        return 'No help available'
 
 """
 if __name__ == '__main__':
