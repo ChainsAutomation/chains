@@ -33,7 +33,7 @@ class ProximitynetService(Service):
                 log.info("ARP Response: " + pkt[ARP].hwsrc + " has address " + pkt[ARP].psrc)
                 # self.sendEvent(pkt[ARP].hwsrc, {'device': 'ARP', 'address': pkt[ARP].psrc, 'type': 'arp_response'})
                 # TODO: Lookup to see if MAC is in friends dictionary and replace MAC with name
-                props = {'ip_address': {'value': pkt[ARP].psrc}, 'mac_address': pkt[ARP].hwsrc}
+                props = {'ip_address': {'value': pkt[ARP].psrc}, 'mac_address': {'value': pkt[ARP].hwsrc}}
                 props.update(self._chainsify(self._mac_info(pkt[ARP].hwsrc)))
                 meta = {'device': pkt[ARP].hwsrc, 'type': 'proximity'}
                 if self.location:
