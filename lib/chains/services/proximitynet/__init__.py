@@ -1,5 +1,7 @@
 from chains.service import Service
 from chains.common import log
+from netaddr import *
+import socket
 from scapy.all import *
 
 class ProximitynetService(Service):
@@ -20,6 +22,8 @@ class ProximitynetService(Service):
                 log.info("ARP Request: " + pkt[ARP].psrc + " is asking about " + pkt[ARP].pdst)
                 # self.sendEvent(pkt.psrc, {'type': 'arp_query'})
                 props = {'ip_address': {'value': pkt[ARP].pdst}}
+                props.update(self._chainsify(self._ip_info(pkt[ARP].psrc, 'source')))
+                props.update(self._chainsify(self._ip_info(pkt[ARP].pdst, 'target')))
                 meta = {'device': pkt[ARP].psrc, 'type': 'proximity'}
                 if self.location:
                     meta.update({'location': self.location})
@@ -30,7 +34,51 @@ class ProximitynetService(Service):
                 # self.sendEvent(pkt[ARP].hwsrc, {'device': 'ARP', 'address': pkt[ARP].psrc, 'type': 'arp_response'})
                 # TODO: Lookup to see if MAC is in friends dictionary and replace MAC with name
                 props = {'ip_address': {'value': pkt[ARP].psrc}, 'mac_address': pkt[ARP].hwsrc}
+                props.update(self._chainsify(self._mac_info(pkt[ARP].hwsrc)))
                 meta = {'device': pkt[ARP].hwsrc, 'type': 'proximity'}
                 if self.location:
                     meta.update({'location': self.location})
                 self.sendEvent('arp_response', props, meta)
+
+    def _ip_info(self, ipaddr, prefix):
+        # TODO: the socket method only returns a single item in forward/reverse lookups
+        ip = IPAddress(ipaddr)
+        info = {'%s-type' % prefix: 'unknown'}
+        # rfc1918 addresses
+        if ip.is_private():
+            info['%s-type' % prefix] = 'rfc1918'
+            info.update({'%s-reverse' % prefix: ip.reverse_dns})
+        elif ip.is_unicast() and not ip.is_private():
+            info['%s-type' % prefix] = 'public'
+            try:
+                dns = socket.gethostbyaddr(ipaddr)[0]
+            except socket.error, e:
+                dns = "%s" % e
+            info.update({'%s-type' % prefix: '%s-public' % prefix, '%s-reverse' % prefix: dns})
+        else:
+            info.update({'%s-reverse' % prefix: ip.reverse_dns})
+        return info
+
+    def _mac_info(self, macaddr):
+        info = {}
+        fields = ['address', 'idx', 'offset', 'org', 'oui', 'size']
+        try:
+            mac = EUI(macaddr)
+            oui = mac.oui
+            for item in oui.registration():
+                if item == 'address':
+                    addr = ','.join(oui.registration()[item])
+                    info.update({'address': addr})
+                else:
+                    info.update({item: oui.registration()[item]})
+        except NotRegisteredError, e:
+            info.update({'org': e})
+        for item in fields:
+            if item not in info:
+                info.update({item: 'unknown'})
+        return info
+
+    def _chainsify(self, mdict):
+        for item in mdict:
+            mdict[item] = {'value': mdict[item]}
+        return mdict
