@@ -62,11 +62,11 @@ class KeyboardService(chains.service.Service):
             self.search_params.update({'idVendor': self.vendorid, 'idProduct': self.productid})
             kbdevs = cusb.find_keyboard(self.search_params)
         else:
-            log.warn("No config, using first found keyboard service")
+            log.warn("No config, using first found usb keyboard")
             kbdevs = cusb.find_keyboard()
         if not kbdevs:
-            log.error("Can't find keyboard service")
-            sys.exit("Can't find keyboard service")
+            log.error("Can't find keyboard")
+            sys.exit("Can't find keyboard")
         # Use first matching keyboard
         keyboard = kbdevs[0]
         # ## vendor and product ids
@@ -80,9 +80,9 @@ class KeyboardService(chains.service.Service):
         # line_start = False
         # line = []
         if self.dev.is_kernel_driver_active(self.interface) is True:
-            # detach from kernel if service is being used
+            # detach from kernel if keyboard is being used
             self.dev.detach_kernel_driver(self.interface)
-            # claim the service
+            # claim the keyboard
             usb.util.claim_interface(self.dev, self.interface)
         cur_state = array('B', [0, 0, 0, 0, 0, 0, 0, 0])
         cur_line = ""
@@ -114,9 +114,9 @@ class KeyboardService(chains.service.Service):
                     continue
 
     def onShutdown(self):
-        # release the service
+        # release the keyboard
         usb.util.release_interface(self.dev, self.interface)
-        # reattach the service to the kernel
+        # reattach the keyboard to the kernel
         self.dev.attach_kernel_driver(self.interface)
 
     def _is_shifted(self, modflags):
