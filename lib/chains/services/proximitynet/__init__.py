@@ -53,7 +53,10 @@ class ProximitynetService(Service):
             try:
                 dns = socket.gethostbyaddr(ipaddr)[0]
             except socket.error, e:
-                dns = "%s" % e
+                if len(e.args) > 0:
+                    dns = "%s" % e.args[0]
+                else:
+                    dns = 'Lookup failed'
             info.update({'%s-type' % prefix: '%s-public' % prefix, '%s-reverse' % prefix: dns})
         else:
             info.update({'%s-reverse' % prefix: ip.reverse_dns})
@@ -73,7 +76,7 @@ class ProximitynetService(Service):
                     info.update({item: oui.registration()[item]})
         except NotRegisteredError, e:
             if len(e.args) > 0:
-                info.update({'org': str(e)}
+                info.update({'org': str(e.args[0])})
             else:
                 info.update({'org': 'OUI not registered'})
         for item in fields:
