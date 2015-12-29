@@ -72,7 +72,7 @@ class ProximitynetService(Service):
                 else:
                     info.update({item: oui.registration()[item]})
         except NotRegisteredError, e:
-            info.update({'org': e})
+            info.update({'org': str(e)}
         for item in fields:
             if item not in info:
                 info.update({item: 'unknown'})
