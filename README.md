@@ -146,6 +146,15 @@ def rule(context):
 We aim at making development of new devices as easy as possible.
 While it is possible to write everything from scratch, we provide a framework that takes care of common functions and hides unnecessary boilerplate.
 
+## Inside Docker
+
+Mount chains-directory outside Docker container. 
+```sh
+git clone git@github.com:ChainsAutomation/chains.git /srv/chains
+docker pull chains/chains-master
+docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains:/srv/chains -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-master
+```
+
 ```python
 import chains.device
 
