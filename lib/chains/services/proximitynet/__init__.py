@@ -21,7 +21,7 @@ class ProximitynetService(Service):
             if pkt[ARP].op == 1:  # who-has (request)
                 log.info("ARP Request: " + pkt[ARP].psrc + " is asking about " + pkt[ARP].pdst)
                 # self.sendEvent(pkt.psrc, {'type': 'arp_query'})
-                props = {'ip_address': {'value': pkt[ARP].pdst}}
+                props = {'source-ip': {'value': pkt[ARP].psrc}, 'target-ip': {'value': pkt[ARP].pdst}}
                 props.update(self._chainsify(self._ip_info(pkt[ARP].psrc, 'source')))
                 props.update(self._chainsify(self._ip_info(pkt[ARP].pdst, 'target')))
                 meta = {'device': pkt[ARP].psrc.replace('.', '-'), 'type': 'proximity'}
