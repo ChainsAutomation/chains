@@ -11,7 +11,8 @@
 # *******************************************
 import platform
 import time
-from ctypes import c_int, c_ubyte, c_void_p, c_char_p, POINTER, string_at
+from ctypes import c_int, c_ubyte, c_void_p, c_char_p, POINTER, string_at,\
+    create_string_buffer, byref
 
 debug = False
 
@@ -32,9 +33,13 @@ else:
         from ctypes import cdll, CFUNCTYPE
         tdlib = cdll.LoadLibrary('/Library/Frameworks/TelldusCore.framework/TelldusCore')
     else:
-    #Linux
+    #Others; if not found, try adding the directory with the file to env var LD_LIBRARY_PATH
         from ctypes import cdll, CFUNCTYPE
         tdlib = cdll.LoadLibrary('libtelldus-core.so.2')
+
+    # Make tdReleasString work on *BSD
+    tdlib.tdReleaseString.argtypes = [c_void_p]
+    tdlib.tdReleaseString.restype = None
 
     DEVICEFUNC = CFUNCTYPE(None, c_int, c_int, c_char_p, c_int, c_void_p)
     DEVICECHANGEFUNC = CFUNCTYPE(None, c_int, c_int, c_int, c_int, c_void_p)
@@ -53,6 +58,7 @@ TELLSTICK_EXECUTE =       64
 TELLSTICK_UP =           128
 TELLSTICK_DOWN =         256
 TELLSTICK_STOP =         512
+TELLSTICK_ALL =        0x3FF
 
 methodsReadable = {1: 'ON',
                    2: 'OFF',
@@ -66,14 +72,24 @@ methodsReadable = {1: 'ON',
                    512: 'STOP'}
 
 
-
 #Sensor value types
-TELLSTICK_TEMPERATURE =    1
-TELLSTICK_HUMIDITY =       2
+TELLSTICK_TEMPERATURE   =   1
+TELLSTICK_HUMIDITY      =   2
+TELLSTICK_RAINRATE      =   4
+TELLSTICK_RAINTOTAL     =   8
+TELLSTICK_WINDDIRECTION =   16
+TELLSTICK_WINDAVERAGE   =   32
+TELLSTICK_WINDGUST      =   64
 
-sensorValueTypeReadable = {TELLSTICK_TEMPERATURE: 'Temperature',
-                           TELLSTICK_HUMIDITY: 'Humidity'}
 
+sensorValueTypeReadable = {TELLSTICK_TEMPERATURE:   'Temperature',
+                           TELLSTICK_HUMIDITY:      'Humidity',
+                           TELLSTICK_RAINRATE:      'Rain rate',
+                           TELLSTICK_RAINTOTAL:     'Rain total',
+                           TELLSTICK_WINDDIRECTION: 'Wind direction',
+                           TELLSTICK_WINDAVERAGE:   'Wind average',
+                           TELLSTICK_WINDGUST:      'Wind gust'
+                           }
 #Error codes
 TELLSTICK_SUCCESS =                       0
 TELLSTICK_ERROR_NOT_FOUND =              -1
@@ -145,8 +161,7 @@ def getName(id):
     cp = c_char_p(vp)
     s = cp.value
     
-    if (platform.system() != 'Darwin'): #Workaround, mac crashes on next line
-        tdlib.tdReleaseString(vp)
+    tdlib.tdReleaseString(vp)
 
     return s
 
@@ -197,14 +212,10 @@ def lastSentCommand(intDeviceId, methodsSupported = None, readable = False):
 
     return tdlib.tdLastSentCommand(intDeviceId, methodsSupported)
 
-def lastSentValue(intDeviceId):
+def lastSentValue(id_):
     func = tdlib.tdLastSentValue
     func.restype = c_char_p
-
-    ret = func(intDeviceId)
-    
-#Release string here?
-    return ret
+    return func(id_)
 
 def getErrorString(intErrorNo):
     getErrorStringFunc = tdlib.tdGetErrorString
@@ -214,8 +225,7 @@ def getErrorString(intErrorNo):
     cp = c_char_p(vp)
     s = cp.value
     
-    if (platform.system() != 'Darwin'): #Workaround, mac crashes on nest line
-        tdlib.tdReleaseString(vp)
+    tdlib.tdReleaseString(vp)
 
     return s
 
@@ -244,8 +254,7 @@ def getProtocol(intDeviceId):
     cp = c_char_p(vp)
     s = cp.value
     
-    if (platform.system() != 'Darwin'): #Workaround
-        tdlib.tdReleaseString(vp)
+    tdlib.tdReleaseString(vp)
 
     return s
 
@@ -260,8 +269,7 @@ def getModel(intDeviceId):
     cp = c_char_p(vp)
     s = cp.value
     
-    if (platform.system() != 'Darwin'): #Workaround:
-        tdlib.tdReleaseString(vp)
+    tdlib.tdReleaseString(vp)
 
     return s
 
@@ -281,8 +289,7 @@ def getDeviceParameter(intDeviceId, strName, defaultValue):
     cp = c_char_p(vp)
     s = cp.value
     
-    if (platform.system() != 'Darwin'): #Workaround:
-        tdlib.tdReleaseString(vp)
+    tdlib.tdReleaseString(vp)
 
     return s
 
@@ -294,19 +301,7 @@ def init(defaultMethods = 0):
 
     methodsSupportedDefault = defaultMethods
 
-
-    if (platform.system() == 'Windows'):
-    #Windows
-        tdlib = windll.LoadLibrary('TelldusCore.dll') #import our library
-    elif (platform.system() == 'Darwin'):
-        tdlib = cdll.LoadLibrary('/Library/Frameworks/TelldusCore.framework/TelldusCore')
-    else:
-    #Linux
-        tdlib = cdll.LoadLibrary('libtelldus-core.so.2') #import our library
-
     tdlib.tdInit()
-
-
 
 
 def close():
@@ -325,11 +320,11 @@ callbacks = {'lastAdd': 0,
 def deviceEvent(deviceId, method, data, callbackId, context):
     if debug:
         print 'DeviceEvent'
-        print '  deviceId:', deviceId
-        print '  method:', method
-        print '  data:', data
-        print '  callbackId:', callbackId
-        print '  context:', context
+        print 'deviceId:', deviceId
+        print 'method:', method
+        print 'data:', data
+        print 'callbackId:', callbackId
+        print 'context:', context
 
     for key in callbacks['deviceEvent']:
         f = callbacks['deviceEvent'][key]
@@ -361,14 +356,14 @@ def deviceChangeEvent(deviceId, changeEvent, changeType, callbackId, context):
 def sensorEvent(protocol, model, id, dataType, value, timestamp, callbackId, context):
     if debug:
         print 'SensorEvent'
-        print '  protocol:', protocol
-        print '  model:', model
-        print '  id:', id
-        print '  datatype:', dataType
-        print '  value:', value
-        print '  timestamp:', timestamp
-        print '  callbackId:', callbackId
-        print '  context:', context
+        print 'protocol:', protocol
+        print 'model:', model
+        print 'id:', id
+        print 'datatype:', dataType
+        print 'value:', value
+        print 'timestamp:', timestamp
+        print 'callbackId:', callbackId
+        print 'context:', context
 
     for key in callbacks['sensorEvent']:
         f = callbacks['sensorEvent'][key]
@@ -382,10 +377,10 @@ def sensorEvent(protocol, model, id, dataType, value, timestamp, callbackId, con
 def rawDeviceEvent(data, controllerId, callbackId, context):
     if debug:
         print 'RawDeviceEvent'
-        print '  data:', data
-        print '  controllerId:', controllerId
-        print '  callbackId:', callbackId
-        print '  context:', context
+        print 'data:', data
+        print 'controllerId:', controllerId
+        print 'callbackId:', callbackId
+        print 'context:', context
 
     for key in callbacks['rawDeviceEvent']:
         f = callbacks['rawDeviceEvent'][key]
@@ -496,21 +491,51 @@ def disconnectTellStickController(vid, pid, serial):
 #
 #int tdRegisterControllerEvent( TDControllerEvent eventFunction, void *context);
 #int tdSendRawCommand(const char *command, int reserved);    
+#    TELLSTICK_API void WINAPI tdConnectTellStickController(int vid, int pid, const char *serial);
+#    TELLSTICK_API void WINAPI tdDisconnectTellStickController(int vid, int pid, const char *serial);
+#
+#    TELLSTICK_API int WINAPI tdController(int *controllerId, int *controllerType, char *name, int nameLen, int *available);
+#    TELLSTICK_API int WINAPI tdControllerValue(int controllerId, const char *name, char *value, int valueLen);
+#    TELLSTICK_API int WINAPI tdSetControllerValue(int controllerId, const char *name, const char *value);
+#    TELLSTICK_API int WINAPI tdRemoveController(int controllerId);
+
+
+class Sensor(object):
+    
+    def __init__(self, protocol, model, id, dataType, value, timestamp):
+        self.protocol = protocol
+        self.model = model
+        self.id = id
+        self.dataType = dataType
+        self.value = value
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return "Sensor: %s.%s.%s %s value: %s %s" % (self.protocol, self.model, self.id, self.dataType, self.value, self.timestamp)
+
+#    TELLSTICK_API int WINAPI tdSensor(char *protocol, int protocolLen, char *model, int modelLen, int *id, int *dataTypes);
+#    TELLSTICK_API int WINAPI tdSensorValue(const char *protocol, const char *model, int id, int dataType, char *value, int len, int *timestamp);
+def getSensors():
+    """ returns all sensors in an array """
+    sensors = []
+    LEN = 256
+    protocol = create_string_buffer(LEN)
+    model = create_string_buffer(LEN)
+    id_ = c_int()
+    dataTypes = c_int()
+    while 0 == tdlib.tdSensor(protocol, LEN, model, LEN, byref(id_), byref(dataTypes)):
+        for i in range(0,32):
+            dataType = 1 << i
+            if dataTypes.value & dataType:
+                valuelen = c_int(256)
+                value = create_string_buffer(256)
+                timestamp = c_int()
+                tdlib.tdSensorValue(protocol, model, id_, dataType, value, valuelen, byref(timestamp))
+                sensors.append(Sensor(protocol.value, model.value, id_.value, dataType, value.value, timestamp.value))
+    return sensors
+
 
 if __name__ == '__main__':
-    def cb(data,controllerId,callbackId):
-        print 'RawDeviceEvent'
-        print '  data:', data
-        print '  controllerId:', controllerId
-        print '  callbackId:', callbackId
-        print '  context:', context
-
-    registerRawDeviceEvent(cb)
-    import time
-    while True:
-        time.sleep(0.5)
-
-if __name__ == 'x__main__':
     import time
 
     init(defaultMethods = TELLSTICK_TURNON | TELLSTICK_TURNOFF | TELLSTICK_BELL | TELLSTICK_TOGGLE | TELLSTICK_DIM | TELLSTICK_LEARN)
@@ -523,7 +548,7 @@ if __name__ == 'x__main__':
         print devId, getName(devId), methods(devId)
 
 
-    if 1: #0:
+    if 0:
         print 'Methods(1)', methods(1)
         print 'methods(1, readable=True)', methods(1, readable = True)
         print 'methods(3124, readable=True)', methods(3124, readable = True)
