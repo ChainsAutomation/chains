@@ -24,7 +24,7 @@ class ProximitynetService(Service):
                 props = {'ip_address': {'value': pkt[ARP].pdst}}
                 props.update(self._chainsify(self._ip_info(pkt[ARP].psrc, 'source')))
                 props.update(self._chainsify(self._ip_info(pkt[ARP].pdst, 'target')))
-                meta = {'device': pkt[ARP].psrc, 'type': 'proximity'}
+                meta = {'device': pkt[ARP].psrc.replace('.', '-'), 'type': 'proximity'}
                 if self.location:
                     meta.update({'location': self.location})
                 self.sendEvent("arp_request", props, meta)
