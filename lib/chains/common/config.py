@@ -1,5 +1,7 @@
 import ConfigParser as _ConfigParser
 import os as _os
+import yaml as _yaml
+import types
 
 class BaseConfig:
     '''
@@ -17,19 +19,26 @@ class BaseConfig:
         self._defaultSection = 'main'     # Default [section] in file
         self._paths = paths               # Config files to try when loading
 
-    def data(self, section=None):
+    def data(self, section=None, join=True):
         '''
         Return full config data (if not section param given),
         or data for a specific section (if section param given).
         '''
         self._load()
+        _data = self._data
+        if join:
+            for key in _data:
+                root = {}
+                self._joinKeys(_data[key], root, [])
+                _data[key] = root
         if section:
             try:
-                return self._data[section]
+                return _data[section]
             except KeyError:
                 return None
         else:
-            return self._data
+            return _data
+        
 
     def has(self, key, section=None):
         if not section:
@@ -105,6 +114,28 @@ class BaseConfig:
         '''
         if not _os.path.exists(f):
             return False
+
+        if f[-4:] == '.yml':
+            self._loadYaml(f, data, sections, backwdOverride)
+        else:
+            self._loadIni(f, data, sections, backwdOverride)
+
+    def _loadYaml(self, f, data, sections, backwdOverride):
+        fp = open(f, 'r')
+        text = fp.read()
+        fp.close()
+        conf = _yaml.load(text) 
+        if not sections:
+            sections = conf.keys()
+        for sect in sections:
+            for k in conf[sect]:
+                if not data.has_key(sect):
+                    data[sect] = {}
+                if not data[sect].has_key(k) or not backwdOverride:
+                    data[sect][k] = conf[sect][k]
+
+    def _loadIni(self, f, data, sections, backwdOverride):
+
         cp = _ConfigParser.ConfigParser()
         cp.read(f)
         if not sections:
@@ -114,8 +145,33 @@ class BaseConfig:
                 if not data.has_key(sect):
                     data[sect] = {}
                 if not data[sect].has_key(k) or not backwdOverride:
-                    data[sect][k] = cp.get(sect, k)
+                    #data[sect][k] = cp.get(sect, k)
+                    self._splitIniKey(data[sect], k, cp.get(sect,k))
         return True
+
+    def _splitIniKey(self, data, key, value):
+        parts = key.split('.')
+        _data = data
+        index = -1
+        if len(parts) > 1:
+            for i in range(len(parts)-1):
+                part = parts[i]
+                print i, part
+                if not _data.has_key(part):
+                    _data[part] = {}
+                _data = _data[part]
+                index += 1
+        part = parts[index+1]
+        _data[part] = value
+
+    def _joinKeys(self, data, root, stack):
+        for key in data:
+            stack.append(key)
+            if type(data[key]) == types.DictType:
+                self._joinKeys(data[key], root, stack)
+            else:
+                root[ '.'.join(stack) ] = data[key]
+            stack.pop()
 
 
 class CoreConfig(BaseConfig):
