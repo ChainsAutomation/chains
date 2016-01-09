@@ -156,7 +156,6 @@ class BaseConfig:
         if len(parts) > 1:
             for i in range(len(parts)-1):
                 part = parts[i]
-                print i, part
                 if not _data.has_key(part):
                     _data[part] = {}
                 _data = _data[part]
