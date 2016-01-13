@@ -6,7 +6,16 @@ from chains.common import log
 class InfluxService(Service):
 
     def onInit(self):
-        pass
+        # interval between pushing aggregated stats
+        self.interval = self.config.getInt(interval) or 60
+        self.host = self.config.get('influxhost') or 'localhost'
+        self.queryport = self.config.getInt('queryport') or 8086
+        self.writemethod = self.config.get('writemethod') or 'http'
+        if not self.config.getInt('writeport'):
+            if self.writemethod == 'http':
+                self.writeport = 8086
+            elif self.writemethod == 'udp':
+                self.writeport = 8089
 
     def onStart(self):
         pass
@@ -14,7 +23,6 @@ class InfluxService(Service):
     def onMessage(self, topic, data, correlationId):
         log.info("topic: " + str(topic))
         log.info("data: " + str(data))
-    
 
     def getConsumeKeys(self):
         return ['#']
