@@ -13,6 +13,8 @@ class InfluxService(Service):
 
     def onMessage(self, topic, data, correlationId):
         log.info("topic: " + str(topic))
+        log.info("data: " + str(data))
+    
 
     def getConsumeKeys(self):
         return ['#']
