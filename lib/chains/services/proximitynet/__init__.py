@@ -8,8 +8,16 @@ class ProximitynetService(Service):
 
     def onInit(self):
         self.location = self.config.get('location')
-        # TODO:
-        # Add 'friends' section or similar to config to do lookups against in requests
+        self.confnames = self.config.data('names')
+        self.names ={}
+        if self.confnames:
+            for name, mac in self.confnames.items:
+                self.names.update({mac: name})
+        self.confappliances = self.config.data('appliances')
+        self.appliances ={}
+        if self.confappliances:
+            for name, mac in self.confappliances.items:
+                self.appliances.update({mac: name})
 
     def onStart(self):
         while not self._shutdown:
