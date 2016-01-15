@@ -1,14 +1,26 @@
 from chains.service import Service
 from chains.common import log
 
-# from .system import System as SS
+import time
+import numbers
+from .cinflux import Influx as IX
+
 
 class InfluxService(Service):
 
     def onInit(self):
+        self.known_tags = ['service', 'location', 'device', 'type', 'key', 'name']
+        self.aggregated = {
+            'total_messages': 0,
+            'heartbeats': 0,
+            'service_events': {},
+        }
         # interval between pushing aggregated stats
-        self.interval = self.config.getInt(interval) or 60
+        self.interval = self.config.getInt('interval') or 60
         self.host = self.config.get('influxhost') or 'localhost'
+        self.database = self.config.get('database') or 'chains'
+        self.user = self.config.get('username') or 'chains'
+        self.passwd = self.config.get('password') or 'chains'
         self.queryport = self.config.getInt('queryport') or 8086
         self.writemethod = self.config.get('writemethod') or 'http'
         if not self.config.getInt('writeport'):
@@ -16,15 +28,67 @@ class InfluxService(Service):
                 self.writeport = 8086
             elif self.writemethod == 'udp':
                 self.writeport = 8089
+        self.ix = IX(host=self.host, port=self.queryport, user=self.user, password=self.passwd, database=self.database, method=self.writemethod, writeport=self.writeport)
 
     def onStart(self):
-        pass
+        while not self._shutdown:
+            time.sleep(self.interval)
+            self.write_aggregated()
 
     def onMessage(self, topic, data, correlationId):
-        log.info("topic: " + str(topic))
-        log.info("data: " + str(data))
+        self.aggregated['total_messages'] += 1
+        if topic.startswith('se.') and not topic.endswith('.online'):
+            # update the total number of events from this service
+            cursrv = topic.split('.')[1]
+            if cursrv in self.aggregated['service_events']:
+                self.aggregated['service_events'][cursrv] += 1
+            else:
+                self.aggregated['service_events'][cursrv] = 1
+            # start picking out data to report
+            measures = []
+            tags = {}
+            for tag in data:
+                if tag in self.known_tags:
+                    if tag == 'key':
+                        tags.update({'event': data[tag]})
+                    else:
+                        tags.update({tag: data[tag]})
+            for measure in data['data']:
+                if 'value' in data['data'][measure]:
+                    curval = data['data'][measure]['value']
+                    if isinstance(curval, numbers.Number):
+                        measures.append(self.ix.data_template(measure, tags, {'value': curval}))
+                        log.info('field: %s: %s' % (measure, str(curval)))
+                        log.info('tags: %s' % str(tags))
+                    else:
+                        log.info('Skipping because value is not a number:')
+                        log.info("topic: " + str(topic))
+                        log.info("data: " + str(data))
+            self.ix.insert(measures)
+        elif topic[1] == 'h':
+            # heartbeat
+            self.aggregated['heartbeats'] += 1
+        else:
+            log.info('not yet handled:')
+            log.info("topic: " + str(topic))
+            log.info("data: " + str(data))
 
     def getConsumeKeys(self):
         return ['#']
 
-
+    def write_aggregated(self):
+        total_events = 0
+        measures = []
+        measures.append(self.ix.data_template('total_messages', {'type': 'chains', 'service': 'chainscore'}, {'value': self.aggregated['total_messages']}))
+        measures.append(self.ix.data_template('heartbeats', {'type': 'chains', 'service': 'chainscore'}, {'value': self.aggregated['heartbeats']}))
+        for srv, val in self.aggregated['service_events'].items:
+            measures.append(self.ix.data_template('events', {'type': 'chains', 'service': srv}, {'value': val}))
+            total_events += val
+        measures.append(self.ix.data_template('total_events', {'type': 'chains', 'service': 'chainscore'}, {'value': total_events}))
+        self.ix.insert(measures)
+        # reset dict
+        self.aggregated = {
+            'total_messages': 0,
+            'heartbeats': 0,
+            'service_events': {},
+        }
