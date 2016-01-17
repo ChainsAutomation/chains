@@ -119,4 +119,4 @@ def main(id):
 
 if __name__ == '__main__':
     log.setLevel('debug')
-    main('master')
+    main('chainsmaster')

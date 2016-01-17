@@ -64,7 +64,6 @@ class Connection:
     def __init__(self):
 
         conf = config.ConnectionConfig()
-        conf.reload()
 
         #log.info("Host: %s Port: %s" % (conf.get('host'),conf.get('port')))
 

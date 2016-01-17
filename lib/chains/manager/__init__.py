@@ -82,6 +82,6 @@ if __name__ == '__main__':
     import sys
     try:
         id = sys.argv[1]
-    except AttributeError,e:
-        id = 'master'
+    except IndexError,e:
+        id = 'chainsmaster'
     main(id)

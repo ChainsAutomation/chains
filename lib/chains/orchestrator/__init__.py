@@ -326,10 +326,10 @@ class Orchestrator(amqp.AmqpDaemon):
 
     def loadConfigFile(self, path):
         try:
-            conf = config.BaseConfig([path])
+            conf = config.BaseConfig(path)
             return conf.data()
         except Exception, e:
-            log.error("Error loading config: %s, because: %s" % (path,e))
+            log.error("Error loading config: %s, because: %s" % (path,utils.e2str(e)))
             return None
 
     def mergeDictionaries(self, dict1, dict2, result=None):

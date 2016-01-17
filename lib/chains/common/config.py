@@ -17,7 +17,6 @@ class BaseConfig:
         self._loaded = False
         self._defaultSection = 'main'
         self._file = file
-        print 'data: %s'%data
         if data:
             self._data = data
             self._loaded = True
