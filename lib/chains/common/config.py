@@ -8,9 +8,8 @@ class BaseConfig:
     Base class for config objects
 
     Should not be used by itself but rather extended
-    to create a config class for a specific thing
-    (like CoreConfig for /etc/chains/chains.conf
-    and ServiceConfig for services).
+    to create a config class for a specific thing,
+    like CoreConfig for /etc/chains/chains.conf
     '''
 
     def __init__(self, file=None, data=None):
@@ -18,11 +17,18 @@ class BaseConfig:
         self._loaded = False
         self._defaultSection = 'main'
         self._file = file
+        print 'data: %s'%data
+        if data:
+            self._data = data
+            self._loaded = True
 
     def data(self, section=None, join=True):
         '''
         Return full config data (if not section param given),
         or data for a specific section (if section param given).
+
+        If join=False then keys nested data is returned as dict,
+        ie. foo.bar = Moo returns {foo: { bar: Moo }} not {foo.bar: Moo}
         '''
         self._load()
         _data = self._data
@@ -81,8 +87,7 @@ class BaseConfig:
 
     def _load(self):
         '''
-        If not already loaded, check each path and
-        load the first file that exists.
+        Load data from file (if not already loaded)
         '''
         if not self._loaded:
             if self._file and _os.path.exists(self._file):
@@ -102,6 +107,9 @@ class BaseConfig:
         This means the function can be called for f.ex. service config first,
         then for service class config, then for default service config, and
         stuff will be overridden as expected.
+
+        NB: This override-logic is no longer handled here, and backwdOverride
+        and related code can probably be removed. (stian, 2016-01-17)
         '''
         if not _os.path.exists(f):
             return False
@@ -139,6 +147,8 @@ class BaseConfig:
                     #data[sect][k] = cp.get(sect, k)
                     self._splitIniKey(data[sect], k, cp.get(sect,k))
         return True
+
+    # These two are needed to handle nested values in .yml and .ini in a unified way
 
     def _splitIniKey(self, data, key, value):
         parts = key.split('.')
@@ -225,7 +235,7 @@ class ConnectionConfig(BaseConfig):
 
 
 
-# todo: get rid of this? use CoreConfig explicitly
+# todo: get rid of this? use CoreConfig explicitly (stian, 2016-01-17)
 
 _core = CoreConfig()
 
