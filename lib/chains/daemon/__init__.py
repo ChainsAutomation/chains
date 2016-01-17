@@ -5,8 +5,9 @@ from chains.common import config, log, utils
 class Daemon:
 
     def __init__(self, daemonType, daemonId, callback):
-        self.logFile = config.getLogFile(daemonType) #, daemonId)
-        self.pidFile = config.getPidFile(daemonType) #, daemonId)
+        coreConfig = config.CoreConfig()
+        self.logFile = coreConfig.getLogFile(daemonType) #, daemonId)
+        self.pidFile = coreConfig.getPidFile(daemonType) #, daemonId)
         self.name = 'chains-%s-%s' % (daemonType, daemonId)
         self.daemonType = daemonType
         self.daemonId = daemonId

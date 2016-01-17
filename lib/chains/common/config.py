@@ -13,11 +13,11 @@ class BaseConfig:
     and ServiceConfig for services).
     '''
 
-    def __init__(self, paths):
-        self._data = {}                   # Loaded config data
-        self._loaded = False              # True when loaded
-        self._defaultSection = 'main'     # Default [section] in file
-        self._paths = paths               # Config files to try when loading
+    def __init__(self, file=None, data=None):
+        self._data = {}
+        self._loaded = False
+        self._defaultSection = 'main'
+        self._file = file
 
     def data(self, section=None, join=True):
         '''
@@ -79,23 +79,14 @@ class BaseConfig:
         else:
             return False
 
-    def reload(self):
-        self._data = {}
-        self._loaded = False
-        self._load()
-
     def _load(self):
         '''
         If not already loaded, check each path and
         load the first file that exists.
         '''
         if not self._loaded:
-            if not self._paths:
-                raise Exception('No config file set')
-            for f in self._paths:
-                if _os.path.exists(f):
-                    self._loadFile(f, self._data)
-                    break
+            if self._file and _os.path.exists(self._file):
+                self._loadFile(self._file, self._data)
         self._loaded = True
 
     def _loadFile(self, f, data, sections=None, backwdOverride=True):
@@ -164,6 +155,8 @@ class BaseConfig:
         _data[part] = value
 
     def _joinKeys(self, data, root, stack):
+        if type(data) != types.DictType:
+            return
         for key in data:
             stack.append(key)
             if type(data[key]) == types.DictType:
@@ -179,18 +172,15 @@ class CoreConfig(BaseConfig):
     '''
 
     def __init__(self):
-        BaseConfig.__init__(self, [
-            '/etc/chains/chains.conf'
-        ])
+        BaseConfig.__init__(self, file='/etc/chains/chains.conf')
 
     def _load(self):
         if self._loaded:
             return
         BaseConfig._load(self)
         if not self._data.has_key('main'):
-            path = self._paths[0]
-            self.makeDefaultConfig(path)
-            self._loadFile(path, self._data)
+            self.makeDefaultConfig(self._file)
+            self._loadFile(self._file, self._data)
             self._loaded = True
 
     def makeDefaultConfig(self, path):
@@ -218,13 +208,24 @@ class CoreConfig(BaseConfig):
 
             c.write(file)
 
+    def getLogFile(self, daemonType):
+        if not _os.path.exists(get('logdir')):
+            _os.makedirs(get('logdir'))
+        return '%s/%s.log' % (get('logdir'), daemonType)
+
+    def getPidFile(self, daemonType):
+        if not _os.path.exists(get('rundir')):
+            _os.makedirs(get('rundir'))
+        return '%s/%s.pid' % (get('rundir'), daemonType)
+
 
 class ConnectionConfig(BaseConfig):
     def __init__(self):
-        BaseConfig.__init__(self, [
-            '/etc/chains/amqp.conf'
-        ])
+        BaseConfig.__init__(self, '/etc/chains/amqp.conf')
 
+
+
+# todo: get rid of this? use CoreConfig explicitly
 
 _core = CoreConfig()
 
@@ -238,26 +239,4 @@ def getInt(*args, **kw):
     return _core.getInt(*args, **kw)
 def getBool(*args, **kw):
     return _core.getBool(*args, **kw)
-
-
-def getLogFile(daemonType):
-    if not _os.path.exists(get('logdir')):
-        _os.makedirs(get('logdir'))
-    return '%s/%s.log' % (get('logdir'), daemonType)
-
-def getPidFile(daemonType):
-    if not _os.path.exists(get('rundir')):
-        _os.makedirs(get('rundir'))
-    return '%s/%s.pid' % (get('rundir'), daemonType)
-
-"""
-def getLogFile(daemonType, daemonId):
-    if not _os.path.exists(get('logdir')):
-        _os.makedirs(dir)
-    return '%s/%s-%s.log' % (get('logdir'), daemonType, daemonId)
-def getPidFile(daemonType, daemonId):
-    if not _os.path.exists(get('rundir')):
-        _os.makedirs(get('rundir'))
-    return '%s/%s-%s.pid' % (get('rundir'), daemonType, daemonId)
-"""
 

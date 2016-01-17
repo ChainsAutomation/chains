@@ -273,13 +273,18 @@ class Orchestrator(amqp.AmqpDaemon):
         else:
             log.info('Load service config: %s' % path)
 
-        instanceConfig    = self.loadConfigFile(path)
-        instanceData      = self.configParserToDict(instanceConfig)
+        instanceData      = self.loadConfigFile(path)
+
+        if not instanceData:
+            return
+
         classDir          = '%s/config/service-classes' % config.get('libdir')
         classFile         = '%s/%s.conf' % (classDir, instanceData['main']['class'])
-        classConfig       = self.loadConfigFile(classFile)
-        classData         = self.configParserToDict(classConfig)
+        classData         = self.loadConfigFile(classFile)
         hasChanges        = False
+
+        if not classData:
+            return
 
         if not instanceData['main'].get('id'):
             id = self.generateUuid()
@@ -320,18 +325,12 @@ class Orchestrator(amqp.AmqpDaemon):
         self.data['service'][ data['main']['id'] ] = data
 
     def loadConfigFile(self, path):
-        conf = ConfigParser.ConfigParser()
-        conf.read(path)
-        return conf
-
-    def configParserToDict(self, conf):
-        data = {}
-        for section in conf.sections():
-            if not data.has_key(section):
-                data[section] = {}
-            for key in conf.options(section):
-                data[section][key] = conf.get(section, key)
-        return data
+        try:
+            conf = config.BaseConfig([path])
+            return conf.data()
+        except Exception, e:
+            log.error("Error loading config: %s, because: %s" % (path,e))
+            return None
 
     def mergeDictionaries(self, dict1, dict2, result=None):
         if not result:
@@ -353,14 +352,20 @@ class Orchestrator(amqp.AmqpDaemon):
 
 
     def getServiceConfigList(self):
-        ret = []
+        log.info('getServiceConfigList1')
         dir = '%s/services' % config.get('confdir')
+        names = {}
         for file in os.listdir(dir):
-            if file.split('.')[-1:][0] != 'conf':
+            log.info('getServiceConfigList2:%s'%file)
+            tmp = file.split('.')
+            ext = tmp.pop()
+            name = '.'.join(tmp)
+            if ext != 'conf' and ext != 'yml':
                 continue
-            ret.append('%s/%s' % (dir,file))
-        ret.sort()
-        return ret
+            if names.has_key(name) and ext != 'yml':
+                continue
+            names[name] = dir + '/' + file
+        return names.values()
 
 
 
