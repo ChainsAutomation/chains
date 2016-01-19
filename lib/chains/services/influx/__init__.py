@@ -37,7 +37,7 @@ class InfluxService(Service):
 
     def onMessage(self, topic, data, correlationId):
         self.aggregated['total_messages'] += 1
-        if topic.startswith('se.') and not topic.endswith('.online'):
+        if topic.startswith('se.') and not topic.endswith('.online') and not 'ignore' in data:
             # update the total number of events from this service
             cursrv = topic.split('.')[1]
             if cursrv in self.aggregated['service_events']:
@@ -58,12 +58,17 @@ class InfluxService(Service):
                     curval = data['data'][measure]['value']
                     if isinstance(curval, numbers.Number):
                         measures.append(self.ix.data_template(measure, tags, {'value': curval}))
-                        log.info('field: %s: %s' % (measure, str(curval)))
-                        log.info('tags: %s' % str(tags))
+                        # log.info('field: %s: %s' % (measure, str(curval)))
+                        # log.info('tags: %s' % str(tags))
+                    elif curval in [True, 'True', 'true', 'On', 'on', 'Yes', 'yes']:
+                        measures.append(self.ix.data_template(measure, tags, {'value': True}))
+                    elif curval in [False, 'False', 'false', 'Off', 'off', 'No', 'no']:
+                        measures.append(self.ix.data_template(measure, tags, {'value': False}))
                     else:
-                        log.info('Skipping because value is not a number:')
-                        log.info("topic: " + str(topic))
-                        log.info("data: " + str(data))
+                        # log.info('Skipping because value is not a number:')
+                        # log.info("topic: " + str(topic))
+                        # log.info("data: " + str(data))
+                        pass
             self.ix.insert(measures)
         elif topic[1] == 'h':
             # heartbeat
@@ -77,18 +82,22 @@ class InfluxService(Service):
         return ['#']
 
     def write_aggregated(self):
-        total_events = 0
-        measures = []
-        measures.append(self.ix.data_template('total_messages', {'type': 'chains', 'service': 'chainscore'}, {'value': self.aggregated['total_messages']}))
-        measures.append(self.ix.data_template('heartbeats', {'type': 'chains', 'service': 'chainscore'}, {'value': self.aggregated['heartbeats']}))
-        for srv, val in self.aggregated['service_events'].items:
-            measures.append(self.ix.data_template('events', {'type': 'chains', 'service': srv}, {'value': val}))
-            total_events += val
-        measures.append(self.ix.data_template('total_events', {'type': 'chains', 'service': 'chainscore'}, {'value': total_events}))
-        self.ix.insert(measures)
-        # reset dict
-        self.aggregated = {
-            'total_messages': 0,
-            'heartbeats': 0,
-            'service_events': {},
-        }
+        log.info('Writing aggregated data')
+        try:
+            total_events = 0
+            measures = []
+            measures.append(self.ix.data_template('total_messages', {'type': 'chains', 'service': 'chainscore'}, {'value': self.aggregated['total_messages']}))
+            measures.append(self.ix.data_template('heartbeats', {'type': 'chains', 'service': 'chainscore'}, {'value': self.aggregated['heartbeats']}))
+            for srv, val in self.aggregated['service_events'].items:
+                measures.append(self.ix.data_template('events', {'type': 'chains', 'service': srv}, {'value': val}))
+                total_events += val
+            measures.append(self.ix.data_template('total_events', {'type': 'chains', 'service': 'chainscore'}, {'value': total_events}))
+            self.ix.insert(measures)
+            # reset dict
+            self.aggregated = {
+                'total_messages': 0,
+                'heartbeats': 0,
+                'service_events': {},
+            }
+        except Exception as e:
+            log.info('write_aggregated exception: %s' % repr(e))
