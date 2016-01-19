@@ -28,6 +28,8 @@ class InfluxService(Service):
                 self.writeport = 8086
             elif self.writemethod == 'udp':
                 self.writeport = 8089
+        else:
+            self.writeport = self.config.getInt('writeport')
         self.ix = IX(host=self.host, port=self.queryport, user=self.user, password=self.passwd, database=self.database, method=self.writemethod, writeport=self.writeport)
 
     def onStart(self):
