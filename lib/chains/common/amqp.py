@@ -24,6 +24,7 @@ HEARTBEAT_VALUE_REQUEST  = 3
 class TimeoutException(Exception):
     pass
 
+
 class RemoteException(ChainsException):
 
     def __init__(self, *args, **kw):
@@ -39,25 +40,28 @@ class RemoteException(ChainsException):
     def getRemoteTraces(self):
         traces = []
         resp = self.response
-        line = '='*60
+        line = '=' * 60
         while resp:
             txt  = ''
             txt += '%s\n' % line
             txt += '%s\n' % resp.get('source')
             txt += '%s\n' % line
-            #txt += resp.get('errorMessage').strip() + '\n'
+            # txt += resp.get('errorMessage').strip() + '\n'
             txt += resp.get('errorDetails').strip() + '\n'
             traces.append(txt)
             resp = resp.get('remoteError')
         traces.reverse()
         return '\n'.join(traces)
 
+
 def getUuid():
-    import uuid # this takes a little while, so don't do it before we need it
+    import uuid  # this takes a little while, so don't do it before we need it
     return str(uuid.uuid4())
+
 
 class ConnectionNotReadyException(Exception):
     pass
+
 
 class Connection:
 
@@ -66,7 +70,7 @@ class Connection:
         conf = config.ConnectionConfig()
         conf.reload()
 
-        #log.info("Host: %s Port: %s" % (conf.get('host'),conf.get('port')))
+        # log.info("Host: %s Port: %s" % (conf.get('host'),conf.get('port')))
 
         if not conf.get('host'):
             raise ConnectionNotReadyException('Connection config not present yet')
@@ -109,7 +113,7 @@ class Connection:
         self.channels.append(o)
         return o
 
-    #def rpc(self, keys=None, queuePrefix=None):
+    # def rpc(self, keys=None, queuePrefix=None):
     def rpc(self, queuePrefix=None):
         o = Rpc(self, queuePrefix=queuePrefix)
         self.channels.append(o)
@@ -125,11 +129,14 @@ class Connection:
         if self.conn.transport and self.conn.transport.sock:
             items.append(('socket', self.conn.transport.sock))
         for type, obj in items:
-            #log.info('Try close %s: %s' % (type,obj))
-            try: obj.close()
-            except Exception, e: log.warn('Ignoring fail on close %s: %s' % (type,e))
+            # log.info('Try close %s: %s' % (type,obj))
+            try:
+                obj.close()
+            except Exception as e:
+                log.warn('Ignoring fail on close %s: %s' % (type, repr(e)))
         self.channels = []
         self.conn = None
+
 
 class Channel:
 
@@ -138,13 +145,13 @@ class Channel:
         self.conn = conn
         self.ch = self.conn.conn.channel()
         self.exchange = self.conn.exchange
-        if kw.has_key('queueName'):
+        if 'queueName' in kw:
             self.queueName = kw['queueName']
-        elif kw.has_key('queuePrefix'):
-            self.queueName = '%s-%s' % (kw['queuePrefix'],getUuid())
+        elif 'queuePrefix' in kw:
+            self.queueName = '%s-%s' % (kw['queuePrefix'], getUuid())
         else:
             self.queueName = 'unnamed-%s' % (getUuid())
-        if kw.has_key('noAck') and kw['noAck']:
+        if 'noAck' in kw and kw['noAck']:
             self.noAck = True
         else:
             self.noAck = False
@@ -155,7 +162,7 @@ class Channel:
                 for key in self.consumeKeys:
                     try:
                         self.ch.queue_unbind(self.queueName, self.exchange, key)
-                    except Exception, e:
+                    except Exception as e:
                         # don't pollute log if is not found
                         isNotFound = False
                         try:
@@ -167,11 +174,11 @@ class Channel:
                             log.info('Ignore fail to unbind queue %s from %s for %s: %s' % (self.queueName, self.exchange, key, e))
             try:
                 self.ch.queue_delete(queue=self.queueName)
-            except Exception, e:
+            except Exception as e:
                 log.debug('Ignore fail to delete queue: %s' % e)
             try:
                 self.ch.close()
-            except Exception, e:
+            except Exception as e:
                 log.info('Ignore fail to close channel object: %s' % e)
             self.ch = None
 
@@ -179,7 +186,7 @@ class Channel:
             if closeConnection:
                 try:
                     self.conn.close()
-                except Exception, e:
+                except Exception as e:
                     log.info('Ignore fail to close connection: %s' % e)
 
     def exchange_declare(self):
@@ -197,27 +204,28 @@ class Channel:
             # f.ex. if i start chains manager on my raspbmc and reboot it,
             # rabbit still shows it as connected, and when it boots back up
             # it cannot connect because the old connection holds queue exclusively
-            #exclusive=True
+            # exclusive=True
         )
+
 
 class Producer(Channel):
     def __init__(self, *args, **kw):
         Channel.__init__(self, *args, **kw)
         self.ch.access_request('/data', active=True, read=False, write=True)
         self.exchange_declare()
-        if kw.has_key('autoCorrelationId'):
+        if 'autoCorrelationId' in kw:
             self.autoCorrelationId = kw['autoCorrelationId']
         else:
             self.autoCorrelationId = False
 
     def put(self, key, message, correlationId=None):
         if not correlationId and self.autoCorrelationId:
-            correlationId = getUuid() #str(uuid.uuid4())
+            correlationId = getUuid()  # str(uuid.uuid4())
         if correlationId:
             msg = amqp.Message(
                 json.encode(message),
                 content_type='text/json',
-                correlation_id = correlationId
+                correlation_id=correlationId
             )
         else:
             msg = amqp.Message(
@@ -226,7 +234,7 @@ class Producer(Channel):
             )
         self.ch.basic_publish(msg, self.exchange, key)
         return correlationId
-            
+
 
 class Consumer(Channel):
 
@@ -234,7 +242,7 @@ class Consumer(Channel):
         Channel.__init__(self, *args, **kwargs)
 
         keys = None
-        if kwargs.has_key('keys'):
+        if 'keys' in kwargs:
             keys = kwargs['keys']
             del kwargs['keys']
         if not keys:
@@ -262,11 +270,11 @@ class Consumer(Channel):
         msg = self.messages.pop(0)
         try:
             data = json.decode(msg.body)
-        except Exception, e:
-            raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (msg.body, e))
+        except Exception as e:
+            raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (msg.body, repr(e)))
         self.deliveryTag = msg.delivery_tag
         correlationId = None
-        if msg.properties.has_key('correlation_id'):
+        if 'correlation_id' in msg.properties:
             correlationId = msg.properties['correlation_id']
         return (msg.routing_key, data, correlationId)
 
@@ -287,7 +295,7 @@ class Rpc(Channel):
         Channel.__init__(self, conn, queuePrefix=queuePrefix)
         keys = ['#']
         self.consumeKeys = keys
-        self.ch.access_request('/data', active=True, read=True, write=True) #False)
+        self.ch.access_request('/data', active=True, read=True, write=True)  # False)
         self.exchange_declare()
         # these should be exclsive or they don't auto-delete for some reason
         self.queue_declare(exclusive=True)
@@ -301,7 +309,7 @@ class Rpc(Channel):
     def _callback(self, msg):
         log.notice('RPC-CALL: callback seen: %s = %s' % (msg.routing_key, msg.body))
         res = None
-        if len(msg.routing_key) > 1 and msg.routing_key[1] in ['r','x'] and msg.properties.has_key('correlation_id') and msg.properties['correlation_id'] == self.correlationId:
+        if len(msg.routing_key) > 1 and msg.routing_key[1] in ['r','x'] and 'correlation_id' in msg.properties and msg.properties['correlation_id'] == self.correlationId:
 	    log.notice('RPC-CALL: callback matched: %s = %s' % (msg.routing_key, msg.body))
             self.response = msg
             res = True
@@ -313,7 +321,7 @@ class Rpc(Channel):
 
     def call(self, key, data=None, timeout=5, block=None):
         log.debug('RPC-CALL: execute %s = %s' % (key, data))
-        if block == None:
+        if block is None:
             block = True
 
         # @todo: remove consume again afterwards!
@@ -322,19 +330,19 @@ class Rpc(Channel):
             self.consumerTag = self.ch.basic_consume(self.queue, callback=self._callback)
 
         self.response = None
-        self.correlationId = getUuid() #str(uuid.uuid4())
+        self.correlationId = getUuid()  # str(uuid.uuid4())
         msg = amqp.Message(
             json.encode(data),
             content_type='text/json',
-            correlation_id = self.correlationId,
-            #reply_to = self.queue
+            correlation_id=self.correlationId,
+            # reply_to = self.queue
         )
         self.ch.basic_publish(
             msg,
             self.exchange,
             key,
-            #reply_to = self.queue,
-            #correlation_id = self.correlationId
+            # reply_to = self.queue,
+            # correlation_id = self.correlationId
         )
 
         if not block:
@@ -350,7 +358,7 @@ class Rpc(Channel):
                         break
                 else:
                     time.sleep(0.01)
-                    if (time.time()-startTime) >= timeout:
+                    if (time.time() - startTime) >= timeout:
                         raise TimeoutException('Waited %s sec for rpc call %s' % (timeout, key))
             else:
                 self.ch.wait()
@@ -358,7 +366,7 @@ class Rpc(Channel):
         log.notice('RPC-CALL: finished waiting')
         try:
             body = json.decode(self.response.body)
-        except Exception, e:
+        except Exception as e:
             raise Exception("json decoding error: %s - for raw response: %s" % (e, self.response.body))
         tmp = self.response.routing_key.split('.')
         if tmp[0][1] == 'x': # todo: use constants
@@ -372,13 +380,14 @@ class Rpc(Channel):
         log.debug('RPC-CALL: respone %s = %s' % (self.response.routing_key, body))
         return body
 
+
 class AmqpDaemon:
 
     def __init__(self, type, id):
         self.type      = type
         self.id        = id
         if type and id:
-            self.queueName = '%s-%s' % (type,id)
+            self.queueName = '%s-%s' % (type, id)
         elif not type:
             self.queueName = 'unspecified-daemon-type-%s' % id
         elif not id:
@@ -397,7 +406,7 @@ class AmqpDaemon:
 
         try:
             self._connect()
-        except ConnectionNotReadyException, e:
+        except ConnectionNotReadyException as e:
             self.reconnect(e)
 
     def reconnect(self, e):
@@ -410,20 +419,20 @@ class AmqpDaemon:
         retry = 0
         while True:
             retry += 1
-            log.error('Attempting to reconnect #%s and continue in %s sec after socket error: %s' % (retry,delay,e))
+            log.error('Attempting to reconnect #%s and continue in %s sec after socket error: %s' % (retry, delay, e))
             time.sleep(delay)
             try:
                 self._connect()
                 log.error('Successfully reconnected (after %s retries) - back to work!' % (retry))
                 return
-            except socket.error, e2:
-                log.info('Ignoring expected exception on reconnect and will soon try again: %s' % e2)
-            except amqplib.client_0_8.exceptions.AMQPConnectionException, e2:
-                log.info('Ignoring expected exception on reconnect and will soon try again: %s' % e2)
-            except ConnectionNotReadyException, e2:
-                log.info('Ignoring expected exception on reconnect and will soon try again: %s' % e2)
-            except Exception, e2:
-                log.warn('Ignoring unexpected exception on reconnect and will soon try again: %s' % e2)
+            except socket.error as e2:
+                log.info('Ignoring expected exception on reconnect and will soon try again: %s' % repr(e2))
+            except amqplib.client_0_8.exceptions.AMQPConnectionException as e2:
+                log.info('Ignoring expected exception on reconnect and will soon try again: %s' % repr(e2))
+            except ConnectionNotReadyException as e2:
+                log.info('Ignoring expected exception on reconnect and will soon try again: %s' % repr(e2))
+            except Exception as e2:
+                log.warn('Ignoring unexpected exception on reconnect and will soon try again: %s' % repr(e2))
 
     def listen(self):
         log.info('Start listening for messages, topics = %s' % self.getConsumeKeys())
@@ -433,21 +442,21 @@ class AmqpDaemon:
             log.notice('Waiting for messages')
             try:
                 topic, data, correlationId = self.consumer.get()
-            except socket.error, e:
+            except socket.error as e:
                 self.reconnect(e)
                 continue
-            except amqplib.client_0_8.exceptions.AMQPConnectionException, e:
+            except amqplib.client_0_8.exceptions.AMQPConnectionException as e:
                 self.reconnect(e)
                 continue
-            except IOError, e:
+            except IOError as e:
                 self.reconnect(e)
                 continue
-            except Exception, e:
+            except Exception as e:
                 log.error('Caught during consumer.get() in listen: %s' % utils.e2str(e))
                 raise e
             try:
                 self.consumer.ack()
-            except Exception, e:
+            except Exception as e:
                 log.error('Caught during consumer.ack() in listen: %s' % utils.e2str(e))
                 raise e
             if self._shutdown:
@@ -464,10 +473,10 @@ class AmqpDaemon:
                         data = []
                     try:
                         result = self.runAction(key, data)
-                    except Exception, e:
+                    except Exception as e:
                         self.sendActionError(key, e, correlationId)
                     else:
-                        if result != None or correlationId:
+                        if result is not None or correlationId:
                             self.sendActionResponse(key, result, correlationId)
                 elif tmp[0] == heartBeatRequestPrefix:
                     self.sendHeartBeatResponse()
@@ -478,7 +487,7 @@ class AmqpDaemon:
 
     def runAction(self, key, data):
         try:
-            fun = getattr(self, 'action_%s' % (key)) #key[0].upper(), key[1:]))
+            fun = getattr(self, 'action_%s' % (key))  # key[0].upper(), key[1:]))
         except AttributeError:
             raise NoSuchActionException(key)
         else:
@@ -520,7 +529,7 @@ class AmqpDaemon:
     def sendOfflineEvent(self):
         self.sendHeartBeatEvent(HEARTBEAT_VALUE_OFFLINE)
 
-    # todo: got a little messy, clean it up 
+    # todo: got a little messy, clean it up
     def sendEvent(self, key, data, event=None):
         topic = '%s.%s.%s' % (self.getEventPrefix(), self.id, key)
         if not event:
@@ -584,17 +593,22 @@ class AmqpDaemon:
     def callReactorAction(self, reactorId, action, args=None):
         return self.callDaemonAction('reactor', reactorId, action, args=args)
 
-    def getHeartBeatRequestPrefix(self): #, type=None):
-        #return self.getDaemonTypePrefix(type) + PREFIX_HEARTBEAT_REQUEST
+    def getHeartBeatRequestPrefix(self):  # , type=None):
+        # return self.getDaemonTypePrefix(type) + PREFIX_HEARTBEAT_REQUEST
         return PREFIX_HEARTBEAT_REQUEST
+
     def getHeartBeatResponsePrefix(self):
         return self.getDaemonTypePrefix() + PREFIX_HEARTBEAT_RESPONSE
+
     def getEventPrefix(self):
         return self.getDaemonTypePrefix() + PREFIX_EVENT
+
     def getActionPrefix(self):
         return self.getDaemonTypePrefix() + PREFIX_ACTION
+
     def getActionResponsePrefix(self):
         return self.getDaemonTypePrefix() + PREFIX_ACTION_RESPONSE
+
     def getActionErrorPrefix(self):
         return self.getDaemonTypePrefix() + PREFIX_ACTION_ERROR
 
@@ -688,10 +702,10 @@ class AmqpDaemon:
         # INFO
 
         # If we've got info from subclass onDescribe, use it
-        if desc.has_key('info'):
+        if 'info' in desc:
             ret['info'] = desc['info']
         # Or try info from config (best practice) - do this in Service instead?
-        #elif self.config.has('info'):
+        # elif self.config.has('info'):
         #    ret['info'] = self.config.get('info')
         # Or indicate not info
         else:
@@ -700,7 +714,7 @@ class AmqpDaemon:
         # ACTIONS
 
         # If we've got actions description from subclass, use it
-        if desc.has_key('actions'):
+        if 'actions' in desc:
             ret['actions'] = desc['actions']
         # Or automatically describe all cmd_* functions using introspection
         else:
@@ -709,7 +723,7 @@ class AmqpDaemon:
         # EVENTS
 
         # If we've got events description from subclass, use it
-        if desc.has_key('events'):
+        if 'events' in desc:
             ret['events'] = desc['events']
         # If not then noop
         else:
@@ -727,6 +741,6 @@ def runWithSignalHandler(daemon):
     signal.signal(signal.SIGINT, signalHandler)  # Ctrl-C
     try:
         daemon.run()
-    except Exception, e:
+    except Exception as e:
         log.error('Daemon crashed: %s' % utils.e2str(e))
         raise e
