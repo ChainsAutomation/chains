@@ -7,9 +7,13 @@ ARCH=`uname -m`
 if [ ! -f /chains-configured ]; then
     echo "First run, installing default configs"
     mkdir -p /etc/chains/services
-    #if [ ! -f /etc/chains/chains.conf ]; then
-    #    cp /srv/chains/misc/examples/etc-master/chains.conf /etc/chains/
-    #fi
+    if [ ! -f /etc/chains/chains.conf ]; then
+        cp /srv/chains/misc/Docker/chains-config/chains.conf-slave /etc/chains/chains.conf
+    fi
+    ## Remove this as soon as zeroconf-discoverd works again
+    if [ ! -f /etc/chains/amqp.conf ]; then
+        cp /srv/chains/misc/Docker/chains-config/amqp.conf-slave /etc/chains/amqp.conf
+    fi
     # Add some default services
     shopt -s nullglob
     files=(/etc/chains/services/*)

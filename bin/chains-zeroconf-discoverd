@@ -3,8 +3,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys, socket, ConfigParser, os
-from chains.contrib.zeroconf import ServiceBrowser, Zeroconf
-#from zeroconf import ServiceBrowser, Zeroconf
+# from chains.contrib.zeroconf import ServiceBrowser, Zeroconf
+from zeroconf import ServiceBrowser, Zeroconf
 
 #class ChainsFinder(object):
 class ChainsFinder:
