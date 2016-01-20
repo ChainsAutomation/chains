@@ -57,5 +57,5 @@ programs=chains-manager,chains-zeroconf-discoverd
 priority=999
 
 [group:system]
-programs=rabbitmq,telldusd
+programs=telldusd
 priority=10
