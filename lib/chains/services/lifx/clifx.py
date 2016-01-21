@@ -52,6 +52,9 @@ class CLifx(object):
         self.state = units_up
         return changes
 
+    def all_off(self):
+        set_power_all_lights(power, [duration], [rapid])
+
 if __name__ == '__main__':
     lx = CLifx()
     devs = lx._find_units()
@@ -65,7 +68,7 @@ if __name__ == '__main__':
     print ch
     print "State:"
     print lx.state
-    print 'Uodating again:'
+    print 'Updating again:'
     ch = lx.update_unit_info()
     print "Changes:"
     print ch
