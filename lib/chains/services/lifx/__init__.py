@@ -15,7 +15,7 @@ class LifxService(Service):
         self.lx = CL(self.num_lights)
 
     def onStart(self):
-        log('Starting main lifx loop')
+        log.info('Starting main lifx loop')
         while not self._shutdown:
             changes = self.lx.update_unit_info()
             if not (not changes['new'] and not changes['gone'] and not changes['changed']):
