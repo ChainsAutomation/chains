@@ -104,6 +104,7 @@ It is sometimes useful to run it from a computer that is not a node in the chain
 * symlink /srv/chains/lib/chains into your python site-packages dir
 * add /srv/chains/bin to your path
 * create /etc/chains/amqp.conf with the same content as your other nodes (host/port pointing to master)
+The 3 first steps are only necessary because our setup.py is (probably, not tested) not working properly at the moment, sorry!
 
 # Chains intro
 
