@@ -94,6 +94,17 @@ sudo docker build --no-cache -t chains/chains-slave .
 sudo docker run -d --privileged --net=host -e "AMQP=192.168.1.1:5672" -v /etc/chains:/etc/chains -v /srv/chains-data:/srv/chains/data -v /dev:/dev -v /etc/localtime:/etc/localtime:ro chains/chains-slave
 ```
 
+# The `chains` command line application
+
+Chains comes with the aptly named `chains` command line application.
+When using docker this program will work automatically.
+
+It is sometimes useful to run it from a computer that is not a node in the chains network, fortunately this is pretty easy if you know linux basics:
+* clone the chains repository into /srv/chains as described above
+* symlink /srv/chains/lib/chains into your python site-packages dir
+* add /srv/chains/bin to your path
+* create /etc/chains/amqp.conf with the same content as your other nodes (host/port pointing to master)
+
 # Chains intro
 
 ##What are nodes(master/slave), services, devices and properties?
