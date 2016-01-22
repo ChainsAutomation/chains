@@ -150,23 +150,32 @@ We aim at making development of new devices as easy as possible.
 While it is possible to write everything from scratch, we provide a framework that takes care of common functions and hides unnecessary boilerplate.
 
 ```python
-import chains.device
+from chains.service import Service
 
-class MynewDevice(chains.device.Device):
+class MynewService(Service):
   def onInit(self):
-    code which runs at device startup
-
-  def action_something(self, myparam):
+    # code that runs on service startup, usually setting things up for onStart below
+    # get some config:
+    self.username = self.config['username']
+   
+  def onStart(self):
+    """main loop for the service"""
+    while not self._shutdown:
+      do_stuff_here
+      # perhaps send an event:
+      self.sendEvent('event_name', {'foo': {'value': 'bar', 'actions': ['refoo', 'unfoo'] } }, {'type': 'foo_event', 'location': 'home'})
+   
+  def action_unfoo(self, myparam):
     """
     Do something
-    @param   myparam  string  A string needed for this action
+    @param   myparam  string  A string is needed for this action
     """
     action_code_goes_here
 
 ```
 
-The above code will create description of the action "something" on the "Mynew"-device and announce it to the Chains system. For now the best way to write devices is to model them after the existing devices, PhilipsHue is a good place to start.
-We will eventually document this in our wiki.
+The above code will create description of the action "unfoo" on the "Mynew"-service and announce it to the Chains system. For now the best way to write services is to model them after the existing services, PhilipsHue, Tellstck and System are good places to start.
+We will eventually document this fully in our wiki.
 
 ## Mount chains repository from outside the container
 
