@@ -52,10 +52,23 @@ autostart=false
 autorestart=true
 priority=5
 
+[program:zway]
+command=/opt/z-way-server/z-way-server
+environment=LD_LIBRARY_PATH=/opt/z-way-server/libs
+autostart=false
+autorestart=true
+priority=5
+
+[program:mongoose]
+command=/usr/sbin/mongoose /etc/mongoose/mongoose.conf
+autostart=false
+autorestart=true
+priority=5
+
 [group:chains]
 programs=chains-manager,chains-zeroconf-discoverd
 priority=999
 
 [group:system]
-programs=telldusd
+programs=telldusd,zway,mongoose
 priority=10
