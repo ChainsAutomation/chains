@@ -21,6 +21,7 @@ While most home automation software focuses on supporting a single piece of hard
 ##Supported services (sensors, relays etc)
 * Phidgets
 * Philips Hue
+* InfluxDB (graphing)
 * rrd (graphing)
 * Bluetooth
 * Tellstick
@@ -42,6 +43,7 @@ While most home automation software focuses on supporting a single piece of hard
 * Integra and Onkyo receivers
 
 **In development:**
+* IPCam
 * OneWire
 * Spotify
 * mpd
@@ -55,26 +57,26 @@ While most home automation software focuses on supporting a single piece of hard
 We will eventually provide docker images from the docker registry, but for now dockerfiles can be created by bin/dockerfile-assemble.py and built on your own system.
 Docker is a good match for our project since we need a host of different libraries and daemons running to support the different services. Providing instructions for all distributions and testing these configurations would be too time consuming. The whole process, however, is described in the generated dockerfile. Feel free to install it locally.
 
-#### Docker install for chains master (simple)
+#### Docker install for chains master (prebuilt image from docker hub)
 ```sh
 # Create config and data dir:
-sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains/data"
+sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains-data"
 
 # Pull and run latest version
-sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-master
+sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains-data:/srv/chains/data -v /dev:/dev -v /etc/localtime:/etc/localtime:ro chains/chains-master
 ```
 
 ####Docker build/install for chains master node
 ```sh
 # Create config and data dir:
-sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains/data"
+sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains-data"
 
 # Create chains master image:
 bin/dockerfile-assemble.py master
 sudo docker build --no-cache -t chains/chains-master .
 
 # Run chains master
-sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-master
+sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains-data:/srv/chains/data -v /dev:/dev -v /etc/localtime:/etc/localtime:ro chains/chains-master
 ```
 
 
@@ -88,7 +90,8 @@ bin/dockerfile-assemble.py slave
 sudo docker build --no-cache -t chains/chains-slave .
 
 # Run chains slave
-sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains/data:/srv/chains/data -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-slave
+# Exchange 192.168.1.1 for the ip address of your machine running chains-master
+sudo docker run -d --privileged --net=host -e "AMQP=192.168.1.1:5672" -v /etc/chains:/etc/chains -v /srv/chains-data:/srv/chains/data -v /dev:/dev -v /etc/localtime:/etc/localtime:ro chains/chains-slave
 ```
 
 # Chains intro
@@ -98,7 +101,7 @@ sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/ch
 In the Chains documentation we often refer to nodes, devices and services, these are explained below.
 
 ###Node
-Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using RabbitMQ. If you run chains on only one machine you must run the "master" node, this is the hub of the chains system and takes cares of `rules` described below. Slave nodes are installed on additional computers that you may add to the chains network.
+Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using an included RabbitMQ-server. If you run chains on only one machine you must run the "master" node, this is the hub of the chains system and it takes cares of the `rules` described below. Slave nodes are installed on additional computers that you may add to the chains network.
 
 ### Service
 A `service` is a program that controls something in chains, usually a piece of hardware like a light controller or internet service like pushover.net.
@@ -108,33 +111,33 @@ Example services: PhilipsHue, onewire, timer, pushover.
 Devices are how functionality is divided into units in a `service`. In a service that control light switches, each light switch would typically be a `device`. A device may be able to do several `actions` and report several `events`.
 
 ###Property
-Properties are information made available from a `device`. A property can also be the target of an `action`, if the property something that can be change. An example of this would be the "power" property on a light switch `device`, that might between "on" and "off".
+Properties are information made available from a `device`. A property can also be the target of an `action`, if the property is something that can be change. An example of this would be the "power" property on a light switch `device`, that might switch between "on" and "off".
 
 ##What are events, actions and rules?
 
 While nodes, services and devices deal with the software controlling hardware sensors and such; events, actions and rules are what makes it possible for the former to connect and cooperate.
 
 ###Event
-A `devices` will often report changes or things that happen to the system. This is called an `event`.
+A `device` will often report changes or things that happen in the system. This is called an `event`.
 A remote control device would send an event when a button is pressed, a temperature sensor device would send an event containing the current temperature and so on.
 
 ###Action
 Some devices are able to do things as well as report `events` these are called actions.
-A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light switch device could have actions like LightOn, LightOff and AllOff.
+A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light switch device might have actions like LightOn, LightOff and Dim.
 
 ###Rule
 A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic.
 
-The simplest `rules` can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available.
+The simplest `rules` can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available. Special objects are created to represent `events`, `actions` and current `state` in the chains system to simplify creation of `rules`.
 
 ####Example if written by hand
 ```python
 # TODO: change to match new service/device naming
 def rule(context):
-   # wait for 'switch-2' event sent from 'mydevice'
-   yield Event(device='mydevice', key='switch-2')
+   # wait for 'switch-2' event sent from 'device' on 'service_id'
+   yield Event(service='service_id', device='switch-2')
    # run action 'power_off' on device 'other_device'
-   Action(device='other_device', action='power_off')
+   Action(service='other_service', device='some_device', action='power_off')
    # and so on
    Action(...)
    yield Event(...)
@@ -145,15 +148,6 @@ def rule(context):
 
 We aim at making development of new devices as easy as possible.
 While it is possible to write everything from scratch, we provide a framework that takes care of common functions and hides unnecessary boilerplate.
-
-## Inside Docker
-
-Mount chains-directory outside Docker container. 
-```sh
-git clone git@github.com:ChainsAutomation/chains.git /srv/chains
-docker pull chains/chains-master
-docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains:/srv/chains -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-master
-```
 
 ```python
 import chains.device
@@ -173,6 +167,17 @@ class MynewDevice(chains.device.Device):
 
 The above code will create description of the action "something" on the "Mynew"-device and announce it to the Chains system. For now the best way to write devices is to model them after the existing devices, PhilipsHue is a good place to start.
 We will eventually document this in our wiki.
+
+## Mount chains repository from outside the container
+
+To be able to use all your regular development tools and quickly test changes on a running system, mount the chains repositry into the chains container:
+
+```sh
+git clone git@github.com:ChainsAutomation/chains.git /srv/chains
+docker pull chains/chains-master
+docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains:/srv/chains -v /dev/bus/usb:/dev/bus/usb -v /etc/localtime:/etc/localtime:ro chains/chains-master
+```
+
 
 #Contact
 
