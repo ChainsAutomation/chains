@@ -39,7 +39,10 @@ class InfluxService(Service):
 
     def onMessage(self, topic, data, correlationId):
         self.aggregated['total_messages'] += 1
-        if topic.startswith('se.') and not topic.endswith('.online') and not 'ignore' in data:
+        if 'ignore' in data:
+            if data['ignore'] in [True, 'True', 'true', 'Yes', 'yes', 'y']:
+                return
+        if topic.startswith('se.') and not topic.endswith('.online'):
             # update the total number of events from this service
             cursrv = topic.split('.')[1]
             if cursrv in self.aggregated['service_events']:
@@ -90,7 +93,7 @@ class InfluxService(Service):
             measures = []
             measures.append(self.ix.data_template('total_messages', {'type': 'chains', 'service': 'chainscore'}, {'value': self.aggregated['total_messages']}))
             measures.append(self.ix.data_template('heartbeats', {'type': 'chains', 'service': 'chainscore'}, {'value': self.aggregated['heartbeats']}))
-            for srv, val in self.aggregated['service_events'].items:
+            for srv, val in self.aggregated['service_events'].items():
                 measures.append(self.ix.data_template('events', {'type': 'chains', 'service': srv}, {'value': val}))
                 total_events += val
             measures.append(self.ix.data_template('total_events', {'type': 'chains', 'service': 'chainscore'}, {'value': total_events}))
