@@ -39,10 +39,10 @@ class InfluxService(Service):
 
     def onMessage(self, topic, data, correlationId):
         self.aggregated['total_messages'] += 1
-        if 'ignore' in data:
-            if data['ignore'] in [True, 'True', 'true', 'Yes', 'yes', 'y']:
-                return
         if topic.startswith('se.') and not topic.endswith('.online'):
+            if 'ignore' in data:
+                if data['ignore'] in [True, 'True', 'true', 'Yes', 'yes', 'y']:
+                    return
             # update the total number of events from this service
             cursrv = topic.split('.')[1]
             if cursrv in self.aggregated['service_events']:
