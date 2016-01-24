@@ -14,7 +14,7 @@ class InfluxService(Service):
             'total_messages': 0,
             'heartbeats': 0,
             'service_events': {},
-            'cass_events': {},
+            'class_events': {},
         }
         # interval between pushing aggregated stats
         self.interval = self.config.getInt('interval') or 60
@@ -45,7 +45,7 @@ class InfluxService(Service):
     def onMessage(self, topic, data, correlationId):
         self.aggregated['total_messages'] += 1
         if topic.startswith('se.') and not topic.endswith('.online'):
-            # update the total number of events from this service and class
+            # aggregation: update the total number of events from this service and class
             cursrv = topic.split('.')[1]
             if cursrv in self.aggregated['service_events']:
                 self.aggregated['service_events'][cursrv] += 1
@@ -107,6 +107,8 @@ class InfluxService(Service):
             measures = []
             measures.append(self.ix.data_template('total_messages', {'type': 'chains', 'service': 'chainscore'}, {'value': self.aggregated['total_messages']}))
             measures.append(self.ix.data_template('heartbeats', {'type': 'chains', 'service': 'chainscore'}, {'value': self.aggregated['heartbeats']}))
+            for cls, cval in self.aggregated['class_events'].items():
+                measures.append(self.ix.data_template('class_events', {'type': 'chains', 'class': cls}, {'value': cval}))
             for srv, val in self.aggregated['service_events'].items():
                 measures.append(self.ix.data_template('events', {'type': 'chains', 'service': srv}, {'value': val}))
                 total_events += val
@@ -117,6 +119,7 @@ class InfluxService(Service):
                 'total_messages': 0,
                 'heartbeats': 0,
                 'service_events': {},
+                'class_events': {},
             }
         except Exception as e:
             log.info('write_aggregated exception: %s' % repr(e))
