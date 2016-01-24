@@ -9,7 +9,7 @@ from .cinflux import Influx as IX
 class InfluxService(Service):
 
     def onInit(self):
-        self.known_tags = ['service', 'location', 'device', 'type', 'key', 'name']
+        self.known_tags = ['service', 'location', 'device', 'type', 'key', 'name', 'class']
         self.aggregated = {
             'total_messages': 0,
             'heartbeats': 0,
@@ -17,6 +17,10 @@ class InfluxService(Service):
         }
         # interval between pushing aggregated stats
         self.interval = self.config.getInt('interval') or 60
+        try:
+            self.ignoreclasses = self.config.getInt('ignoreclasses').split(',')
+        except:
+            self.ignoreclasses = []
         self.host = self.config.get('influxhost') or 'localhost'
         self.database = self.config.get('database') or 'chains'
         self.user = self.config.get('username') or 'chains'
@@ -40,15 +44,19 @@ class InfluxService(Service):
     def onMessage(self, topic, data, correlationId):
         self.aggregated['total_messages'] += 1
         if topic.startswith('se.') and not topic.endswith('.online'):
-            if 'ignore' in data:
-                if data['ignore'] in [True, 'True', 'true', 'Yes', 'yes', 'y']:
-                    return
             # update the total number of events from this service
             cursrv = topic.split('.')[1]
             if cursrv in self.aggregated['service_events']:
                 self.aggregated['service_events'][cursrv] += 1
             else:
                 self.aggregated['service_events'][cursrv] = 1
+            # Ignore is in config ignoreclasses or ignore is set for the service
+            if 'class' in data:
+                if data['class'] in self.ignoreclasses:
+                    return
+            if 'ignore' in data:
+                if data['ignore'] in [True, 'True', 'true', 'Yes', 'yes', 'y']:
+                    return
             # start picking out data to report
             measures = []
             tags = {}
