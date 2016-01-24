@@ -14,6 +14,7 @@ class InfluxService(Service):
             'total_messages': 0,
             'heartbeats': 0,
             'service_events': {},
+            'cass_events': {},
         }
         # interval between pushing aggregated stats
         self.interval = self.config.getInt('interval') or 60
@@ -44,12 +45,17 @@ class InfluxService(Service):
     def onMessage(self, topic, data, correlationId):
         self.aggregated['total_messages'] += 1
         if topic.startswith('se.') and not topic.endswith('.online'):
-            # update the total number of events from this service
+            # update the total number of events from this service and class
             cursrv = topic.split('.')[1]
             if cursrv in self.aggregated['service_events']:
                 self.aggregated['service_events'][cursrv] += 1
             else:
                 self.aggregated['service_events'][cursrv] = 1
+            if 'class' in data:
+                if data['class'] in self.aggregated['class_events']:
+                    self.aggregated['class_events'][data['class']] += 1
+                else:
+                    self.aggregated['class_events'][data['class']] = 1
             # Ignore is in config ignoreclasses or ignore is set for the service
             if 'class' in data:
                 if data['class'] in self.ignoreclasses:
