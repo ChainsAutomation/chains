@@ -25,14 +25,15 @@ class IntegraService(Service):
             'actions': []
         }
         for cmd in self.cmds:
-            for subcmd in cmd:
+            for subcmd in self.cmds[cmd]:
                 newcmd = {
                     'name': cmd + subcmd,
                     'info': self.cmds[cmd][subcmd]['description'],
                     'args': [
                     ]
                 }
-                if 'type' in self.cmds[cmd][subcmd]:
+                # matches non-empty type-dicts:
+                if self.cmds[cmd][subcmd]['type']:
                     param = self._type_desc(self.cmds[cmd][subcmd]['type'])
                     if param:
                         newcmd['args'].append(param)

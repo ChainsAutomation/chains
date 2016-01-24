@@ -212,7 +212,9 @@ class Service(AmqpDaemon):
     #def onDescribe(self):
     #   See AmqpDaemon.onDescribe()
 
-    def sendEvent(self, key, data, deviceAttributes=None):
+    def sendEvent(self, key, data, deviceAttributes={}):
+        # add the service class to all events from that class
+        deviceAttributes['class'] = self.config.get('class')
         AmqpDaemon.sendEvent(self, key, data, deviceAttributes)
 
 
