@@ -12,7 +12,7 @@ from . import iscp
 class IntegraService(Service):
 
     def onInit(self):
-        log('IntegraService init.')
+        log.info('IntegraService init.')
         self.model = self.config.get('model')
         self.ser_dev = self.config.get('serial')
         if self.ser_dev and self.model:
@@ -46,7 +46,7 @@ class IntegraService(Service):
                                  )
 
     def onStart(self):
-        log('IntegraService starting.')
+        log.info('IntegraService starting.')
         while not self._shutdown:
             # TODO: check for self.command variable, and run command here
             # rather than from runAction()?
