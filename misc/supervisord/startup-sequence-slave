@@ -7,9 +7,9 @@ ARCH=`uname -m`
 if [ ! -f /chains-configured ]; then
     echo "First run, installing default configs"
     mkdir -p /etc/chains/services
-    #if [ ! -f /etc/chains/chains.conf ]; then
-    #    cp /srv/chains/misc/examples/etc-master/chains.conf /etc/chains/
-    #fi
+    if [ ! -f /etc/chains/chains.conf ]; then
+        cp /srv/chains/misc/Docker/chains-config/chains.conf-slave /etc/chains/chains.conf
+    fi
     # Add some default services
     shopt -s nullglob
     files=(/etc/chains/services/*)
@@ -30,12 +30,27 @@ else
     echo "Config exists, rolling on"
 fi
 
-# supervisorctl start system:sshd
+## Remove this as soon as zeroconf-discoverd works again
+if [ -n "$AMQP" ]; then
+    IFS=: read host port <<< $AMQP
+    echo "[main]
+    host: $host
+    port: $port
+    ">/etc/chains/amqp.conf
+fi
+
+# z-way zwave
+if [ -f /opt/z-way-server/z-way-server ]; then
+    supervisorctl start system:zway
+    if [ -f /usr/sbin/mongoose ]; then
+        supervisorctl start system:mongoose
+    fi
+fi
+
 #supervisorctl start system:telldusd
 supervisorctl start system:nginx
 #supervisorctl start chains:chains-zeroconf-discoverd # Until it runs properly
 # wait a few seconds for rabbit to have started properly
 sleep 3
 supervisorctl start chains:chains-manager
-#supervisorctl start chains:chains-webapi
 

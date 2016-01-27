@@ -13,6 +13,7 @@ class PhiTVService(Service):
             import ptv_bdm as ptv
         elif self.model == "publicdisp":
             import ptv_bdl as ptv
+        self.meta = {'type': 'screen', 'device': 'screen'}
         self.port = self.config.get('port') or "/dev/ttyUSB0"
         self.ser = serial.Serial(
             port=self.port,
@@ -27,7 +28,7 @@ class PhiTVService(Service):
         while not self._shutdown:
             data_raw = self.ser.readline()  # Using readline for now since this doesn't need performance
             data = self._parse_data(data_raw)
-            self.sendEvent('device': tv, 'phitv': data)
+            self.sendEvent('change', data, self.meta)
 
     def _parse_data(self, raw):
         # check data and return human readable data

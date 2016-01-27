@@ -66,14 +66,10 @@ class SpotCtrlService(Service):
         self.finished = False
         self.session = None
 
-        self.username = 'anonymous'
-        try: self.username = self.config['main']['username']
-        except KeyError:
-            log.warn('No "username" in %s service config, using %s' % (self.config['id'], self.username))
-        self.password = 'password'
-        try: self.password = self.config['main']['password']
-        except KeyError:
-            log.warn('No "password" in %s service config, using %s' % (self.config['id'], self.password))
+        self.username = self.config.get('username')
+        self.password = self.config.get('password')
+        if not self.username or not self.password:
+            sys.exit('Need username and password')
         self.audio = AlsaController()
         self.ctr = None
         self.playing = False
@@ -114,12 +110,12 @@ class SpotCtrlService(Service):
         }
         self.devDaemon.onEvent(evt)
  
-    def cmd_quit(self, line):
+    def action_quit(self, line):
         print "Goodbye!"
         self.terminate()
         return True
 
-    def cmd_lists(self):
+    def action_lists(self):
         """ List the playlists """
         extra = {}
         for i, p in enumerate(self.ctr):
@@ -132,7 +128,7 @@ class SpotCtrlService(Service):
         self.onEvent('playlists',len(extra),extra)
 #        return extra
 
-    def cmd_list(self, listid):
+    def action_list(self, listid):
         """ List the contents of a playlist """
         extra = {}
         try:
@@ -154,12 +150,12 @@ class SpotCtrlService(Service):
         self.onEvent('playlist',listid,extra)
 #        return extra
 
-    def cmd_play(self):
+    def action_play(self):
         self.play()
         self.onEvent('status','playing',{})
         return True
 
-    def cmd_load_track(self, track, playlist=None):
+    def action_load_track(self, track, playlist=None):
         extra = {}
         if track.startswith("spotify:"):
             # spotify url
@@ -176,7 +172,7 @@ class SpotCtrlService(Service):
         self.play()
         self.onEvent('playing',track,extra)
 
-    def cmd_search(self, line):
+    def action_search(self, line):
         if not line:
             if self.results is False:
                 print "No search is in progress"
@@ -202,7 +198,7 @@ class SpotCtrlService(Service):
                 self.results = results
             self.search(line, _)
 
-    def cmd_queue(self):
+    def action_queue(self):
         extra = {}
         for playlist, track in self._queue:
             print playlist, track
@@ -210,7 +206,7 @@ class SpotCtrlService(Service):
         self.onEvent('list','queue',extra)
         return
 
-    def cmd_queue_track(self, playlist, track):
+    def action_queue_track(self, playlist, track):
         try:
             playlist, track = map(int, line.split(' ', 1))
         except ValueError:
@@ -218,19 +214,19 @@ class SpotCtrlService(Service):
             return
         self.queue(int(playlist), int(track))
 
-    def cmd_stop(self):
+    def action_stop(self):
         self.stop()
 
-    def cmd_next(self):
+    def action_next(self):
         self.next()
 
-    def cmd_set_bitrate(self, bitrate):
+    def action_set_bitrate(self, bitrate):
         self.bitrate(bitrate)
 
-    def cmd_load(self,playlist,track):
+    def action_load(self,playlist,track):
         self.load(int(playlist),int(track))
 
-    def cmd_load_tack(self,track):
+    def action_load_tack(self,track):
         self.load(int(track))
 
 
@@ -399,7 +395,7 @@ class SpotCtrlService(Service):
 
 #if __name__ == '__main__':
 #    print "main"
-#    t = SpotTest('chrisaq','various1')
+#    t = SpotTest('username','password')
 #    print "connecting"
 #    t.connect()
 #    print "connected"

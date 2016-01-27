@@ -33,8 +33,15 @@ else
     echo "Config exists, rolling on"
 fi
 
+# z-way zwave
+if [ -f /opt/z-way-server/z-way-server ]; then
+    supervisorctl start system:zway
+    if [ -f /usr/sbin/mongoose ]; then
+        supervisorctl start system:mongoose
+    fi
+fi
+
 supervisorctl start system:rabbitmq
-# supervisorctl start system:sshd
 supervisorctl start system:telldusd
 supervisorctl start system:nginx
 supervisorctl start chains:chains-zeroconf-publishd

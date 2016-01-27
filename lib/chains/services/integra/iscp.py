@@ -11,7 +11,7 @@
 #CMDS[topic_index][2][cmd_index][3] : command models support
 #CMDS[topic_index][2][cmd_index][3][model_index] : model support
 
-import time
+# import time
 from collections import OrderedDict
 try:
     # Importing when used as a module
@@ -45,6 +45,7 @@ def model_cmds(model):
             # print "Supported topic: %s" % topic[0]
             pass
     return (topic_desc, m_cmds)
+
 
 def check_cmd(cmd, param, ctype):
     # TODO: prefix, hex-type hex(myint)[2:].upper()

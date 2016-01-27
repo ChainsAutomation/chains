@@ -22,12 +22,21 @@ class ServiceThread(threading.Thread):
     start() to run onStart() and listenForActions()
     so that they do not block.
     '''
-    def __init__(self, func):
+    def __init__(self, func, name, serviceId):
         threading.Thread.__init__(self)
         self.func = func
+        self.name = name
+        self.serviceId = serviceId
         self.setDaemon(True)
     def run(self):
-        self.func()
+        try:
+            self.func()
+        except Exception, e:
+            log.error("Thread for %s in service %s died: %s" % (
+                self.name,
+                self.serviceId,
+                utils.e2str(e)
+            ))
 
 class Service(AmqpDaemon):
     '''
@@ -106,13 +115,13 @@ class Service(AmqpDaemon):
         # (It will typically do stuff and call onEvent() to
         # push events to the queue).
         log.info('Starting thread for onStart')
-        self.eventThread = ServiceThread(self.onStart)
+        self.eventThread = ServiceThread(self.onStart, 'OnStart', self.config.get('id'))
         self.eventThread.start()
 
         if block:
             self.listen()
         else:
-            self.actionThread = ServiceThread(self.listen)
+            self.actionThread = ServiceThread(self.listen, 'Actions', self.config.get('id'))
             self.actionThread.start()
 
 
@@ -203,7 +212,9 @@ class Service(AmqpDaemon):
     #def onDescribe(self):
     #   See AmqpDaemon.onDescribe()
 
-    def sendEvent(self, key, data, deviceAttributes=None):
+    def sendEvent(self, key, data, deviceAttributes={}):
+        # add the service class to all events from that class
+        deviceAttributes['class'] = self.config.get('class')
         AmqpDaemon.sendEvent(self, key, data, deviceAttributes)
 
 
