@@ -465,7 +465,7 @@ class AmqpDaemon:
                 log.notice('Handeling topic: %s' % topic)
                 tmp = topic.split('.')
                 handle = False
-                if tmp[0] == actionPrefix and len(tmp) > 1:
+                if tmp[0] == actionPrefix and len(tmp) > 1 and tmp[1] == self.id:
                     pre, src, key = tmp
                     if key == '_shutdown':
                         continue
