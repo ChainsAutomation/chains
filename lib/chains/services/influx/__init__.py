@@ -92,7 +92,7 @@ class InfluxService(Service):
                         # log.info("topic: " + str(topic))
                         # log.info("data: " + str(data))
                         pass
-            log.info('insert measures: %s' % measures)
+            log.debug('insert measures: %s' % measures)
             try:
                 self.ix.insert(measures)
             except Exception, e:
