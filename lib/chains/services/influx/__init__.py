@@ -1,8 +1,9 @@
 from chains.service import Service
-from chains.common import log
+from chains.common import log, utils
 
 import time
 import numbers
+import types
 from .cinflux import Influx as IX
 
 
@@ -71,7 +72,10 @@ class InfluxService(Service):
                     if tag == 'key':
                         tags.update({'event': data[tag]})
                     else:
-                        tags.update({tag: data[tag]})
+                        tagValue = data[tag]
+                        if type(tagValue) == types.UnicodeType:
+                            tagValue = tagValue.encode('utf-8')
+                        tags.update({tag: tagValue})
             for measure in data['data']:
                 if 'value' in data['data'][measure]:
                     curval = data['data'][measure]['value']
@@ -88,7 +92,11 @@ class InfluxService(Service):
                         # log.info("topic: " + str(topic))
                         # log.info("data: " + str(data))
                         pass
-            self.ix.insert(measures)
+            log.info('insert measures: %s' % measures)
+            try:
+                self.ix.insert(measures)
+            except Exception, e:
+                log.error('Failed inserting measures in influxdb: %s\nAttempted insert was: %s' % (utils.e2str(e), measures))
         elif topic[1] == 'h':
             # heartbeat
             self.aggregated['heartbeats'] += 1
