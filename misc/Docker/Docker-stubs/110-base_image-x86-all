@@ -4,3 +4,4 @@ RUN add-apt-repository ppa:pypy/ppa -y
 RUN apt-get update
 RUN apt-get install pypy
 RUN wget https://bootstrap.pypa.io/get-pip.py -O /opt/get-pip.py && /usr/bin/pypy /opt/get-pip.py && rm /opt/get-pip.py
+RUN /usr/bin/pypy -m pip install pyyaml
