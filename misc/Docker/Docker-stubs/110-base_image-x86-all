@@ -2,3 +2,4 @@ FROM ubuntu:14.04
 # adding latest pyyp
 RUN add-apt-repository ppa:pypy/ppa -y
 RUN apt-get update
+RUN apt-get install pypy
