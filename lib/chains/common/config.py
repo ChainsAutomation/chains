@@ -112,7 +112,7 @@ class CoreConfig(BaseConfig):
             _os.makedirs(dir)
 
         isMaster = False
-        if os.environ.get('CHAINS_MASTER') and os.environ.get('CHAINS_MASTER') != '0':
+        if _os.environ.get('CHAINS_MASTER') and _os.environ.get('CHAINS_MASTER') != '0':
             isMaster = True
 
         self._data = {
