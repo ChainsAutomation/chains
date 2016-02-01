@@ -289,24 +289,26 @@ class Orchestrator(amqp.AmqpDaemon):
         if not instanceData['main'].get('id'):
             id = self.generateUuid()
             instanceData['main']['id'] = id
-            instanceConfig.set('main', 'id', id)
+            #instanceConfig.set('main', 'id', id) # todo: need access to config parser here
             hasChanges = True
 
         if not instanceData['main'].get('name'):
             name = instanceData['main']['class'].lower()
             instanceData['main']['name'] = name
-            instanceConfig.set('main', 'name', name)
+            #instanceConfig.set('main', 'name', name) # todo: need write access to config here
             hasChanges = True
 
         if not instanceData['main'].get('manager'):
             manager = 'master'
             instanceData['main']['manager'] = manager
-            instanceConfig.set('main', 'manager', manager)
+            #instanceConfig.set('main', 'manager', manager) # todo: dito
             hasChanges = True
 
+        """ todo
         if hasChanges:
             with open(path, 'w') as instanceFile:
                 instanceConfig.write(instanceFile)
+        """
 
         data              = self.mergeDictionaries(classData, instanceData)
 

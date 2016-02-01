@@ -3,6 +3,10 @@ import unittest
 from chains.common.config import BaseConfig
 
 class TestBaseConfigData(unittest.TestCase):
+  """
+  Test all the logic in BaseConfig that is not specific to the file-parsing,
+  by populating from a data dict.
+  """
 
   def setUp(self):
     testConfig = {
@@ -49,24 +53,18 @@ class TestBaseConfigData(unittest.TestCase):
   def test_When_getting_data_from_other_section_It_returns_the_entire_section_dict(self):
     expect = {
         'test': 'testContent2',
-        'some.nested.key': 'Some nested content'
+        'some': { 'nested': { 'key': 'Some nested content' }}
     }
     self.assertEqual(expect, self.testBaseConfig.data('othersection'))
 
-  def test_When_getting_nested_key_It_returns_the_correct_value(self):
+  def test_When_getting_nested_key_with_full_path_It_returns_the_tip_value(self):
     self.assertEqual('Some nested content', self.testBaseConfig.get('some.nested.key', 'othersection'))
 
-
-  def test_When_getting_data_without_join_keys_It_returns_nested_dicts(self):
-    expect = {
-        'test': 'testContent2',
-        'some': {
-            'nested': {
-                'key': 'Some nested content'
-            }
-        }
-    }
-    self.assertEqual(expect, self.testBaseConfig.data('othersection', join=False))
+  def test_When_getting_nested_key_with_partial_pathIt_returns_the_dict_at_the_point(self):
+    self.assertEqual(
+        { 'key': 'Some nested content' },
+        self.testBaseConfig.get('some.nested', 'othersection')
+    )
 
   def test_When_getting_data_for_all_sections_It_returns_entire_config_dict(self):
     expect = {
@@ -78,10 +76,35 @@ class TestBaseConfigData(unittest.TestCase):
         },
         'othersection': {
             'test': 'testContent2',
-            'some.nested.key': 'Some nested content'
+            'some': { 'nested': { 'key': 'Some nested content' }}
         }
     }
     self.assertEqual(expect, self.testBaseConfig.data())
+
+  def test_When_changing_a_simple_value_in_main_It_is_changed(self):
+    self.testBaseConfig.set('test', 'testContentChanged')
+    value = self.testBaseConfig.get('test')
+    self.assertEquals('testContentChanged', value)
+
+  def test_When_changing_a_simple_value_in_othersection_It_is_changed(self):
+    self.testBaseConfig.set('test', 'testContentChanged2', 'othersection')
+    value = self.testBaseConfig.get('test', 'othersection')
+    self.assertEquals('testContentChanged2', value)
+
+  def test_When_changing_a_nested_value_with_full_path_It_is_changed(self):
+    self.testBaseConfig.set('some.nested.key', 'Some changed content', 'othersection')
+    value = self.testBaseConfig.get('some.nested.key', 'othersection')
+    self.assertEquals('Some changed content', value)
+
+  def test_When_changing_a_nested_value_with_partial_path_It_is_changed(self):
+    self.testBaseConfig.set('some.nested', {'foo':'bar','key':'moo'}, 'othersection')
+    value = self.testBaseConfig.get('some.nested.key', 'moo')
+    value = self.testBaseConfig.get('some.nested.foo', 'bar')
+
+  def test_When_changing_a_nested_value_The_internal_data_is_properly_changed(self):
+    self.testBaseConfig.set('some.nested.key', 'Some changed content', 'othersection')
+    value = self.testBaseConfig.get('some', 'othersection')
+    self.assertEquals({'nested':{'key':'Some changed content'}}, value)
 
 if __name__ == '__main__':
   unittest.main()

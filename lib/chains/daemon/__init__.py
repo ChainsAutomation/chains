@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 import sys, os
-from chains.common import config, log, utils
+from chains.common import log, utils
+from chains.common.config import CoreConfig
 
 class Daemon:
 
     def __init__(self, daemonType, daemonId, callback):
-        coreConfig = config.CoreConfig()
+        coreConfig = CoreConfig()
         self.logFile = coreConfig.getLogFile(daemonType) #, daemonId)
         self.pidFile = coreConfig.getPidFile(daemonType) #, daemonId)
         self.name = 'chains-%s-%s' % (daemonType, daemonId)
@@ -80,10 +81,11 @@ def resolveDaemonId(value):
     return value.replace('{hostname}', hostname)
 
 def main(daemonType, fork=True):
-    conf = config.data(daemonType)
-    conf['id'] = resolveDaemonId(conf['id'])
+    coreConfig = CoreConfig()
+    conf = coreConfig.data(daemonType)
     if not conf:
         raise Exception('No section "daemon_%s" in config' % id)
+    conf['id'] = resolveDaemonId(conf['id'])
     for k in conf:
         if k[0:4] == 'env_':
             log.info('Set ENV.%s = %s' % (k[4:],conf[k]))

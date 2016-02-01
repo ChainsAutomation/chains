@@ -1,12 +1,13 @@
 # vim: tabstop=4 shiftwidth=4 sts=4 bg=dark expandtab
 
 import logging, logging.handlers
-from chains.common import config
+from chains.common.config import CoreConfig
 import types, json, os
 
 
 level  = None
 logger = None
+config = CoreConfig()
 
 def setLevel(_level):
     if not logger: return
