@@ -75,7 +75,6 @@ class TimeoutThread(threading.Thread):
         else:
             now = time.time()
             if (now-item['heartbeat']) > self.orchestrator.timeout:
-                log.info('now %s - hb %s > timeout %s' % (now,item['heartbeat'],self.orchestrator.timeout))
                 self.orchestrator.setOffline(type, id)
 
 
@@ -231,7 +230,7 @@ class Orchestrator(amqp.AmqpDaemon):
 
         instanceData      = instanceConfig.data()
         classDir          = '%s/config/service-classes' % self.coreConfig.get('libdir')
-        classFile         = '%s/%s.conf' % (classDir, instanceData['main']['class'])
+        classFile         = '%s/%s.yml' % (classDir, instanceData['main']['class'])
         classConfig       = self.getConfig(classFile)
         classData         = classConfig.data()
         hasChanges        = False
@@ -303,11 +302,9 @@ class Orchestrator(amqp.AmqpDaemon):
 
 
     def getServiceConfigList(self):
-        log.info('getServiceConfigList1')
         dir = '%s/services' % self.coreConfig.get('confdir')
         names = {}
         for file in os.listdir(dir):
-            log.info('getServiceConfigList2:%s'%file)
             tmp = file.split('.')
             ext = tmp.pop()
             name = '.'.join(tmp)
@@ -428,7 +425,6 @@ class Orchestrator(amqp.AmqpDaemon):
         # serviceId
         serviceConfig = self.data['service'].get(value)
         if serviceConfig:
-            #log.info("parseServiceParam(1): %s => %s @ %s" % (value, value, serviceConfig['main'].get('manager')))
             return value, serviceConfig['main'].get('manager')
 
         # managerId.serviceName
@@ -441,7 +437,6 @@ class Orchestrator(amqp.AmqpDaemon):
                     continue
                 if serviceConfig['main'].get('name') != serviceName:
                     continue
-                #log.info("parseServiceParam(2): %s => %s @ %s" % (value, serviceId, managerId))
                 return serviceId, managerId
 
         # serviceName
@@ -453,7 +448,6 @@ class Orchestrator(amqp.AmqpDaemon):
                 items.append(serviceConfig)
         if len(items) == 1:
             serviceConfig = items[0]
-            #log.info("parseServiceParam(3): %s => %s @ %s" % (value,serviceConfig['main'].get('id'), serviceConfig['main'].get('manager')))
             return serviceConfig['main'].get('id'), serviceConfig['main'].get('manager')
 
         # not found
