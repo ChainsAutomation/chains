@@ -51,7 +51,7 @@ redirect_stderr=true
 priority=999
 
 [program:chains-reactor]
-command=/usr/lib/pypy/bin/pypy-c /srv/chains/lib/chains/daemon/__init__.py reactor
+command=/usr/local/bin/pypy /srv/chains/lib/chains/daemon/__init__.py reactor
 autostart=false
 autorestart=true
 redirect_stderr=true
