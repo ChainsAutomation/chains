@@ -1,1 +1,4 @@
 FROM resin/rpi-raspbian
+# Get newest pypy
+RUN wget https://bitbucket.org/pypy/pypy/downloads/pypy-4.0.1-linux-armhf-raspbian.tar.bz2 -O /opt/pypy.tar.bz
+RUN mkdir -p /opt/pypy && tar xf /opt/pypy.tar.bz -C /opt/pypy --strip-components=1 && rm /opt/pypy.tar.bz && ln -s /opt/pypy/bin/pypy /usr/local/bin/
