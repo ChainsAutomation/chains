@@ -65,7 +65,7 @@ class BaseConfig:
         data[last] = value
 
     def save(self):
-        text = _yaml.dump(self._data, default_flow_style=False)
+        text = _yaml.dump(self._data, default_flow_style=False, width=1000)
         fp = open(self._file, 'w')
         fp.write(text)
         fp.close()

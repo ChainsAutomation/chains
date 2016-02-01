@@ -1,0 +1,6 @@
+main:
+  checkinterval: '60'
+  defaultalarms: some:thing
+  file: /srv/ical/calendar.ics
+  password: chains
+  username: chains

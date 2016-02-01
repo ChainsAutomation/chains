@@ -1,0 +1,4 @@
+main:
+  class: Lirc
+  irsend: /usr/bin/irsend
+  socket: /dev/lircd

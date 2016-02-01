@@ -1,0 +1,2 @@
+main:
+  socketpath: /var/run/docker.sock

@@ -1,0 +1,5 @@
+main:
+  mngip: 127.0.0.1
+  mngpass: chains
+  mngport: '5038'
+  mnguser: chains

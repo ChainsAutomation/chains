@@ -1,0 +1,5 @@
+main:
+  class: Keyboard
+  interval: '5'
+  productid: '1204'
+  vendorid: '257'

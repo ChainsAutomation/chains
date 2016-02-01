@@ -1,0 +1,3 @@
+main:
+  from_addr: 'required_value_missing@example.org # Required value'
+  polldelay: '600 # Delay between pollings of email'
