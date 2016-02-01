@@ -1,5 +1,6 @@
 FROM ubuntu:14.04
 # adding latest pyyp
+RUN apt-get update && apt-get install -y software-properties-common
 RUN add-apt-repository ppa:pypy/ppa -y
 RUN apt-get update
 RUN apt-get install pypy
