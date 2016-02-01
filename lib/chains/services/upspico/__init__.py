@@ -1,8 +1,9 @@
 import chains.service
-from chains.common import log
+from chains.common import log, utils
 import time
 import smbus
 
+# minicom -b 38400 -o -D /dev/ttyAMA0
 class UpsPicoService(chains.service.Service):
 
     def onStart(self):
@@ -14,18 +15,31 @@ class UpsPicoService(chains.service.Service):
             time.sleep(interval)
 
     def poll(self):
-        data = {
-            'firmware': self.get_firmware_version(),
-            'power_loss': self.get_power_loss(),
-            'battery_voltage': self.get_battery_voltage(),
-            'rpi_voltage': self.get_rpi_voltage(),
-            'sot23_temperature': self.get_sot23_temperature(),
-            'to92_temperature': self.get_to92_temperature(),
-            'ad1': self.get_ad1(),
-            'ad2': self.get_ad2(),
-            'shutdown_time': self.get_shutdown_time(),
-            'battery_temperature_on_error': self.get_battery_temperature_on_error()
-        }
+
+        data = {}
+
+        keys = [
+            'firmware_version',
+            'power_loss',
+            'battery_voltage',
+            'rpi_voltage',
+            'sot23_temperature',
+            'to92_temperature',
+            'shutdown_time',
+            'battery_temperature_on_error',
+            'ad1',
+            'ad2'
+        ]
+
+        for key in keys:
+            func = 'get_%s' % key
+            try:
+                func = getattr(self, func)
+                value = func()
+            except Exception, e:
+                log.warn("Ignoring error on get %s: %s" % (key, utils.e2str(e)))
+                continue
+            data[key] = value
 
         for key in data.keys():
             value1 = data[key]
@@ -58,6 +72,13 @@ class UpsPicoService(chains.service.Service):
         else:
             return -1 # ERR
 
+    # http://www.forum.pimodules.com/viewtopic.php?f=19&t=375
+    def get_charging(self):
+        # i2cget -y 1 0x69 0x10
+        self.delay()
+        data = self.i2c.read_byte_data(0x69, 0x10)
+        # if data == 0x00 off, if 0x01 on
+
     def get_battery_voltage(self):
         self.delay()
         data = self.i2c.read_word_data(0x69, 0x01)
@@ -80,13 +101,13 @@ class UpsPicoService(chains.service.Service):
         self.delay()
         data = self.i2c.read_byte_data(0x69, 0x0C)
         data = format(data,"02x")
-        return data
+        return float(data)
 
     def get_to92_temperature(self):
         self.delay()
         data = self.i2c.read_byte_data(0x69, 0x0d)
         data = format(data,"02x")
-        return data
+        return float(data)
 
     def get_ad1(self):
         self.delay()
@@ -113,5 +134,5 @@ class UpsPicoService(chains.service.Service):
         return (float(data) / 100)
 
     def delay(self):
-        time.sleep(0.1)
+        time.sleep(0.2)
 
