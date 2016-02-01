@@ -85,6 +85,7 @@ class Orchestrator(amqp.AmqpDaemon):
     def __init__(self, id):
         log.info('Starting orchestator')
         amqp.AmqpDaemon.__init__(self, 'orchestrator', id)
+        self.coreConfig = config.CoreConfig()
         self.data = {
             'manager':      {},
             'service':       {},
@@ -115,26 +116,19 @@ class Orchestrator(amqp.AmqpDaemon):
         ]
 
     def prefixToType(self, prefix):
-        if prefix == amqp.PREFIX_SERVICE:       return 'service'
+        if prefix == amqp.PREFIX_SERVICE:      return 'service'
         if prefix == amqp.PREFIX_MANAGER:      return 'manager'
         if prefix == amqp.PREFIX_REACTOR:      return 'reactor'
         if prefix == amqp.PREFIX_ORCHESTRATOR: return 'orchestrator'
 
     def typeToPrefix(self, type):
         return self.getDaemonTypePrefix(type)
-        '''
-        if type == 'service': return amqp.PREFIX_SERVICE
-        if type == 'manager': return amqp.PREFIX_MANAGER
-        if type == 'reactor': return amqp.PREFIX_REACTOR
-        '''
 
     def sendHeartBeatRequest(self): #, type, id):
-        #topic = '%s.%s' (self.getHeartBeatRequestPrefix(type), id)
         topic = self.getHeartBeatRequestPrefix()
         self.producer.put(topic, amqp.HEARTBEAT_VALUE_REQUEST)
 
     def onMessage(self, topic, data, correlationId):
-        #log.info('MSG: %s = %s' % (topic,data))
         topic = topic.split('.')
 
         # Heartbeats
@@ -147,42 +141,6 @@ class Orchestrator(amqp.AmqpDaemon):
                 self.setOnline(self.prefixToType(topic[0][0]), topic[1])
             else:
                 log.warn('Unknown heartbeat event: %s' % (topic,))
-
-        # Service list responses
-        '''
-        elif topic[0][1] == amqp.PREFIX_ACTION_RESPONSE and topic[2] == 'getServices':
-
-            managerId = topic[1]
-
-            # Remove existing services for the manager
-            removeServices = []
-            for serviceId in self.data['service']:
-                if not self.data['service'][serviceId].has_key('manager') or self.data['service'][serviceId]['manager'] == managerId:
-                    removeServices.append(serviceId)
-            for serviceId in removeServices:
-                del self.data['service'][serviceId]
-
-            # Add services from manager reply
-            for serviceId in data:
-                if not self.data['service'].has_key(serviceId):
-                    self.data['service'][serviceId] = data[serviceId]
-                else:
-                    self.data['service'][serviceId]['online'] = data[serviceId]['online']
-                self.data['service'][serviceId]['manager'] = managerId
-            self.data['manager'][managerId]['services'] = len(data)
-
-        # Manager reconfigure events - should trigger refresh of service list
-        elif topic[0][1] == amqp.PREFIX_EVENT and topic[2] == 'reconfigured':
-            newServices = {}
-            for id in self.data['service']:
-                if self.data['service'][id]['manager'] == topic[1]:
-                    continue
-                newServices[id] = self.data['service'][id]
-            self.data['service'] = newServices
-            self.data['manager'][topic[1]]['services'] = None
-            log.info('Ask manager %s for service list since reconfigured' % topic[1])
-            self.sendManagerAction(topic[1], 'getServices')
-        '''
 
     def setOnline(self, type, key, force=False):
 
@@ -201,11 +159,6 @@ class Orchestrator(amqp.AmqpDaemon):
         if self.data[type][key]['online'] != True or force:
             log.info('%s %s changed status to online' % (type, key))
             self.data[type][key]['online'] = True
-            '''
-            if type == 'manager':
-                log.info('Ask manager %s for service list since changed to online' % key)
-                self.sendManagerAction(key, 'getServices')
-            '''
             eventTopic = '%s%s.%s.online' % (
                 self.typeToPrefix(type),
                 amqp.PREFIX_EVENT,
@@ -230,8 +183,6 @@ class Orchestrator(amqp.AmqpDaemon):
         # Init dict path if not set
         if not self.data[type].has_key(key):
             self.data[type][key] = {'online': None}
-            #if type == 'manager':
-            #    self.data[type][key]['services'] = None
 
         # If not already offline, set offline and send offline event
         if self.data[type][key]['online'] != False:
@@ -273,14 +224,16 @@ class Orchestrator(amqp.AmqpDaemon):
         else:
             log.info('Load service config: %s' % path)
 
-        instanceData      = self.loadConfigFile(path)
+        instanceConfig    = self.getConfig(path)
 
-        if not instanceData:
+        if not instanceConfig:
             return
 
-        classDir          = '%s/config/service-classes' % config.get('libdir')
+        instanceData      = instanceConfig.data()
+        classDir          = '%s/config/service-classes' % self.coreConfig.get('libdir')
         classFile         = '%s/%s.conf' % (classDir, instanceData['main']['class'])
-        classData         = self.loadConfigFile(classFile)
+        classConfig       = self.getConfig(classFile)
+        classData         = classConfig.data()
         hasChanges        = False
 
         if not classData:
@@ -289,26 +242,23 @@ class Orchestrator(amqp.AmqpDaemon):
         if not instanceData['main'].get('id'):
             id = self.generateUuid()
             instanceData['main']['id'] = id
-            #instanceConfig.set('main', 'id', id) # todo: need access to config parser here
+            instanceConfig.set('id', id)
             hasChanges = True
 
         if not instanceData['main'].get('name'):
             name = instanceData['main']['class'].lower()
             instanceData['main']['name'] = name
-            #instanceConfig.set('main', 'name', name) # todo: need write access to config here
+            instanceConfig.set('name', name)
             hasChanges = True
 
         if not instanceData['main'].get('manager'):
             manager = 'master'
             instanceData['main']['manager'] = manager
-            #instanceConfig.set('main', 'manager', manager) # todo: dito
+            instanceConfig.set('manager', manager)
             hasChanges = True
 
-        """ todo
         if hasChanges:
-            with open(path, 'w') as instanceFile:
-                instanceConfig.write(instanceFile)
-        """
+            instanceConfig.save()
 
         data              = self.mergeDictionaries(classData, instanceData)
 
@@ -326,10 +276,9 @@ class Orchestrator(amqp.AmqpDaemon):
 
         self.data['service'][ data['main']['id'] ] = data
 
-    def loadConfigFile(self, path):
+    def getConfig(self, path):
         try:
-            conf = config.BaseConfig(path)
-            return conf.data()
+            return config.BaseConfig(path)
         except Exception, e:
             log.error("Error loading config: %s, because: %s" % (path,utils.e2str(e)))
             return None
@@ -355,7 +304,7 @@ class Orchestrator(amqp.AmqpDaemon):
 
     def getServiceConfigList(self):
         log.info('getServiceConfigList1')
-        dir = '%s/services' % config.get('confdir')
+        dir = '%s/services' % self.coreConfig.get('confdir')
         names = {}
         for file in os.listdir(dir):
             log.info('getServiceConfigList2:%s'%file)
@@ -389,29 +338,10 @@ class Orchestrator(amqp.AmqpDaemon):
         return self.data['manager']
 
     def action_getServices(self):
-        '''
-        ret = []
-        for serviceId in self.data['service']:
-            conf = self.data['service'][serviceId]
-            main = conf.get('main')
-            ret.append({
-                'id':       main.get('id'),
-                'class':    main.get('class'),
-                'manager':  main.get('manager'),
-                'online':   conf.get('online'),
-                'hearbeat': conf.get('heartbeat')
-            })
-        return ret
-        '''
         return self.data['service']
 
     def action_getReactors(self):
         return self.data['reactor']
-
-    '''
-    def action_reloadManager(self, managerId):
-        self.sendManagerAction(managerId, 'reload')
-    '''
 
     def action_getServiceConfig(self, service):
         serviceId, managerId = self.parseServiceParam(service)
@@ -424,7 +354,6 @@ class Orchestrator(amqp.AmqpDaemon):
 
     # ===================================================
     # Manager proxy
-    # @todo: use rpc so can get response result?
     # ===================================================
 
     def action_startService(self, service):
@@ -449,21 +378,6 @@ class Orchestrator(amqp.AmqpDaemon):
         config = self.data['service'][serviceId]
         self.data['service'][serviceId]['manuallyStopped'] = False
         self.sendManagerAction(managerId, 'startService', [config])
-
-    '''
-    def action_enableService(self, serviceId):
-        managerId = self.getServiceManager(serviceId)
-        if not managerId:
-            raise Exception('No such service: %s' % serviceId)
-        self.sendManagerAction(managerId, 'enableService', [serviceId])
-
-    def action_disableService(self, serviceId):
-        managerId = self.getServiceManager(serviceId)
-        if not managerId:
-            raise Exception('No such service: %s' % serviceId)
-        self.sendManagerAction(managerId, 'disableService', [serviceId])
-    '''
-
 
     def generateUuid(self):
         return uuid.uuid4().hex

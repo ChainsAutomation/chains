@@ -1,5 +1,8 @@
-from chains.common import utils, config
+from chains.common import utils
+from chains.common.config import CoreConfig
 import os
+
+config = CoreConfig()
 
 class Formatter:
     pass

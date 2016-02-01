@@ -1,5 +1,8 @@
 import os, imp
-from chains.common import config, utils
+from chains.common import utils
+from chains.common.config import CoreConfig
+
+config = CoreConfig()
 
 def load(section=None, command=None):
     for dir in getCommandDirs():

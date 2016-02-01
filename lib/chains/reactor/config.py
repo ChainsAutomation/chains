@@ -1,6 +1,8 @@
-import chains.common.config as config
+from chains.common.config import CoreConfig
 from chains.common import ParameterException, ChainsException
 import os
+
+config = CoreConfig()
 
 # todo: tests
 # todo: cleanup

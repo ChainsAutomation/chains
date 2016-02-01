@@ -134,6 +134,7 @@ class CoreConfig(BaseConfig):
         }
 
         if isMaster:
+            self._data['manager']      = { 'id': 'chainsmaster' }
             self._data['reactor']      = { 'id': 'chainsmaster' }
             self._data['orchestrator'] = { 'id': 'main' }
 

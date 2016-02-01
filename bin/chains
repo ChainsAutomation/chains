@@ -2,7 +2,7 @@
 
 set -e
 
-CONFPATH="/etc/chains/chains.conf"
-LIBDIR=`grep "^libdir" $CONFPATH | sed -e "s/^libdir[[:space:]]*[:=][[:space:]]*\(.*\)/\1/"`
+CONFPATH="/etc/chains/chains.yml"
+LIBDIR=`grep "libdir" $CONFPATH | sed -e "s/^ *libdir[[:space:]]*[:=][[:space:]]*\(.*\)/\1/"`
 
 python $LIBDIR/commandline/__init__.py $@
