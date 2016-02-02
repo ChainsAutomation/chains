@@ -84,7 +84,7 @@ def main(daemonType, fork=True):
     coreConfig = CoreConfig()
     conf = coreConfig.data(daemonType)
     if not conf:
-        raise Exception('No section "daemon_%s" in config' % id)
+        raise Exception('No section "%s" in config' % daemonType)
     conf['id'] = resolveDaemonId(conf['id'])
     for k in conf:
         if k[0:4] == 'env_':
