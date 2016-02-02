@@ -30,14 +30,6 @@ else
     echo "Config exists, rolling on"
 fi
 
-# z-way zwave
-if [ -f /opt/z-way-server/z-way-server ]; then
-    supervisorctl start system:zway
-    if [ -f /usr/sbin/mongoose ]; then
-        supervisorctl start system:mongoose
-    fi
-fi
-
 ## Remove this as soon as zeroconf-discoverd works again
 if [ -n "$AMQP" ]; then
     IFS=: read host port <<< $AMQP
@@ -47,9 +39,24 @@ echo "main:
 ">/etc/chains/amqp.yml
 fi
 
-#supervisorctl start system:telldusd
+
+### daemon startups and ordering
+
+# z-way zwave / razberry
+if [ -f /opt/z-way-server/z-way-server ]; then
+    supervisorctl start zway
+    if [ -f /usr/sbin/mongoose ]; then
+        supervisorctl start mongoose
+    fi
+fi
+
+# only start telldusd if tellstick.conf exists:
+if [ -f /opt/z-way-server/z-way-server ]; then
+    supervisorctl start system:telldusd
+fi
+
 supervisorctl start system:nginx
-#supervisorctl start chains:chains-zeroconf-discoverd # Until it runs properly
+#supervisorctl start chains:chains-zeroconf-discoverd # disabled until it runs properly
 # wait a few seconds for rabbit to have started properly
 sleep 3
 supervisorctl start chains:chains-manager
