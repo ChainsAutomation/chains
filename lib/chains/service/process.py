@@ -2,11 +2,13 @@
 Process manager for services using subprocess
 '''
 
-from chains.common import config, log
+from chains.common import log
+from chains.common.config import CoreConfig
 from chains import service
 import os, signal, time, subprocess, json, psutil, types
 
 processes = {}
+config = CoreConfig()
 
 '''
 todo:
