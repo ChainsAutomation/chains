@@ -16,7 +16,9 @@ before_install:
 script:
   - docker ps -a
   - sleep 15
-  - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status | grep "FATAL" && exit 1 || echo "Every process started correctly"
+  - DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status > output
+  - cat output
+  - cat output | grep "FATAL" && exit 1 || echo "Every process started correctly"
 
 after_success:
   - ./deploy.sh
