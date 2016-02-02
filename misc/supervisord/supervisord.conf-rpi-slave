@@ -70,5 +70,5 @@ programs=chains-manager,chains-zeroconf-discoverd
 priority=999
 
 [group:system]
-programs=telldusd,zway,mongoose
+programs=telldusd
 priority=10

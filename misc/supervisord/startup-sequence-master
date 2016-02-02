@@ -7,11 +7,11 @@ ARCH=`uname -m`
 if [ ! -f /chains-configured ]; then
     echo "First run, installing default configs"
     mkdir -p /etc/chains/services
-    if [ ! -f /etc/chains/chains.conf ]; then
-        cp /srv/chains/misc/Docker/chains-config/chains.conf-master /etc/chains/chains.conf
+    if [ ! -f /etc/chains/chains.yml ]; then
+        cp /srv/chains/misc/Docker/chains-config/chains.yml-master /etc/chains/chains.yml
     fi
-    if [ ! -f /etc/chains/amqp.conf ]; then
-        cp /srv/chains/misc/Docker/chains-config/amqp.conf /etc/chains/
+    if [ ! -f /etc/chains/amqp.yml ]; then
+        cp /srv/chains/misc/Docker/chains-config/amqp.yml /etc/chains/
     fi
     # Add some default services
     shopt -s nullglob

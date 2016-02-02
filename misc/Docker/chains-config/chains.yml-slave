@@ -1,0 +1,13 @@
+main:
+  bindir: /srv/chains/bin
+  confdir: /etc/chains
+  datadir: /srv/chains/data
+  heartbeat: '5'
+  libdir: /srv/chains/lib/chains
+  logdir: /var/log/chains
+  loglevel: warn
+  rulesdir: /etc/chains
+  rundir: /var/run/chains
+  sharedir: /srv/chains/share
+manager:
+  id: chainsslave

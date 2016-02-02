@@ -7,8 +7,8 @@ ARCH=`uname -m`
 if [ ! -f /chains-configured ]; then
     echo "First run, installing default configs"
     mkdir -p /etc/chains/services
-    if [ ! -f /etc/chains/chains.conf ]; then
-        cp /srv/chains/misc/Docker/chains-config/chains.conf-slave /etc/chains/chains.conf
+    if [ ! -f /etc/chains/chains.yml ]; then
+        cp /srv/chains/misc/Docker/chains-config/chains.yml-slave /etc/chains/chains.yml
     fi
     # Add some default services
     shopt -s nullglob
@@ -30,21 +30,21 @@ else
     echo "Config exists, rolling on"
 fi
 
-## Remove this as soon as zeroconf-discoverd works again
-if [ -n "$AMQP" ]; then
-    IFS=: read host port <<< $AMQP
-    echo "[main]
-    host: $host
-    port: $port
-    ">/etc/chains/amqp.conf
-fi
-
 # z-way zwave
 if [ -f /opt/z-way-server/z-way-server ]; then
     supervisorctl start system:zway
     if [ -f /usr/sbin/mongoose ]; then
         supervisorctl start system:mongoose
     fi
+fi
+
+## Remove this as soon as zeroconf-discoverd works again
+if [ -n "$AMQP" ]; then
+    IFS=: read host port <<< $AMQP
+echo "main:
+  host: $host
+  port: $port
+">/etc/chains/amqp.yml
 fi
 
 #supervisorctl start system:telldusd

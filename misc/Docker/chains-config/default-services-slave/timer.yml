@@ -1,0 +1,5 @@
+main:
+  autostart: 'true'
+  class: Timer
+  manager: chainsslave
+  sendsec: '0'

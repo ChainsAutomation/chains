@@ -1,0 +1,5 @@
+main:
+  autostart: 'true'
+  class: Proximitynet
+  manager: chainsmaster
+  nic: all

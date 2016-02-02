@@ -1,0 +1,6 @@
+main:
+  autostart: 'true'
+  class: RPi
+  manager: chainsmaster
+  model_type: B+
+  model_version: '1'
