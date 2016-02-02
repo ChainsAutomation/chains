@@ -1,0 +1,6 @@
+main:
+  autostart: 'true'
+  class: USBInfo
+  interval: '600'
+  manager: chainsslave
+  name: usbinfo

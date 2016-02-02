@@ -1,0 +1,5 @@
+main:
+  autostart: 'true'
+  class: System
+  interval: '60'
+  manager: chainsmaster

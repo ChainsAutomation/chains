@@ -7,11 +7,12 @@ ARCH=`uname -m`
 if [ ! -f /chains-configured ]; then
     echo "First run, installing default configs"
     mkdir -p /etc/chains/services
-    if [ ! -f /etc/chains/chains.conf ]; then
-        cp /srv/chains/misc/Docker/chains-config/chains.conf-master /etc/chains/chains.conf
+    mkdir -p /etc/chains/hostconfig
+    if [ ! -f /etc/chains/chains.yml ]; then
+        cp /srv/chains/misc/Docker/chains-config/chains.yml-master /etc/chains/chains.yml
     fi
-    if [ ! -f /etc/chains/amqp.conf ]; then
-        cp /srv/chains/misc/Docker/chains-config/amqp.conf /etc/chains/
+    if [ ! -f /etc/chains/amqp.yml ]; then
+        cp /srv/chains/misc/Docker/chains-config/amqp.yml /etc/chains/
     fi
     # Add some default services
     shopt -s nullglob
@@ -33,18 +34,24 @@ else
     echo "Config exists, rolling on"
 fi
 
-# z-way zwave
+### daemon startups and ordering
+
+# z-way zwave / razberry
 if [ -f /opt/z-way-server/z-way-server ]; then
-    supervisorctl start system:zway
+    supervisorctl start zway
     if [ -f /usr/sbin/mongoose ]; then
-        supervisorctl start system:mongoose
+        supervisorctl start mongoose
     fi
 fi
 
+# only start telldusd if tellstick.conf exists:
+if [ -f /etc/chains/hostconfig/tellstick.conf ]; then
+    supervisorctl start system:telldusd
+fi
+
 supervisorctl start system:rabbitmq
-supervisorctl start system:telldusd
 supervisorctl start system:nginx
-supervisorctl start chains:chains-zeroconf-publishd
+# supervisorctl start chains:chains-zeroconf-publishd # disabled until discover works again
 # wait a few seconds for rabbit to have started properly
 sleep 3
 supervisorctl start chains:chains-orchestrator

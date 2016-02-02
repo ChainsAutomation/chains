@@ -1,0 +1,24 @@
+amqp:
+  exchange: chains
+  host: localhost
+  password: guest
+  port: '5672'
+  ssl: '0'
+  user: guest
+main:
+  bindir: /srv/chains/bin
+  confdir: /etc/chains
+  datadir: /srv/chains/data
+  heartbeat: '5'
+  libdir: /srv/chains/lib/chains
+  logdir: /var/log/chains
+  loglevel: info
+  rulesdir: /etc/chains
+  rundir: /var/run/chains
+  sharedir: /srv/chains/share
+manager:
+  id: chainsmaster
+orchestrator:
+  id: main
+reactor:
+  id: chainsmaster

@@ -105,5 +105,5 @@ programs=chains-manager,chains-orchestrator,chains-reactor,chains-zeroconf-publi
 priority=999
 
 [group:system]
-programs=rabbitmq,telldusd,nginx,zway,mongoose
+programs=rabbitmq,telldusd,nginx
 priority=10
