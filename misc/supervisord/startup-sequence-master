@@ -51,7 +51,7 @@ fi
 
 supervisorctl start system:rabbitmq
 supervisorctl start system:nginx
-supervisorctl start chains:chains-zeroconf-publishd
+# supervisorctl start chains:chains-zeroconf-publishd # disabled until discover works again
 # wait a few seconds for rabbit to have started properly
 sleep 3
 supervisorctl start chains:chains-orchestrator
