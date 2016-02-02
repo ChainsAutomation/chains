@@ -1,5 +1,5 @@
 ## Chains
 RUN mkdir -p /srv/chains && mkdir -p /var/log/chains && mkdir -p /etc/chains
-ADD misc/Docker/chains-config/chains.conf-master /etc/chains/chains.conf
+ADD misc/Docker/chains-config/chains.yml-master /etc/chains/chains.yml
 COPY . /srv/chains
 RUN /srv/chains/bin/chains-install-from-svn -m
