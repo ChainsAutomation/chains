@@ -13,6 +13,8 @@ class IntegraService(Service):
 
     def onInit(self):
         log.info('IntegraService init.')
+        print 'IntegraService init.'
+        self.location = self.config.get('location')
         self.model = self.config.get('model')
         self.ser_dev = self.config.get('serial')
         if self.ser_dev and self.model:
@@ -38,6 +40,7 @@ class IntegraService(Service):
                     if param:
                         newcmd['args'].append(param)
                 self.act_desc['actions'].append(newcmd)
+        print self.act_desc
         self.ser = serial.Serial(port=self.ser_dev,
                                  baudrate=9600,
                                  timeout=0.05,  # 50ms reponse time according to spec
@@ -48,12 +51,22 @@ class IntegraService(Service):
 
     def onStart(self):
         log.info('IntegraService starting.')
+        print 'IntegraService starting.'
+        meta = {}
+        if self.location:
+            meta.update({'location': self.location})
         while not self._shutdown:
             # TODO: check for self.command variable, and run command here
             # rather than from runAction()?
             line = self.ser.readline()
             if line:
-                self.sendEvent(line[1:4], {'value': line[4:]})
+                # TODO: add actions to events
+                # TODO check if command is from zone1, 2, 3 etc and change device
+                meta['device'] = 'zone1'
+                self.sendEvent("change", {line[2:5]: {'value': line[5:]}}, meta)
+                # self.sendEvent("change", line[1:4], {'value': line[4:]})
+                log.info('Received: %s' % line)
+                print 'Received: %s' % line
             # TODO: sleep probably not needed?
             time.sleep(0.1)
 
