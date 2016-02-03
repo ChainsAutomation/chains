@@ -2,4 +2,4 @@ main:
   autostart: 'true'
   class: Proximitynet
   manager: chainsslave
-  nic: 'all # TODO enable monitoring only specific nic'
+  nic: 'all'
