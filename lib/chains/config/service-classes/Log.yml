@@ -5,7 +5,7 @@ main:
   defaultfile: __default__
   logdir: ''
 options:
-  __default__.showcolon: '1'
-  __default__.showtime: '1'
+  __default__.showcolon: 1
+  __default__.showtime: 1
   __default__.strftime: '%Y-%m-%d %H:%M:%S'
-  __default__.timeastimestamp: '0'
+  __default__.timeastimestamp: 0

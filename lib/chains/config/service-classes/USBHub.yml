@@ -1,4 +1,4 @@
 main:
   class: USBHub
-  interval: '600'
+  interval: 600
   interval_desc: Interval between USB scan

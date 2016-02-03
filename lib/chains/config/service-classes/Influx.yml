@@ -3,7 +3,7 @@ main:
   database: chains
   ignoreclasses: USBInfo,Pushover
   influxhost: localhost
-  interval: '60'
-  queryport: '8086'
+  interval: 60
+  queryport: 8086
   writemethod: http
-  writeport: '8086'
+  writeport: 8086

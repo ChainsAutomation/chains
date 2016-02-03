@@ -1,4 +1,4 @@
 main:
   class: WebApi
   host: localhost
-  port: '8888'
+  port: 8888

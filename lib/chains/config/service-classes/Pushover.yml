@@ -1,7 +1,7 @@
 main:
   message: Chains calling
-  priority: '1'
+  priority: 1
   sound: bike
-  title: Chains!
-  url: http://wiki.chainsautomation.com
+  title: "Chains!"
+  url: "http://wiki.chainsautomation.com"
   urltitle: Chains

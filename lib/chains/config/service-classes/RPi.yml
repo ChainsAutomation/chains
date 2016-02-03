@@ -1,4 +1,4 @@
 main:
   class: RPi
   model_type: B+
-  model_version: '1'
+  model_version: 1

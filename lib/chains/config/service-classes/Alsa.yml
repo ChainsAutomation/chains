@@ -1,4 +1,4 @@
 main:
   defaultsoundset: chains
-  mixer: '1'
-  pollinterval: '60'
+  mixer: 1
+  pollinterval: 60

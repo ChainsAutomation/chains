@@ -1,4 +1,4 @@
 main:
-  _num_lights_desc: The number of lights you have installed. Optional.
+  _desc_num_lights: The number of lights you have installed. Optional.
   class: Lifx
-  interval: '10'
+  interval: 10

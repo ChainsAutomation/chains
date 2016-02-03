@@ -1,7 +1,7 @@
 main:
   channel: '01'
-  interval: '60'
-  serial.bps: '9600'
+  interval: 60
+  serial.bps: 9600
   serial.device: /dev/ttyS0
-  serial.flowcont: '0'
-  serial.timeout: '1'
+  serial.flowcont: 0
+  serial.timeout: 1

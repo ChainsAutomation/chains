@@ -1,7 +1,7 @@
 appliances:
-  _appliances_desc: 'Known appliances(computers, etc). Entries are of the format name: mac'
+  _desc_appliances: 'Known appliances(computers, etc). Entries are of the format name: mac'
 ip:
-  _ip_desc: 'Entries are of the format name: ip'
+  _desc_ip: 'Entries are of the format name: ip'
 main:
   _main_desc: any device whose mac address is not in names or applicanes section is considered unknown for event purposes
   class: Proximitynet
