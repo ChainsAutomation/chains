@@ -20,7 +20,7 @@ class InfluxService(Service):
         # interval between pushing aggregated stats
         self.interval = self.config.getInt('interval') or 60
         try:
-            self.ignoreclasses = self.config.getInt('ignoreclasses').split(',')
+            self.ignoreclasses = self.config.get('ignoreclasses').split(',')
         except:
             self.ignoreclasses = []
         self.host = self.config.get('influxhost') or 'localhost'
