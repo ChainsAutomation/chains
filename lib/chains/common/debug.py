@@ -10,8 +10,8 @@ def debug(func):
     return wrapper
 
 @debug
-def _test('hi', 'guy', kw1='something', kw2='stuff'):
+def _test(arg1, arg2, kw1='something', kw2='stuff'):
     print('This is all I do')
 
 if __name__ == '__main__':
-    _test()
+    _test('hi', 'guy', kw1='something_or_other', kw2='stuff_yo')
