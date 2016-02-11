@@ -8,3 +8,10 @@ def debug(func):
         print("debug: " + func.__name__ + args_str)
         return func(*args, **kwargs)
     return wrapper
+
+@debug
+def _test('hi', 'guy', kw1='something', kw2='stuff'):
+    print('This is all I do')
+
+if __name__ == '__main__':
+    _test()
