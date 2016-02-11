@@ -1,9 +1,11 @@
 from __future__ import print_function
 from functools import wraps
+import inspect
 
 def debug(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
+        print('debug: ' + func.__name__ + str(inspect.signature(func)))
         args_str = "(" + ", ".join(map(str, args)) + ", " + str(kwargs) + ")"
         print("debug: " + func.__name__ + args_str)
         return func(*args, **kwargs)
