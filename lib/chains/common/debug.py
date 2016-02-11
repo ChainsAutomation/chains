@@ -5,7 +5,8 @@ import inspect
 def debug(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        print('debug: ' + func.__name__ + str(inspect.signature(func)))
+        # inspect.signature only available in py3
+        # print('debug: ' + func.__name__ + str(inspect.signature(func)))
         args_str = "(" + ", ".join(map(str, args)) + ", " + str(kwargs) + ")"
         print("debug: " + func.__name__ + args_str)
         return func(*args, **kwargs)
