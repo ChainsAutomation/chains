@@ -142,13 +142,14 @@ if [ $MASTER -eq 1 ]; then
 fi
 apt-get install -y python-cjson python-psutil
 
-set +e
-apt-get install -y python-amqplib
-ec=$?
-set -e
-if [ $ec -ne 0 ]; then
-    easy_install amqplib
-fi
+# using pip to install amqplib now
+#set +e
+#apt-get install -y python-amqplib
+#ec=$?
+#set -e
+#if [ $ec -ne 0 ]; then
+#    easy_install amqplib
+#fi
 
 # publishd needs this
 set +e
