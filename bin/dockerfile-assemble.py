@@ -40,7 +40,7 @@ print("full path to docker stubs for this image is %s" % fullpath)
 chainsdir = os.path.realpath(stubdir + '../../')
 print("chains install detected at %s" % chainsdir)
 
-stubfiles = os.walk(fullpath).next()[2]
+stubfiles = next(os.walk(fullpath))[2]
 stubfiles.sort()
 dockercontent = ''
 for sfile in stubfiles:
