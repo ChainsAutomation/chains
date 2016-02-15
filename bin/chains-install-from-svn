@@ -15,6 +15,7 @@ while getopts mb:c:ip o
 do  case "$o" in
     b)     BASE_DIR="$OPTARG";;
     m)     MASTER=1;;
+    d)     DEPS=1;;
     c)     CONF_DIR="$OPTARG";;
     i)     INST_INITD=0;;
     p)     INST_PATH=0;;
@@ -136,30 +137,30 @@ fi
 # Dependencies
 # =========================
 
-echo "Installing dependencies"
-if [ $MASTER -eq 1 ]; then
-  apt-get install -y rabbitmq-server
+if [ $DEPS -eq 1 ]; then
+  echo "Installing dependencies"
+  if [ $MASTER -eq 1 ]; then
+    apt-get install -y rabbitmq-server
+  fi
+  apt-get install -y python-cjson python-psutil
+
+  set +e
+  apt-get install -y python-amqplib
+  ec=$?
+  set -e
+  if [ $ec -ne 0 ]; then
+      easy_install amqplib
+  fi
+
+  # publishd needs this
+  set +e
+  which python2 >/dev/null 2>/dev/null
+  ok=$?
+  set -e
+  if [ $ok -ne 0 ]; then
+    ln -s `which python` /usr/bin/python2
+  fi
 fi
-apt-get install -y python-cjson python-psutil
-
-# using pip to install amqplib now
-#set +e
-#apt-get install -y python-amqplib
-#ec=$?
-#set -e
-#if [ $ec -ne 0 ]; then
-#    easy_install amqplib
-#fi
-
-# publishd needs this
-set +e
-which python2 >/dev/null 2>/dev/null
-ok=$?
-set -e
-if [ $ok -ne 0 ]; then
-  ln -s `which python` /usr/bin/python2
-fi
-
 echo "-----------------------------------"
 echo "Done installing chains"
 echo "-----------------------------------"
