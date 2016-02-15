@@ -1,8 +1,9 @@
 ENV MYPASSWORD chains
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y build-essential git curl libudev1 libudev-dev python-software-properties openssh-server supervisor subversion zsh python-dev cython libusb-1.0-0 libusb-1.0-0-dev rrdtool python-rrdtool cec-utils libcec2 libcec-dev tcpdump tmux nginx
-RUN pip install six zeroconf psutil falcon uWSGI hidapi irc Phidgets scapy cec soco vobject pyhue lifxlan bitstring netaddr influxdb pyserial pyyaml
+RUN pip install six amqplib zeroconf psutil falcon uWSGI hidapi irc Phidgets scapy cec soco vobject pyhue lifxlan bitstring netaddr influxdb pyserial pyyaml
 RUN pip install --pre pyusb
+RUN /usr/bin/pypy -m pip install amqplib
 # Install libphidgets
 RUN wget 'http://www.phidgets.com/downloads/libraries/libphidget.tar.gz' -O /root/libphi.tar.gz && mkdir -p /root/libphi && tar xf /root/libphi.tar.gz -C /root/libphi --strip-components=1 && cd /root/libphi && ./configure && make && make install && rm -rf /root/libphi*
 # Set root password
