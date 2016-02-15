@@ -1,8 +1,11 @@
+# py3: Done
+from __future__ import print_function
+from __future__ import absolute_import
 import os as _os
 import yaml as _yaml
-import types
 
-class BaseConfig:
+
+class BaseConfig(object):
 
     def __init__(self, file=None, data=None):
         self._data = {}
@@ -28,7 +31,7 @@ class BaseConfig:
         last = key.split('.')[-1:][0]
         data = self._getDataForPath(prefix)
         try:
-            if data and data.has_key(last):
+            if data and last in data:
                 return True
         except TypeError:
             pass
@@ -59,7 +62,7 @@ class BaseConfig:
         last = key.split('.')[-1:][0]
         data = self._data
         for key in prefix:
-            if not data.has_key(key) or type(data.get(key)) != types.DictType:
+            if key not in data or type(data.get(key)) != dict:
                 data[key] = {}
             data = data[key]
         data[last] = value
@@ -101,7 +104,7 @@ class CoreConfig(BaseConfig):
         BaseConfig.__init__(self, file=file)
         if self._loaded:
             return
-        if not self._data.has_key('main'):
+        if 'main' not in self._data:
             self.makeDefaultConfig()
             self._loaded = True
 

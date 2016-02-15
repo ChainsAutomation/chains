@@ -1,11 +1,15 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from chains.common import utils
 from chains.common.config import CoreConfig
 import os
 
 config = CoreConfig()
 
+
 class Formatter:
     pass
+
 
 def load(formatterName):
     formatterName = utils.ucfirst(formatterName)
@@ -14,13 +18,14 @@ def load(formatterName):
         if os.path.exists(path):
             try:
                 return utils.newObject(
-                    pkgName   = formatterName, #'chains.commandline.formatter.%s' % formatterName, 
-                    className = 'Formatter%s' % formatterName,
-                    path = '%s/%s.py' % (dir, formatterName)
+                    pkgName=formatterName,  # 'chains.commandline.formatter.%s' % formatterName,
+                    className='Formatter%s' % formatterName,
+                    path='%s/%s.py' % (dir, formatterName)
                 )
             except ImportError:
                 pass
     raise Exception('Formatter not found: %s' % formatterName)
+
 
 def getFormatterDirs():
     dirs = []
@@ -31,9 +36,9 @@ def getFormatterDirs():
         for key in items:
             tmp = key.split('.')
             if len(tmp) == 2 and tmp[0] == 'commands':
-                dirs.append( items[key] + '/formatter' )
+                dirs.append(items[key] + '/formatter')
 
     # Build in commands
-    dirs.append( config.get('libdir') + '/commandline/formatter' )
+    dirs.append(config.get('libdir') + '/commandline/formatter')
 
     return dirs

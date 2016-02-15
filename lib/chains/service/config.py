@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from chains.common import ChainsException, ParameterException, NoSuchServiceException
 import chains.common.config as _config
 import os

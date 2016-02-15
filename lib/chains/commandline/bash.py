@@ -1,21 +1,24 @@
 #!/usr/bin/env python
-
+from __future__ import absolute_import
+from __future__ import print_function
 from chains.commandline import describe
 import sys
 
+
 def log(msg):
-    with open('/tmp/jazz','a') as fp:
+    with open('/tmp/jazz', 'a') as fp:
         fp.write('%s\n' % msg)
 
+
 def returnItems(values):
-    print ' '.join(values)
+    print(' '.join(values))
 
 if __name__ == '__main__':
     idx = int(sys.argv[1])
     args = sys.argv[3:]
 
-    #log('idx: %s' % idx)
-    #log('args: %s' % args)
+    # log('idx: %s' % idx)
+    # log('args: %s' % args)
 
     if idx == 1:
         sections = describe.getSections()
@@ -37,4 +40,3 @@ if __name__ == '__main__':
                     returnItems([command])
         else:
             returnItems(commands)
-        

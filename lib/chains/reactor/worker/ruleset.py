@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from chains.common import log
 from chains.reactor.worker.ruleinstances import RuleInstances
 
@@ -5,6 +7,8 @@ from chains.reactor.worker.ruleinstances import RuleInstances
 
 # RuleSet
 # Holds all RuleInstancess and passes events from AMQP to them
+
+
 class RuleSet:
 
     def __init__(self, rules, context):
@@ -17,4 +21,3 @@ class RuleSet:
         log.notice("RuleSet: event occurred: %s" % event)
         for s in self.sets:
             s.onEvent(event)
-            

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+import six.moves.queue, threading, subprocess, json, time
 import Queue, threading, subprocess, json, time
 from chains import service
 import chains.service.process as serviceProcess
@@ -67,10 +69,10 @@ class Manager(AmqpDaemon):
         return result
     '''
 
-    #def action_getServicesStarted(self):
+    # def action_getServicesStarted(self):
     def action_getRunninServices(self):
         """ List service IDs for running service threads """
-        return serviceProcess.getRunningServices().keys()
+        return list(serviceProcess.getRunningServices().keys())
 
 
 def main(id):
@@ -82,6 +84,6 @@ if __name__ == '__main__':
     import sys
     try:
         id = sys.argv[1]
-    except IndexError,e:
+    except IndexError as e:
         id = 'chainsmaster'
     main(id)

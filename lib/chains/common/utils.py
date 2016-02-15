@@ -5,8 +5,9 @@ Some of these should possibly be moved somewhere else and
 some may not be needed (anymore), but we can clean that up
 later.
 '''
-
+from __future__ import absolute_import
 import os, traceback, re, time, socket, imp
+from six.moves import range
 
 # Import and instantiate an object from a package dynamically / thru reflection.
 def newObject(pkgName, className, isReload=False, args=None, path=None):
@@ -26,7 +27,7 @@ def newObject(pkgName, className, isReload=False, args=None, path=None):
         reload(i)
     clazz = getattr(i, className)
     if args:
-        obj = apply(clazz, args)
+        obj = clazz(*args)
     else:
         obj = apply(clazz)
     return obj
@@ -55,7 +56,11 @@ def fetchurl(url, username=None, password=None, postdata=None, headers=None, get
     url = '://'.join(tmp)
     domain = url.split('/')[0]
     if not headers: headers = {}
-    import urllib2
+    # urllib2 not in py3:
+    try:
+        import urllib.request as urllib2
+    except ImportError:
+        import urllib2
 
     # Also support username/pw in url itself
     tmp = domain.split('@')

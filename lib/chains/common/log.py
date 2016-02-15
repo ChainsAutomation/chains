@@ -1,16 +1,19 @@
-# vim: tabstop=4 shiftwidth=4 sts=4 bg=dark expandtab
-
+# py3: Done
+from __future__ import print_function
+from __future__ import absolute_import
 import logging, logging.handlers
 from chains.common.config import CoreConfig
 import types, json, os
 
 
-level  = None
+level = None
 logger = None
 config = CoreConfig()
 
+
 def setLevel(_level):
-    if not logger: return
+    if not logger:
+        return
     levels = {
         'notice': 5,
         'debug': logging.DEBUG,
@@ -22,37 +25,50 @@ def setLevel(_level):
     global level
     level = _level
 
+
 def getLevel():
     global level
     return level
 
+
 def setFileName(name):
     if not os.path.exists(config.get('logdir')):
         os.makedirs(config.get('logdir'))
-    setFilePath( config.get('logdir') + '/' + name + '.log' )
+    setFilePath(config.get('logdir') + '/' + name + '.log')
+
 
 def setFilePath(path):
-    fileHandler = logging.handlers.RotatingFileHandler(path, maxBytes=1024*1024*10, backupCount=2)
+    fileHandler = logging.handlers.RotatingFileHandler(path, maxBytes=1024 * 1024 * 10, backupCount=2)
     fileHandler.setFormatter(formatter)
     logger.addHandler(fileHandler)
     logger.removeHandler(consoleHandler)
 
+
 def notice(*args):
     msg = formatMessage(args)
-    #logger.debug(msg)
-    logger.log(5, 'NOTICE: %s' % msg) 
+    # logger.debug(msg)
+    logger.log(5, 'NOTICE: %s' % msg)
+
+
 def debug(*args):
     msg = formatMessage(args)
     logger.debug(msg)
+
+
 def info(*args):
     msg = formatMessage(args)
     logger.info(msg)
+
+
 def warn(*args):
     msg = formatMessage(args)
     logger.warn(msg)
+
+
 def error(*args):
     msg = formatMessage(args)
     logger.error(msg)
+
 
 def formatMessage(args):
     result = []
@@ -60,12 +76,13 @@ def formatMessage(args):
         result.append(formatMessageItem(arg))
     return ' '.join(result)
 
+
 def formatMessageItem(arg):
     if type(arg) == types.InstanceType:
         return '%s' % arg.__dict__
-    elif type(arg) in [types.StringType, types.UnicodeType]:
+    elif type(arg) in [bytes, str]:
         return arg
-    elif type(arg) == types.ListType:
+    elif type(arg) == list:
         result = []
         for item in arg:
             result.append(formatMessageItem(item))
@@ -81,7 +98,7 @@ logger = logging.getLogger()
 # Start with a basic print-to-console handler
 
 consoleHandler = logging.StreamHandler()
-#formatter = logging.Formatter('%(asctime)s   %(levelname)-10s %(name)-20s %(message)s')
+# formatter = logging.Formatter('%(asctime)s   %(levelname)-10s %(name)-20s %(message)s')
 formatter = logging.Formatter('%(asctime)s   %(levelname)-10s %(message)s')
 consoleHandler.setFormatter(formatter)
 logger.addHandler(consoleHandler)
@@ -92,9 +109,8 @@ setLevel(level)
 
 
 if __name__ == '__main__':
-    print 'loglevel: %s' % level
+    print('loglevel: %s' % level)
     debug('debug')
     info('info')
     warn('warn')
     error('error')
-

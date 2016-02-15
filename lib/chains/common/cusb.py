@@ -1,3 +1,5 @@
+# py3: Done
+from __future__ import absolute_import
 import usb.core
 import usb.util
 

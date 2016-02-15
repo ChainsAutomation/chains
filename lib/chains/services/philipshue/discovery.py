@@ -1,4 +1,8 @@
-import urllib2, json
+import json
+try:
+    import urllib.request as urllib2
+except ImportError:
+    import urllib2
 
 URL = 'https://www.meethue.com/api/nupnp'
 

@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from chains.common import amqp, utils, log
 from chains.commandline import commands, formatter, describe
 import chains.common.jsonlib as json
 from optparse import OptionParser
 import cmd, shlex, traceback, sys
+
 
 def usage():
     return '''
@@ -21,6 +24,8 @@ options:
 
 # Auto-generate help from comments in objects in commandline/commands/*
 # Follows same structure as service action comments
+
+
 def help():
     txt = ''
     for section in describe.getSections():
@@ -29,16 +34,18 @@ def help():
             info = describe.getCommandHelp(section, command)
             args = ''
             for arg in info['args']:
-                if arg['required']: args += '<'
-                else: args += '['
-
+                if arg['required']:
+                    args += '<'
+                else:
+                    args += '['
                 args += arg['key']
-
                 if arg.get('default'):
                     args += '=%s' % arg['default']
 
-                if arg['required']: args += '>'
-                else: args += ']'
+                if arg['required']:
+                    args += '>'
+                else:
+                    args += ']'
                 args += ' '
             txt += '  %-13s %-50s %s\n' % (command, args, info['info'].strip())
         txt += '\n'
@@ -50,8 +57,10 @@ def help():
 class ChainsCommandException(Exception):
     pass
 
+
 class InvalidParameterException(ChainsCommandException):
     pass
+
 
 def parse(_req):
     parser = OptionParser()
@@ -90,17 +99,19 @@ def parse(_req):
         options.help = False
     return options
 
+
 def getCommandObject(section, command):
     cmds = commands.load(section, command)
     if not cmds:
         return
-    if not cmds.has_key(section):
+    if section not in cmds:
         raise InvalidParameterException('No such section: %s' % section)
-    if not cmds[section].has_key(command):
+    if command not in cmds[section]:
         raise InvalidParameterException('No such command: %s in section: %s' % (command, section))
     obj = cmds[section][command]
     obj.init(amqp.Connection())
     return obj
+
 
 def main(req):
     error = None
@@ -109,10 +120,10 @@ def main(req):
         log.setLevel('debug')
     obj = getCommandObject(opt.section, opt.command)
     if not obj:
-        print 'No such command: %s %s' % (opt.section,opt.command)
+        print('No such command: %s %s' % (opt.section, opt.command))
         sys.exit(1)
     if opt.help:
-        print ""
+        print("")
         lines = obj.help()
         first = True
         tail = False
@@ -128,11 +139,11 @@ def main(req):
                     indent += 1
             first = False
             line = line[indent:]
-            print line
+            print(line)
             if not line:
                 tail = True
         if not tail:
-            print ""
+            print("")
     else:
         try:
             result = obj.main(*opt.args)
@@ -143,15 +154,16 @@ def main(req):
             else:
                 fmt = formatter.load(obj.getFormatter())
             if not opt.json:
-                print ''
+                print('')
             result = fmt.main(result)
-            if result: print result
+            if result:
+                print(result)
             if not opt.json:
-                print ''
-        except amqp.RemoteException, e:
+                print('')
+        except amqp.RemoteException as e:
             error = e.message + '\n\n'
             if opt.verbose or opt.debug:
-                line  = '='*60
+                line = '=' * 60
                 error += e.getRemoteTraces()
                 error += '\n'
                 error += '%s\n' % line
@@ -160,7 +172,7 @@ def main(req):
                 error += utils.e2str(e)
             else:
                 error += 'Add -v to see error trace\n'
-        except Exception, e:
+        except Exception as e:
             error = e.message + '\n'
             if opt.verbose or opt.debug:
                 error += '\n' + utils.e2str(e)
@@ -170,19 +182,21 @@ def main(req):
             obj.close()
 
     if error:
-        print ''
-        print 'ERROR: %s' % error
+        print('')
+        print('ERROR: %s' % error)
+
 
 def shell():
     chainsCmd = ChainsCmd()
     chainsCmd.cmdloop()
+
 
 class ChainsCmd(cmd.Cmd):
 
     def __init__(self):
         cmd.Cmd.__init__(self)
         self.prompt = "[chains] >> "
-        self.intro  = "Welcome to to the Chains interactive console"
+        self.intro = "Welcome to to the Chains interactive console"
 
     def parseline(self, line):
         ret = cmd.Cmd.parseline(self, line)
@@ -190,37 +204,37 @@ class ChainsCmd(cmd.Cmd):
 
     def do_main(self, line):
         if line == 'shell':
-            print "Cannot start shell inside shell"
+            print("Cannot start shell inside shell")
         else:
             args = shlex.split(line)
-            if args[0] in ['exit','quit','EOF']:
+            if args[0] in ['exit', 'quit', 'EOF']:
                 if args[0] == 'EOF':
-                    print ''
+                    print('')
                 return True
             elif args[0] == 'help':
-                print ''
-                print help()
-                print ''
+                print('')
+                print(help())
+                print('')
             else:
                 try:
                     main(args)
-                except InvalidParameterException, e:
-                    print "Invalid command: %s" % line
-                except Exception, e:
-                    print ''
+                except InvalidParameterException as e:
+                    print("Invalid command: %s" % line)
+                except Exception as e:
+                    print('')
+                    print(repr(e))
                     traceback.print_exc()
-                    print ''
+                    print('')
 
 if __name__ == '__main__':
     log.setLevel('warn')
-    import sys
     if len(sys.argv) == 2 and sys.argv[1] == 'shell':
         shell()
     else:
         try:
             main(sys.argv[1:])
-        except InvalidParameterException, e:
+        except InvalidParameterException as e:
             if len(sys.argv) > 1:
-                print ''
-                print '%s' % e
-            print usage()
+                print('')
+                print('%s' % e)
+            print(usage())

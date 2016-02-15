@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import os, imp
 from chains.common import utils
 from chains.common.config import CoreConfig
@@ -28,7 +30,7 @@ def loadFromDir(section, command, commandsDir):
             continue
         if command and command != _command:
             continue
-        if not result.has_key(_section):
+        if _section not in result:
             result[_section] = {}
         result[_section][_command] = utils.newObject(
             pkgName = f,
@@ -85,7 +87,7 @@ class Command:
 if __name__ == '__main__':
     data = load()
     for section in data:
-        print section
+        print(section)
         for id in data[section]:
-            print '  %s' % id
+            print('  %s' % id)
 """

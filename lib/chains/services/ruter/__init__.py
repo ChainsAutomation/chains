@@ -1,7 +1,18 @@
 from chains.service import Service
 from chains.common import log
 from datetime import datetime, timedelta
-import re, hashlib, time, urllib2, urllib, sys, json
+import re, hashlib, time, sys, json
+import urllib2
+
+py = sys.version_info
+py3k = py >= (3, 0, 0)
+
+if py3k:
+    from urllib.parse import urlencode
+    from urllib.request import urlopen
+else:
+    from urllib import urlencode, urlopen
+
 
 class RuterService(Service):
     """

@@ -1,6 +1,17 @@
 from chains.service import Service
 from chains.common import log
-import urllib2, urllib, sys, json
+import sys
+import json
+
+py = sys.version_info
+py3k = py >= (3, 0, 0)
+
+if py3k:
+    from urllib.parse import urlencode
+    from urllib.request import urlopen
+else:
+    from urllib import urlencode, urlopen
+
 
 class PushoverService(Service):
     """Service implementing the push service on pushover.net"""
@@ -22,16 +33,16 @@ class PushoverService(Service):
         self.url = self.config.get('url')
         self.urltitle = self.config.get('urltitle')
         self.priority = self.config.getInt('priority') or 1  # "-2" no notification, -1 quiet notification, 1 - high priority, 2 requires confirmation by user
-        self.sound = self.config.get('sound') or "bike" # https://pushover.net/api#sounds
+        self.sound = self.config.get('sound') or "bike"  # https://pushover.net/api#sounds
         # self.timestamp, override servers timestamp, not needed as far as i can see
 
     def onStart(self):
         log.info('Starting PushoverService')
-        #if not self.token or not self.username:
+        # if not self.token or not self.username:
         #    log.warn('Service needs token and username to work.')
         #    return
 
-    def action_push(self, message=None, targetservice=None, title=None, url=None, urltitle=None, priority=None, sound=None):
+    def action_push(self, message=None, targetdevice=None, title=None, url=None, urltitle=None, priority=None, sound=None):
         '''
         Send a message using pushover.net
         @param  message     string   Text message you want to send
@@ -88,18 +99,17 @@ class PushoverService(Service):
         else:
             if self.sound:
                 data.update({'sound': self.sound})
-        #print "Request: ", data
-        msgdata = urllib.urlencode(data)
-        #print msgdata
-        _res = urllib2.urlopen(self.pushurl, msgdata).read()
+        # print "Request: ", data
+        msgdata = urlencode(data)
+        # print msgdata
+        _res = urlopen(self.pushurl, msgdata).read()
         if not _res:
             raise Exception("Empty response")
         res = json.loads(_res)
         if not res:
             raise Exception("Invalid json response: %s" % _res)
-        #print "Response: ", res
+        # print "Response: ", res
         if res['status'] == 1:
             return True
         else:
             return False
-

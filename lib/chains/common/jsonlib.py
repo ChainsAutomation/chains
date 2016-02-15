@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 encode = None
 decode = None
 mode = None

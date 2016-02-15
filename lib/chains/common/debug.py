@@ -1,6 +1,11 @@
+# py3: Done
 from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import map
 from functools import wraps
 import inspect
+from six.moves import map
 
 def debug(func):
     @wraps(func)

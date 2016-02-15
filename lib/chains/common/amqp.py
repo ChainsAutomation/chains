@@ -1,3 +1,5 @@
+# py3: Done
+from __future__ import absolute_import
 import amqplib.client_0_8 as amqp
 import chains.common.jsonlib as json
 from chains.common import log, utils, config, ChainsException, NoSuchActionException, introspect

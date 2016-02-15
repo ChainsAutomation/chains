@@ -1,14 +1,18 @@
 #!/usr/bin/env python
-import sys, os
+from __future__ import absolute_import
+from __future__ import print_function
+import sys
+import os
 from chains.common import log, utils
 from chains.common.config import CoreConfig
+
 
 class Daemon:
 
     def __init__(self, daemonType, daemonId, callback):
         coreConfig = CoreConfig()
-        self.logFile = coreConfig.getLogFile(daemonType) #, daemonId)
-        self.pidFile = coreConfig.getPidFile(daemonType) #, daemonId)
+        self.logFile = coreConfig.getLogFile(daemonType)  # , daemonId)
+        self.pidFile = coreConfig.getPidFile(daemonType)  # , daemonId)
         self.name = 'chains-%s-%s' % (daemonType, daemonId)
         self.daemonType = daemonType
         self.daemonId = daemonId
@@ -25,44 +29,45 @@ class Daemon:
             # @todo: is this a good way to check if process is alive?
             try:
                 os.getpgid(pid)
-                print "Already running at PID %s" % pid
+                print("Already running at PID %s" % pid)
                 sys.exit(1)
-            except OSError, e:
-                if e.args[0] == 3: # process not found
+            except OSError as e:
+                if e.args[0] == 3:  # process not found
                     os.remove(self.pidFile)
                 else:
                     raise
 
-        # do the UNIX double-fork magic, see Stevens' "Advanced 
+        # do the UNIX double-fork magic, see Stevens' "Advanced
         # Programming in the UNIX Environment" for details (ISBN 0201563177)
-        try: 
-            pid = os.fork() 
+        try:
+            pid = os.fork()
             if pid > 0:
                 # exit first parent
-                sys.exit(0) 
-        except OSError, e: 
-            print >>sys.stderr, "fork #1 failed: %d (%s)" % (e.errno, e.strerror) 
+                sys.exit(0)
+        except OSError as e:
+            print("fork #1 failed: %d (%s)" % (e.errno, e.strerror), file=sys.stderr)
             sys.exit(1)
         # decouple from parent environment
-        os.chdir('/') # don't prevent unmounting
-        os.setsid() 
-        os.umask(0) 
+        os.chdir('/')  # don't prevent unmounting
+        os.setsid()
+        os.umask(0)
         # do second fork
-        try: 
-            pid = os.fork() 
+        try:
+            pid = os.fork()
             if pid > 0:
                 # exit from second parent, print eventual PID before
                 pf = open(self.pidFile, 'w')
-                pf.write("%d"%pid)
+                pf.write("%d" % pid)
                 pf.close()
-                sys.exit(0) 
-        except OSError, e: 
-            print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror) 
-            sys.exit(1) 
-    
+                sys.exit(0)
+        except OSError as e:
+            print("fork #2 failed: %d (%s)" % (e.errno, e.strerror), file=sys.stderr)
+            sys.exit(1)
+
         # start the daemon main loop
-        #sys.stdout = sys.stderr = log.OutputLog(open(self.logFile, 'a+'))
+        # sys.stdout = sys.stderr = log.OutputLog(open(self.logFile, 'a+'))
         self.main()
+
 
 def getDaemonMainFunction(daemonType):
     if daemonType == 'manager':
@@ -76,9 +81,11 @@ def getDaemonMainFunction(daemonType):
         return chains.reactor.main
     raise Exception('Unknown daemon type: %s' % daemonType)
 
+
 def resolveDaemonId(value):
     hostname = utils.getHostName()
     return value.replace('{hostname}', hostname)
+
 
 def main(daemonType, fork=True):
     coreConfig = CoreConfig()
@@ -88,7 +95,7 @@ def main(daemonType, fork=True):
     conf['id'] = resolveDaemonId(conf['id'])
     for k in conf:
         if k[0:4] == 'env_':
-            log.info('Set ENV.%s = %s' % (k[4:],conf[k]))
+            log.info('Set ENV.%s = %s' % (k[4:], conf[k]))
             os.environ[k[4:]] = conf[k]
     d = Daemon(daemonType, conf['id'], getDaemonMainFunction(daemonType))
     if fork:
@@ -97,9 +104,8 @@ def main(daemonType, fork=True):
         d.main()
 
 if __name__ == '__main__':
-    import sys
     if len(sys.argv) < 2:
-        print 'usage: daemon.py <daemon-type> [fork]'
+        print('usage: daemon.py <daemon-type> [fork]')
         sys.exit(1)
     fork = False
     if len(sys.argv) > 2 and sys.argv[2] != '0':

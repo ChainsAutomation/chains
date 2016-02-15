@@ -1,8 +1,13 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from chains.commandline.formatter import Formatter
+from six.moves import range
+
 
 class FormatterGeneric(Formatter):
     def main(self, result):
         return _printResult(result).rstrip()
+
 
 def _printResult(res, depth=2):
         maxDepth = 4
@@ -13,7 +18,7 @@ def _printResult(res, depth=2):
         if type(res) == type([]):
             if depth < maxDepth:
                 for x in res:
-                    s += _printResult(x, depth+1)
+                    s += _printResult(x, depth + 1)
                     s += "\n"
             else:
                 s += "%s%s\n" % (indent, res)
@@ -21,7 +26,7 @@ def _printResult(res, depth=2):
             for k in res:
                 v = res[k]
                 if (type(v) == type([]) or type(v) == type({})) and depth < maxDepth:
-                    v = "\n%s" % _printResult(v, depth+1)
+                    v = "\n%s" % _printResult(v, depth + 1)
                 else:
                     v = "%s\n" % v
                 s += "%s%s: %s" % (indent, k, v)

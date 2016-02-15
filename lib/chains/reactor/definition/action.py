@@ -1,9 +1,12 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from chains.common import amqp, log
+
 
 # todo: option for async (ie. no rpc, just push msg to amqp)
 def Action(service, action, params=None):
 
-    rpc        = None
+    rpc = None
     connection = None
 
     try:
@@ -14,13 +17,17 @@ def Action(service, action, params=None):
         connection = amqp.Connection()
         rpc = connection.rpc(queuePrefix='reactor-action')
         result = rpc.call(topic, data=params)
-    except Exception, e:
+    except Exception as e:
         try:
-            log.error("Exception in action %s.%s: %s" % (service,action,e))
+            log.error("Exception in action %s.%s: %s" % (service, action, e))
         except:
             pass
 
-    try: rpc.close()
-    except: pass
-    try: connection.close()
-    except: pass
+    try:
+        rpc.close()
+    except:
+        pass
+    try:
+        connection.close()
+    except:
+        pass

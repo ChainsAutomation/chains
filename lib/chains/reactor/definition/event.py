@@ -1,18 +1,21 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import types
+
 
 class Event:
 
     def __init__(self, service='*', device='*', key='*', data='*', time=None):
         self.service = service
-        self.device  = device
-        self.key     = key
-        self.data    = data
-        self.time    = time
+        self.device = device
+        self.key = key
+        self.data = data
+        self.time = time
 
     # Check if this event is matched by "event" passed to this function
-    # 
+    #
     # Be aware that what is "this" event and what is "event" does matter!
-    # 
+    #
     # This event (ie. self) is the occuring event, and "event" passed to the function
     # is the event configured in the rule. That means "self" may have more data than
     # "event" and still match, but not vice versa. For details see _matchDict() below.
@@ -23,7 +26,7 @@ class Event:
     # TL;DR: e1.match(e2) and e2.match(e1) may not give the same result!
     #
     def match(self, event):
-        if type(event) == types.ListType:
+        if type(event) == list:
             events = event
         else:
             events = [event]
@@ -31,7 +34,7 @@ class Event:
             if self._matchEvent(event2):
                 return True
         return False
-        
+
     # Match a single event
     def _matchEvent(self, event):
         for key in dir(self):
@@ -41,20 +44,19 @@ class Event:
             val2 = self._tryattr(event, key)
             if type(val1) == types.MethodType or type(val2) == types.MethodType:
                 continue
-            if not self._matchValues(val1,val2):
+            if not self._matchValues(val1, val2):
                 return False
         return True
 
     def _matchValues(self, val1, val2):
-        if val1 == val2: 
+        if val1 == val2:
             return True
-        if val1 == '*' or val2 == '*': 
+        if val1 == '*' or val2 == '*':
             return True
-        if type(val1) == types.DictType and type(val2) == types.DictType:
+        if type(val1) == dict and type(val2) == dict:
             return self._matchDicts(val1, val2)
         return False
 
-    
     # d1 is this event (self), which is the occurring event
     # d2 is the event in the rule
     #
@@ -85,8 +87,10 @@ class Event:
         return True
 
     def _tryattr(self, obj, key):
-        try: return getattr(obj, key)
-        except AttributeError: return None
+        try:
+            return getattr(obj, key)
+        except AttributeError:
+            return None
 
     def __str__(self):
         return '%s' % self.__dict__

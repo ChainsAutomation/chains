@@ -1,6 +1,9 @@
+from __future__ import absolute_import
 from chains.common import log, utils, amqp, config
 from chains.service import config as serviceConfig
-import time, threading, ConfigParser, os, uuid
+# import time, threading, ConfigParser, os, uuid
+import time, threading, six.moves.configparser, os, uuid
+
 
 class TimeoutThread(threading.Thread):
     '''
@@ -41,7 +44,7 @@ class TimeoutThread(threading.Thread):
 
             if type == 'service':
 
-                if not item.has_key('offlineTimer'):
+                if 'offlineTimer' not in item:
                     item['offlineTimer'] = time.time()
 
                 if item['main'].get('autostart'):
@@ -52,17 +55,17 @@ class TimeoutThread(threading.Thread):
                         if timeSinceOffline > self.orchestrator.startInterval:
                             self.orchestrator.data[type][id]['offlineTimer'] = time.time()
                             try:
-                                #self.orchestrator.action_startService(id)
+                                # self.orchestrator.action_startService(id)
                                 serviceId, managerId = self.orchestrator.parseServiceParam(id)
                                 if self.orchestrator.isOnline('manager', managerId):
                                     log.info('Auto-start service %s @ %s after %s secs offline' % (serviceId, managerId, timeSinceOffline))
                                     self.orchestrator.startService(managerId, serviceId)
                                 else:
-                                    log.debug('Do not auto-start service %s since manager %s is offline' % (id,managerId))
-                            except Exception, e:
-                                log.error('Error trying to autostart service %s: %s' % (id,e))
+                                    log.debug('Do not auto-start service %s since manager %s is offline' % (id, managerId))
+                            except Exception as e:
+                                log.error('Error trying to autostart service %s: %s' % (id, e))
                         else:
-                            log.debug('Do not auto-start service %s since %s secs offline is less than startinterval %s' % (id,timeSinceOffline,self.orchestrator.startInterval))
+                            log.debug('Do not auto-start service %s since %s secs offline is less than startinterval %s' % (id, timeSinceOffline, self.orchestrator.startInterval))
                 else:
                     log.debug('Do not auto-start service %s since autostart not set in config' % (id,))
 
@@ -70,13 +73,12 @@ class TimeoutThread(threading.Thread):
 
         # If item is online...
         # Check if existing heartbeat is old, and if so, set to offline
-        if not item.has_key('heartbeat'):
+        if 'heartbeat' not in item:
             item['heartbeat'] = 0
         else:
             now = time.time()
-            if (now-item['heartbeat']) > self.orchestrator.timeout:
+            if (now - item['heartbeat']) > self.orchestrator.timeout:
                 self.orchestrator.setOffline(type, id)
-
 
 
 class Orchestrator(amqp.AmqpDaemon):
@@ -86,9 +88,9 @@ class Orchestrator(amqp.AmqpDaemon):
         amqp.AmqpDaemon.__init__(self, 'orchestrator', id)
         self.coreConfig = config.CoreConfig()
         self.data = {
-            'manager':      {},
-            'service':       {},
-            'reactor':      {},
+            'manager': {},
+            'service': {},
+            'reactor': {},
             'orchestrator': {}
         }
         self.timeout = 30
@@ -109,21 +111,25 @@ class Orchestrator(amqp.AmqpDaemon):
             '%s%s.%s.*' % (amqp.PREFIX_ORCHESTRATOR, amqp.PREFIX_ACTION, self.id),
 
             # online/offline/heartbeat events
-            '%s%s.*' % (amqp.PREFIX_SERVICE,  amqp.PREFIX_HEARTBEAT_RESPONSE),
+            '%s%s.*' % (amqp.PREFIX_SERVICE, amqp.PREFIX_HEARTBEAT_RESPONSE),
             '%s%s.*' % (amqp.PREFIX_MANAGER, amqp.PREFIX_HEARTBEAT_RESPONSE),
             '%s%s.*' % (amqp.PREFIX_REACTOR, amqp.PREFIX_HEARTBEAT_RESPONSE),
         ]
 
     def prefixToType(self, prefix):
-        if prefix == amqp.PREFIX_SERVICE:      return 'service'
-        if prefix == amqp.PREFIX_MANAGER:      return 'manager'
-        if prefix == amqp.PREFIX_REACTOR:      return 'reactor'
-        if prefix == amqp.PREFIX_ORCHESTRATOR: return 'orchestrator'
+        if prefix == amqp.PREFIX_SERVICE:
+            return 'service'
+        if prefix == amqp.PREFIX_MANAGER:
+            return 'manager'
+        if prefix == amqp.PREFIX_REACTOR:
+            return 'reactor'
+        if prefix == amqp.PREFIX_ORCHESTRATOR:
+            return 'orchestrator'
 
     def typeToPrefix(self, type):
         return self.getDaemonTypePrefix(type)
 
-    def sendHeartBeatRequest(self): #, type, id):
+    def sendHeartBeatRequest(self):  # , type, id):
         topic = self.getHeartBeatRequestPrefix()
         self.producer.put(topic, amqp.HEARTBEAT_VALUE_REQUEST)
 
@@ -144,13 +150,13 @@ class Orchestrator(amqp.AmqpDaemon):
     def setOnline(self, type, key, force=False):
 
         if not type or not key:
-            log.warn('Ignore attempt to set type=%s id=%s as online' % (type,key))
+            log.warn('Ignore attempt to set type=%s id=%s as online' % (type, key))
             return
 
         # Init dict path if not set
-        if not self.data[type].has_key(key):
+        if key not in self.data[type]:
             self.data[type][key] = {'online': None}
-            #if type == 'manager':
+            # if type == 'manager':
             #    self.data[type][key]['services'] = None
 
         # If not already online (or force [re-]online)
@@ -176,11 +182,11 @@ class Orchestrator(amqp.AmqpDaemon):
     def setOffline(self, type, key):
 
         if not type or not key:
-            log.warn('Ignore attempt to set type=%s id=%s as offline' % (type,key))
+            log.warn('Ignore attempt to set type=%s id=%s as offline' % (type, key))
             return
 
         # Init dict path if not set
-        if not self.data[type].has_key(key):
+        if key not in self.data[type]:
             self.data[type][key] = {'online': None}
 
         # If not already offline, set offline and send offline event
@@ -223,17 +229,17 @@ class Orchestrator(amqp.AmqpDaemon):
         else:
             log.info('Load service config: %s' % path)
 
-        instanceConfig    = self.getConfig(path)
+        instanceConfig = self.getConfig(path)
 
         if not instanceConfig:
             return
 
-        instanceData      = instanceConfig.data()
-        classDir          = '%s/config/service-classes' % self.coreConfig.get('libdir')
-        classFile         = '%s/%s.yml' % (classDir, instanceData['main']['class'])
-        classConfig       = self.getConfig(classFile)
-        classData         = classConfig.data()
-        hasChanges        = False
+        instanceData = instanceConfig.data()
+        classDir = '%s/config/service-classes' % self.coreConfig.get('libdir')
+        classFile = '%s/%s.yml' % (classDir, instanceData['main']['class'])
+        classConfig = self.getConfig(classFile)
+        classData = classConfig.data()
+        hasChanges = False
 
         if not classData:
             return
@@ -259,33 +265,34 @@ class Orchestrator(amqp.AmqpDaemon):
         if hasChanges:
             instanceConfig.save()
 
-        data              = self.mergeDictionaries(classData, instanceData)
+        data = self.mergeDictionaries(classData, instanceData)
 
-        data['online']    = False
+        data['online'] = False
         data['heartbeat'] = 0
 
-        if isReload and self.data['service'].has_key( data['main']['id'] ):
-
-            old               = self.data['service'][ data['main']['id'] ]
-            data['online']    = old.get('online')
+        if isReload and data['main']['id'] in self.data['service']:
+            old = self.data['service'][data['main']['id']]
+            data['online'] = old.get('online')
             data['heartbeat'] = old.get('heartbeat')
 
-            if not data.get('online'):     data['online'] = False
-            if not data.get('heartbeat'):  data['heartbeat'] = 0
+            if not data.get('online'):
+                data['online'] = False
+            if not data.get('heartbeat'):
+                data['heartbeat'] = 0
 
-        self.data['service'][ data['main']['id'] ] = data
+        self.data['service'][data['main']['id']] = data
 
     def getConfig(self, path):
         try:
             return config.BaseConfig(path)
-        except Exception, e:
-            log.error("Error loading config: %s, because: %s" % (path,utils.e2str(e)))
+        except Exception as e:
+            log.error("Error loading config: %s, because: %s" % (path, utils.e2str(e)))
             return None
 
     def mergeDictionaries(self, dict1, dict2, result=None):
         if not result:
             result = {}
-        for k in set(dict1.keys()).union(dict2.keys()):
+        for k in set(dict1.keys()).union(list(dict2.keys())):
             if k in dict1 and k in dict2:
                 if isinstance(dict1[k], dict) and isinstance(dict2[k], dict):
                     result[k] = self.mergeDictionaries(dict1[k], dict2[k])
@@ -299,8 +306,6 @@ class Orchestrator(amqp.AmqpDaemon):
                 result[k] = dict2[k]
         return result
 
-
-
     def getServiceConfigList(self):
         dir = '%s/services' % self.coreConfig.get('confdir')
         names = {}
@@ -310,12 +315,10 @@ class Orchestrator(amqp.AmqpDaemon):
             name = '.'.join(tmp)
             if ext != 'conf' and ext != 'yml':
                 continue
-            if names.has_key(name) and ext != 'yml':
+            if name in names and ext != 'yml':
                 continue
             names[name] = dir + '/' + file
-        return names.values()
-
-
+        return list(names.values())
 
     def getServiceManager(self, serviceId):
         try:
@@ -329,7 +332,6 @@ class Orchestrator(amqp.AmqpDaemon):
         if not self.isOnline('manager', managerId):
             raise Exception('Manager not online: %s' % managerId)
         amqp.AmqpDaemon.sendManagerAction(self, managerId, action, args)
-
 
     def action_getManagers(self):
         return self.data['manager']
@@ -347,7 +349,6 @@ class Orchestrator(amqp.AmqpDaemon):
 
     def action_reload(self):
         self.reloadServiceConfigs()
-
 
     # ===================================================
     # Manager proxy
@@ -404,14 +405,14 @@ class Orchestrator(amqp.AmqpDaemon):
                 if not managerInfo or not managerInfo.get('online'):
                     log.info('Exclude service %s because manager %s is offline' % (serviceId, managerId))
                     continue
-                
+
                 if value == 'forceall' or (value == 'online' and isOnline) or (value == 'offline' and not isOnline) or (value == 'autostart' and isAutoStart and not isOnline):
-                    results.append(( serviceId, managerId ))
+                    results.append((serviceId, managerId))
         else:
             values = value.split(',')
             for _value in values:
                 service, manager = self._parseServiceParam(_value)
-                results.append(( service, manager ))
+                results.append((service, manager))
 
         log.info('Parsed service id: %s => %s' % (value, results))
 
@@ -441,7 +442,7 @@ class Orchestrator(amqp.AmqpDaemon):
 
         # serviceName
         serviceName = value
-        items      = []
+        items = []
         for serviceId in self.data['service']:
             serviceConfig = self.data['service'][serviceId]
             if serviceConfig.get('main').get('name') == serviceName:
@@ -452,7 +453,6 @@ class Orchestrator(amqp.AmqpDaemon):
 
         # not found
         raise Exception('No such service: %s' % value)
-
 
 
 def main(id):

@@ -1,6 +1,8 @@
+from __future__ import absolute_import
+from __future__ import print_function
 from chains.commandline.formatter import Formatter
 from chains.common.utils import ucfirst
-import time
+
 
 class FormatterDaemonDescribe(Formatter):
     def main(self, result):
@@ -22,7 +24,7 @@ class FormatterDaemonDescribe(Formatter):
                         astr += ', '
                     if a['type']:
                         astr += '(%s) ' % a['type']
-                    #if a['required']:
+                    # if a['required']:
                     #    astr += '*'
                     astr += a['key']
                     if a['default']:
@@ -34,4 +36,3 @@ class FormatterDaemonDescribe(Formatter):
             for ev in result['event']:
                 ret += '\n  %s' % ev
         return ret
-

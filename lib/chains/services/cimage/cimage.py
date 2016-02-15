@@ -3,7 +3,6 @@
 import time
 import numpy as np
 import cv2
-import urllib2
 
 def _read_image(path):
     """ Read image from filesystem or url, return local path if ok (?) """

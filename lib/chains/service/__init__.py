@@ -1,7 +1,10 @@
-from chains.common import introspect, utils, log, ChainsException, ParameterException, NoSuchServiceException, NoSuchActionException
+from __future__ import absolute_import
+from __future__ import print_function
+from chains.common import utils, log
 from chains.common.amqp import AmqpDaemon
-from chains.service import config
-import os, threading, time
+import threading
+import time
+
 
 def factory(conf):
     if not conf.get('class'):
@@ -28,15 +31,17 @@ class ServiceThread(threading.Thread):
         self.name = name
         self.serviceId = serviceId
         self.setDaemon(True)
+
     def run(self):
         try:
             self.func()
-        except Exception, e:
+        except Exception as e:
             log.error("Thread for %s in service %s died: %s" % (
                 self.name,
                 self.serviceId,
                 utils.e2str(e)
             ))
+
 
 class Service(AmqpDaemon):
     '''
@@ -87,7 +92,7 @@ class Service(AmqpDaemon):
     # =============================================
 
     def __init__(self, config):
-        AmqpDaemon.__init__(self, 'service', config.get('id')) #, sendHeartBeat=True)
+        AmqpDaemon.__init__(self, 'service', config.get('id'))  # , sendHeartBeat=True)
         self.config = config
         self.eventThread = None
         self.actionThread = None
@@ -124,42 +129,41 @@ class Service(AmqpDaemon):
             self.actionThread = ServiceThread(self.listen, 'Actions', self.config.get('id'))
             self.actionThread.start()
 
-
     def shutdown(self):
         AmqpDaemon.shutdown(self)
-        #log.info('Shutdown called')
-        #self._shutdown = True
+        # log.info('Shutdown called')
+        # self._shutdown = True
         # Send an action message to ourself to make sure
         # we break out of the wait-loop for actions asap.
-        #log.info('Send _shutdown action')
-        #self.sendShutdownAction()
-        #log.info('Wait 0.5')
+        # log.info('Send _shutdown action')
+        # self.sendShutdownAction()
+        # log.info('Wait 0.5')
         time.sleep(0.5)
         log.info('Joining actionThread')
         if self.actionThread:
             try:
                 self.actionThread.join()
-            except RuntimeError, e:
+            except RuntimeError as e:
                 log.warn('Ignoring exception about joining actionThread: %s' % e)
         log.info('actionThread done')
         log.info('Running onShutdown()')
         try:
             self.onShutdown()
-        except Exception, e:
+        except Exception as e:
             log.warn('Ignoring exception during onShutdown: %s' % e)
         log.info('Finished running onShutdown()')
         log.info('Joining eventThread')
         if self.eventThread:
             try:
                 self.eventThread.join()
-            except RuntimeError, e:
+            except RuntimeError as e:
                 log.warn('Ignoring exception about joining eventThread: %s' % e)
         log.info('eventThread done')
         # Send an event about being online
         log.info('Send offline event')
         try:
             self.sendOfflineEvent()
-        except Exception, e:
+        except Exception as e:
             log.warn('Ignoring exception during sendOfflineEvent: %s' % e)
         time.sleep(1)
         log.info('Shutdown complete')
@@ -209,7 +213,7 @@ class Service(AmqpDaemon):
         '''
         pass
 
-    #def onDescribe(self):
+    # def onDescribe(self):
     #   See AmqpDaemon.onDescribe()
 
     def sendEvent(self, key, data, deviceAttributes={}):
@@ -219,9 +223,9 @@ class Service(AmqpDaemon):
 
 
 if __name__ == '__main__':
-    import sys, time
+    import sys
     if len(sys.argv) < 2:
-        print 'usage: service.py serviceId'
+        print('usage: service.py serviceId')
         sys.exit(1)
     log.info('Initializing service: %s' % sys.argv[1])
     dev = factory(sys.argv[1])
@@ -235,8 +239,8 @@ if __name__ == '__main__':
         print 'Now shutdown'
         dev.shutdown()
         """
-    except KeyboardInterrupt, e:
-        print 'Stopping...'
+    except KeyboardInterrupt as e:
+        print('Stopping...')
         dev.shutdown()
-        #time.sleep(2)
-    print 'Exit'
+        # time.sleep(2)
+    print('Exit')

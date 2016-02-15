@@ -1,10 +1,13 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from six.moves import range
+
 '''
 Process manager for services using subprocess
 '''
 
 from chains.common import log
 from chains.common.config import CoreConfig
-from chains import service
 import os, signal, time, subprocess, json, psutil, types
 
 processes = {}
@@ -17,13 +20,15 @@ todo:
  * move pidfile stuff here, so non-py devs does not have to do it themselves
  - some duplicate code here and in daemon/__init__.py - consolidate?
 '''
+
+
 def start(serviceConfig):
 
     serviceId = serviceConfig['main'].get('id')
 
     log.info('Start service: %s' % serviceId)
 
-    pid      = isRunning(serviceId)
+    pid = isRunning(serviceId)
 
     if pid:
         log.error("Could not start service %s because already running on pid %s" % (serviceId, pid))
@@ -41,12 +46,13 @@ def start(serviceConfig):
     # We need close_fds=True to avoid some crap being inherited from parent->child process,
     # which would cause manager process to not free all resources when killed, unless
     # all service subprocesses are also dead first, which we do not want to require.
-    #proc = subprocess.Popen(command)
+    # proc = subprocess.Popen(command)
     processes[serviceId] = subprocess.Popen(command, close_fds=True)
     setPid(serviceId, processes[serviceId].pid)
     log.info("Started service %s on pid %s" % (serviceId, processes[serviceId].pid))
 
     return processes[serviceId].pid
+
 
 def stop(serviceId):
 
@@ -69,20 +75,20 @@ def stop(serviceId):
     #  but it won't have a parent process waiting for it either, so we can safely
     #  kill it using sinals only, and it should not become a zombie.
     #
-    proc   = None
+    proc = None
     logtxt = 'started by other process'
-    if processes.has_key(serviceId):
+    if serviceId in processes:
         logtxt = 'started by this process'
-        proc   = processes[serviceId]
+        proc = processes[serviceId]
 
     # Kill gracefully with SIGTERM first
-    log.info('Stopping service %s (%s)' % (serviceId,logtxt))
+    log.info('Stopping service %s (%s)' % (serviceId, logtxt))
     if proc:
         proc.terminate()
     else:
         os.kill(pid, signal.SIGTERM)
 
-    for i in range(1,30):
+    for i in range(1, 30):
         if proc:
             if proc.poll() != None:
                 return True
@@ -99,13 +105,14 @@ def stop(serviceId):
 
     return True
 
+
 def isRunning(serviceId):
 
     # Check pidfile
     pid = getPid(serviceId)
     if not pid:
         log.info('Proc no pid: %s' % pid)
-        return False    
+        return False
 
     # Check if pid in pidfile actually exists
     try:
@@ -126,10 +133,11 @@ def isRunning(serviceId):
         log.info('Proc not running (zombie): %s' % pid)
         delPid(serviceId)
         return False
-        
+
     # Process is running
-    log.info('Proc running with status %s: %s' % (status,pid))
+    log.info('Proc running with status %s: %s' % (status, pid))
     return pid
+
 
 def getRunningServices():
     result = {}
@@ -144,7 +152,7 @@ def getRunningServices():
         pid = isRunning(serviceName)
         result[serviceName] = pid
     return result
-        
+
 
 def getPid(serviceId):
     pidFile = getPidFile(serviceId)
@@ -156,16 +164,18 @@ def getPid(serviceId):
         return int(pid)
     return None
 
+
 def setPid(serviceId, pid):
     pidFile = getPidFile(serviceId)
     with open(pidFile, 'w') as fp:
         fp.write('%s' % pid)
+
 
 def delPid(serviceId):
     pidFile = getPidFile(serviceId)
     if os.path.exists(pidFile):
         os.unlink(pidFile)
 
+
 def getPidFile(serviceId):
     return '%s/service-%s.pid' % (config.get('rundir'), serviceId)
-
