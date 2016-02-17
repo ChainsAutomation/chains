@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import six.moves.queue, threading, subprocess, json, time
-import Queue, threading, subprocess, json, time
+import threading, subprocess, json, time
+import six.moves.queue as Queue
 from chains import service
 import chains.service.process as serviceProcess
 from chains.common import config, log, utils, ChainsException, ParameterException

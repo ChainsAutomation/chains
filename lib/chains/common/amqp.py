@@ -311,7 +311,7 @@ class Rpc(Channel):
         log.notice('RPC-CALL: callback seen: %s = %s' % (msg.routing_key, msg.body))
         res = None
         if len(msg.routing_key) > 1 and msg.routing_key[1] in ['r','x'] and 'correlation_id' in msg.properties and msg.properties['correlation_id'] == self.correlationId:
-	    log.notice('RPC-CALL: callback matched: %s = %s' % (msg.routing_key, msg.body))
+            log.notice('RPC-CALL: callback matched: %s = %s' % (msg.routing_key, msg.body))
             self.response = msg
             res = True
         else:
