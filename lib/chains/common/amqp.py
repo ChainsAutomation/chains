@@ -5,6 +5,7 @@ import chains.common.jsonlib as json
 from chains.common import log, utils, config, ChainsException, NoSuchActionException, introspect
 import time, threading, socket, sys, signal
 import amqplib.client_0_8.exceptions
+import codecs
 
 PREFIX_SERVICE            = 's'
 PREFIX_MANAGER            = 'm'
@@ -270,9 +271,12 @@ class Consumer(Channel):
             self.ch.wait()
         msg = self.messages.pop(0)
         try:
-            data = json.decode(msg.body)
+            body = msg.body.decode('utf-8')
+            data = json.decode(body)
+            # data = json.decode(msg.body)
         except Exception as e:
-            raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (msg.body, repr(e)))
+            raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (body, repr(e)))
+            #raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (msg.body, repr(e)))
         self.deliveryTag = msg.delivery_tag
         correlationId = None
         if 'correlation_id' in msg.properties:
