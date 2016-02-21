@@ -125,7 +125,8 @@ Devices are how functionality is divided into units in a `service`. In a service
 ###Property
 Properties are information made available from a `device`. A light switch device could for example have the properties 'dimlevel', 'power' and 'location'. A property can also be the target of an `action`, if the property is something that can be change. An example of this would be the "power" property on a light switch `device`, that might switch between "on" and "off".
 
-Nodes, Services, Devices and Properties for a tree-like structure:
+### Components summary
+Nodes, Services, Devices and Properties form a tree-like structure:
 ```
 Node (computer)
    \ Service1
