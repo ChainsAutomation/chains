@@ -79,7 +79,7 @@ def formatMessage(args):
 
 def formatMessageItem(arg):
     # if type(arg) == types.InstanceType:
-    if isinstance(arg, type):
+    if isinstance(arg, types.InstanceType):
         return '%s' % arg.__dict__
     elif type(arg) in [bytes, str]:
         return arg
