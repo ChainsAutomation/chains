@@ -234,6 +234,7 @@ class Producer(Channel):
             msg = amqp.Message(
                 json.encode(message),
                 content_type='text/json'
+                content_encoding=encoding,
             )
         self.ch.basic_publish(msg, self.exchange, key)
         return correlationId
