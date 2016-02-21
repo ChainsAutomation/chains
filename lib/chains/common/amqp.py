@@ -220,13 +220,14 @@ class Producer(Channel):
         else:
             self.autoCorrelationId = False
 
-    def put(self, key, message, correlationId=None):
+    def put(self, key, message, correlationId=None, encoding='utf-8'):
         if not correlationId and self.autoCorrelationId:
             correlationId = getUuid()  # str(uuid.uuid4())
         if correlationId:
             msg = amqp.Message(
                 json.encode(message),
                 content_type='text/json',
+                content_encoding=encoding,
                 correlation_id=correlationId
             )
         else:
