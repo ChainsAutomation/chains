@@ -273,9 +273,7 @@ class Consumer(Channel):
             self.ch.wait()
         msg = self.messages.pop(0)
         try:
-            body = msg.body.decode('utf-8')
-            data = json.decode(body)
-            # data = json.decode(msg.body)
+            data = json.decode(msg.body)
         except Exception as e:
             raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (body, repr(e)))
             #raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (msg.body, repr(e)))
