@@ -129,11 +129,17 @@ Nodes, Services, Devices and Properties for a tree-like structure:
 ```
 Node (computer)
    \ Service1
-        \ Device1
-            \ Property1
-            \property2
-        \ Device2
+   |    \ Device1
+   |    |        \ Property1
+   |    |        \ Property2
+   |    \ Device2
+   |             \ Property1
+   |
    \Service2
+   |    \ Device1
+   |    \ Device2
+
+and so on
 ```
 
 ##What are events, actions and rules?
