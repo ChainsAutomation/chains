@@ -123,7 +123,18 @@ Example services: PhilipsHue, onewire, timer, pushover.
 Devices are how functionality is divided into units in a `service`. In a service that control light switches, each light switch would typically be a `device`. A device may be able to do several `actions` and report several `events`.
 
 ###Property
-Properties are information made available from a `device`. A property can also be the target of an `action`, if the property is something that can be change. An example of this would be the "power" property on a light switch `device`, that might switch between "on" and "off".
+Properties are information made available from a `device`. A light switch device could for example have the properties 'dimlevel', 'power' and 'location'. A property can also be the target of an `action`, if the property is something that can be change. An example of this would be the "power" property on a light switch `device`, that might switch between "on" and "off".
+
+Nodes, Services, Devices and Properties for a tree-like structure:
+```
+Node (computer)
+   \ Service1
+        \ Device1
+            \ Property1
+            \property2
+        \ Device2
+   \Service2
+```
 
 ##What are events, actions and rules?
 
