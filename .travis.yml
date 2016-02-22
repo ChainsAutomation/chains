@@ -23,10 +23,10 @@ before_install:
   - $DEPLOY && docker run -d chains/chains-master || echo "NOT RUNNING"
 
 script:
-  - $DEPLOY && echo "Builded container and ready to deploy" || "Only running tests"
+  - $DEPLOY && echo "Builded container and ready to deploy" || echo "Only running tests"
   - $DEPLOY && docker ps -a || echo ""
   - $DEPLOY && sleep 45 || echo ""
-  - if [[ $DEPLOY ]]; then DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status > output; fi
+  - $DEPLOY && DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status > output || echo ""
   - $DEPLOY && cat output || echo ""
   - $DEPLOY && cat output | grep "FATAL" && exit 1 || echo "Every process started correctly"
 
