@@ -31,7 +31,7 @@ script:
   - $DEPLOY && cat output | grep "FATAL" && exit 1 || echo "Every process started correctly"
 
 after_success:
-  - $DEPLOY && ./deploy.sh || echo "Success! (NOT DEPLOYING THIS VERSION)"
+  - ./deploy.sh
 
 notifications:
   irc:
