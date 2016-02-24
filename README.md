@@ -106,6 +106,30 @@ It is sometimes useful to run it from a computer that is not a node in the chain
 * create /etc/chains/amqp.conf with the same content as your other nodes (host/port pointing to master)
 The 3 first steps are only necessary because our setup.py is (probably, not tested) not working properly at the moment, sorry!
 
+## Example `chains` commands
+
+Service
+```sh
+# List running services
+chains service list
+
+# Start a service
+chains service start <service_id>
+
+# Stop a service
+chains service stop <service_id>
+```
+
+Reactor
+```sh
+# Dump the (full) current state of chains:
+chains reactor action <reactor_name> getState
+
+# Get the state of a specific service:
+chains reactor action <reactor_name> getState <service_id>
+```
+
+
 # Chains intro
 
 ##What are nodes(master/slave), services, devices and properties?
