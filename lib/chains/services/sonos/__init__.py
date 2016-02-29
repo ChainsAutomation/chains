@@ -1,8 +1,10 @@
+from __future__ import absolute_import
+
 from threading import Timer
 import chains.service
 from chains.common import log
 import time, datetime, re, copy
-from Queue import Empty
+from six.moves.queue import Empty
 from soco import SoCo, discover
 from soco.events import event_listener
 

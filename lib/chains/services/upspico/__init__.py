@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import chains.service
 from chains.common import log, utils
 import time
@@ -36,7 +38,7 @@ class UpsPicoService(chains.service.Service):
             try:
                 func = getattr(self, func)
                 value = func()
-            except Exception, e:
+            except Exception as e:
                 log.warn("Ignoring error on get %s: %s" % (key, utils.e2str(e)))
                 continue
             data[key] = value

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import chains.service
 from chains.common import log
 import time, datetime, re, copy
@@ -32,7 +34,7 @@ class TimerService(chains.service.Service):
                 'week': week
             }
             for k in self.eventKeys:
-                if not last.has_key(k) or current[k] != last[k]:
+                if not k in last or current[k] != last[k]:
                     last[k] = current[k]
                     if k == 'second' and not self.sendSecond:
                         continue

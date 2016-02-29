@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from chains.service import Service
 from chains.common import log
 

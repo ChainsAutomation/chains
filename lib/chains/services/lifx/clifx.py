@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import print_function
+
 from lifxlan import *
 
 
@@ -42,8 +45,8 @@ class CLifx(object):
             if mac not in self.state:
                 changes['new'].append(mac)
             else:
-                print mac  + " is in state:"
-                print self.state[mac]
+                print(mac + " is in state:")
+                print(self.state[mac])
                 for i in info:
                     if not units_up[mac][i] == self.state[mac][i]:
                         if mac not in changes['changed']:
@@ -59,17 +62,16 @@ if __name__ == '__main__':
     lx = CLifx()
     devs = lx._find_units()
     for d in devs:
-        print d
-    print "State:"
-    print lx.state
-    print 'Uodating state:'
+        print(d)
+    print("State:")
+    print(lx.state)
+    print('Updating state:')
     ch = lx.update_unit_info()
-    print "Changes:"
-    print ch
-    print "State:"
-    print lx.state
-    print 'Updating again:'
+    print("Changes:")
+    print(ch)
+    print("State:")
+    print(lx.state)
+    print('Updating again:')
     ch = lx.update_unit_info()
-    print "Changes:"
-    print ch
-
+    print("Changes:")
+    print(ch)

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import chains.service
 from chains.common import log
 import time, datetime

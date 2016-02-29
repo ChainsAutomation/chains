@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from chains.service import Service
 from chains.common import log
 from netaddr import *
@@ -60,7 +62,7 @@ class ProximitynetService(Service):
             info['%s-type' % prefix] = 'public'
             try:
                 dns = socket.gethostbyaddr(ipaddr)[0]
-            except socket.error, e:
+            except socket.error as e:
                 if len(e.args) > 0:
                     dns = "%s" % e.args[0]
                 else:
@@ -82,7 +84,7 @@ class ProximitynetService(Service):
                     info.update({'address': addr})
                 else:
                     info.update({item: oui.registration()[item]})
-        except NotRegisteredError, e:
+        except NotRegisteredError as e:
             if len(e.args) > 0:
                 info.update({'org': str(e.args[0])})
             else:

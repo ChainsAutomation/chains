@@ -1,4 +1,5 @@
-#!/usr/bin/python2
+from __future__ import absolute_import
+from __future__ import print_function
 
 import sys
 import time
@@ -13,7 +14,7 @@ class IntegraService(Service):
 
     def onInit(self):
         log.info('IntegraService init.')
-        print 'IntegraService init.'
+        print('IntegraService init.')
         self.location = self.config.get('location')
         self.model = self.config.get('model')
         self.ser_dev = self.config.get('serial')
@@ -40,7 +41,7 @@ class IntegraService(Service):
                     if param:
                         newcmd['args'].append(param)
                 self.act_desc['actions'].append(newcmd)
-        print self.act_desc
+        print(self.act_desc)
         self.ser = serial.Serial(port=self.ser_dev,
                                  baudrate=9600,
                                  timeout=0.05,  # 50ms reponse time according to spec
@@ -51,7 +52,7 @@ class IntegraService(Service):
 
     def onStart(self):
         log.info('IntegraService starting.')
-        print 'IntegraService starting.'
+        print('IntegraService starting.')
         meta = {}
         if self.location:
             meta.update({'location': self.location})
@@ -66,7 +67,7 @@ class IntegraService(Service):
                 self.sendEvent("change", {line[2:5]: {'value': line[5:]}}, meta)
                 # self.sendEvent("change", line[1:4], {'value': line[4:]})
                 log.info('Received: %s' % line)
-                print 'Received: %s' % line
+                print('Received: %s' % line)
             # TODO: sleep probably not needed?
             time.sleep(0.1)
 

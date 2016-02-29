@@ -1,4 +1,5 @@
-#!/usr/bin/python2
+from __future__ import absolute_import
+from __future__ import print_function
 
 ### BENQ serial interface information
 # Baud rate: 115200 (Default)
@@ -17,12 +18,7 @@ import time
 from collections import OrderedDict
 import serial
 
-try:
-    # Importing when used as a module
-    from . import benq_codes
-except:
-    # Importing when used as a cli program
-    import benq_codes
+from . import benq_codes
 
 def check_cmd(cmd, param):
     if cmd in benq_codes.CODES:
@@ -63,9 +59,9 @@ if __name__ == '__main__':
                         stopbits=serial.STOPBITS_ONE,
                         )
     for c in do_cmds:
-        print "Writing: " + c + "\\r\\n"
+        print("Writing: " + c + "\\r\\n")
         ser.write("!1" + c + '\r\n')
         ret_val = ser.readline()
-        print "\'" + ret_val + "\'"
+        print("\'" + ret_val + "\'")
         # time.sleep(0.5)
     ser.close()

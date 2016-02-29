@@ -1,6 +1,8 @@
-import chains.service, copy, re, td, Queue, time
+from __future__ import absolute_import
+from six.moves import range
+
+import chains.service, copy, re, td, time
 from chains.common import log
-import time
 
 # using: https://bitbucket.org/davka003/pytelldus/src
 
@@ -27,7 +29,6 @@ class TellstickService(chains.service.Service):
         self.devices = self.parseDeviceConfig()
         self.sendStartupEvents()
 
-
     def onShutdown(self):
         self.closeTelldus()
 
@@ -51,7 +52,7 @@ class TellstickService(chains.service.Service):
         id = self.parseId(id)
         td.turnOn(id)
         self.deviceEventCallback(id, td.TELLSTICK_TURNON, self.maxLampValue, 1)
-        
+
     def action_off(self, id):
         '''
         Turn a lamp off
@@ -71,7 +72,7 @@ class TellstickService(chains.service.Service):
         @param  id     int   ID of device in tellstick.conf
         '''
         td.up(self.parseId(id))
-        
+
     def action_down(self, id):
         '''
         Start dimming a lamp down
@@ -212,16 +213,14 @@ class TellstickService(chains.service.Service):
     def ignoreRepeatedEvent(self, deviceId, method, value):
         key = '%s.%s.%s' % (deviceId, method, value)
         now = time.time()
-        if self.repeatedEventLastTime.has_key(key):
+        if key in self.repeatedEventLastTime:
             timeDiff = now - self.repeatedEventLastTime[key]
             if timeDiff < self.repeatedEventTimeout:
                 return True
         self.repeatedEventLastTime[key] = now
 
-
     def sendEventWrapper(self, type, id, data, deviceAttributes=None):
-
-        device = '%s-%s' % (type,id)
+        device = '%s-%s' % (type, id)
         config = self.devices.get(device)
 
         if not deviceAttributes:
@@ -254,14 +253,14 @@ class TellstickService(chains.service.Service):
         log.info('Opening telldus')
 
         td.init( defaultMethods = td.TELLSTICK_TURNON | td.TELLSTICK_TURNOFF | td.TELLSTICK_BELL | td.TELLSTICK_TOGGLE | td.TELLSTICK_DIM | td.TELLSTICK_LEARN )
-        #td.debug = True
+        # td.debug = True
 
         log.info('Registering device event handler')
         self.deviceCallbackId = td.registerDeviceEvent(self.deviceEventCallback)
 
         log.info('Registering sensor event handler')
         self.sensorCallbackId = td.registerSensorEvent(self.sensorEventCallback)
-        #td.registerRawDeviceEvent(...) # if we want to support ALL recvd signals. noisy!
+        # td.registerRawDeviceEvent(...) # if we want to support ALL recvd signals. noisy!
 
         log.info('Initializing complete')
 
@@ -290,7 +289,7 @@ class TellstickService(chains.service.Service):
         if conf:
             for key in conf:
                 deviceId, prop = key.split('.')
-                if not result.has_key(deviceId):
+                if deviceId not in result:
                     result[deviceId] = {
                         'id': deviceId,
                         'location': None,
@@ -299,7 +298,7 @@ class TellstickService(chains.service.Service):
                     }
                 value = conf[key]
                 if prop == 'suppress':
-                    if value.lower() in ['1','true']:
+                    if value.lower() in ['1', 'true']:
                         value = True
                     else:
                         value = False

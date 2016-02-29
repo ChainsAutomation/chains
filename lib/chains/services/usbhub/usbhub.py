@@ -1,5 +1,8 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import sys
 import usb
+from six.moves import range
 
 # Stuff pulled from usb-ctrl.py
 # unfortunately it no longer works with the new pyusb
@@ -22,7 +25,7 @@ HUB_LED_GREEN     = 2
 if __name__ == '__main__':
     bus = int(sys.argv[1])
     address = int(sys.argv[2])
-    print "opening bus=%d,address=%d" % (bus, address)
+    print("opening bus=%d,address=%d" % (bus, address))
 
     dev = usb.core.find(bus=bus,address=address)
 
@@ -36,25 +39,25 @@ if __name__ == '__main__':
                          value = usb.DT_HUB << 8,
                          index = 0, buffer = 1024, timeout = 1000
                          )
-    print "Hub has %d ports" % desc[2]
+    print("Hub has %d ports" % desc[2])
     hub_ports = desc[2]
 
     # desc[3] is lower byte of wHubCharacteristics
     if (desc[3] & 0x80) == 0 and (desc[3] & 0x03) >= 2:
         sys.exit("Hub doesn't have features of controling port power/indicator")
     else:
-        print "Hub has power control features!"
+        print("Hub has power control features!")
 
     if (desc[3] & 0x03) == 0:
-        print " INFO: ganged power switching."
+        print(" INFO: ganged power switching.")
     elif (desc[3] & 0x03) == 1:
-        print " INFO: individual power switching."
+        print(" INFO: individual power switching.")
     elif (desc[3] & 0x03) == 2 or (desc[3] & 0x03) == 3:
-        print " WARN: no power switching."
+        print(" WARN: no power switching.")
     if (desc[3] & 0x80) == 0:
-        print " WARN: Port indicators are NOT supported."
+        print(" WARN: Port indicators are NOT supported.")
 
-    print " Hub Port Status:"
+    print(" Hub Port Status:")
     for i in range(hub_ports):
         port = i + 1
         status = handle.controlMsg(requestType = USB_RT_PORT | usb.ENDPOINT_IN,
@@ -63,29 +66,29 @@ if __name__ == '__main__':
                                    index = port, buffer = 4,
                                    timeout = 1000)
 
-        print "   Port %d: %02x%02x.%02x%02x" % (port, status[3], status[2],
-                                                 status[1], status[0]),
+        print("   Port %d: %02x%02x.%02x%02x" % (port, status[3], status[2],
+                                                 status[1], status[0]), end=' ')
         if status[1] & 0x10:
-            print " indicator",
+            print(" indicator", end=' ')
         if status[1] & 0x08:
-            print " test" ,
+            print(" test", end=' ')
         if status[1] & 0x04:
-            print " highspeed",
+            print(" highspeed", end=' ')
         if status[1] & 0x02:
-            print " lowspeed",
+            print(" lowspeed", end=' ')
         if status[1] & 0x01:
-            print " power",
+            print(" power", end=' ')
 
         if status[0] & 0x10:
-            print " RESET",
+            print(" RESET", end=' ')
         if status[0] & 0x08:
-            print " oc",
+            print(" oc", end=' ')
         if status[0] & 0x04:
-            print " suspend",
+            print(" suspend", end=' ')
         if status[0] & 0x02:
-            print " enable",
+            print(" enable", end=' ')
         if status[0] & 0x01:
-            print " connect",
+            print(" connect", end=' ')
 
-        print
+        print()
 

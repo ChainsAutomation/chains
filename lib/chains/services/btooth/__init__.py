@@ -1,8 +1,10 @@
 #@depends bluez python-bluez
+from __future__ import absolute_import
+import six
 
 try:
     import bluetooth
-except ImportError, e:
+except ImportError as e:
     raise Exception("Cannot import bluetooth module. Please install python-bluez")
 
 import time, chains.service
@@ -47,7 +49,7 @@ class BtoothService(chains.service.Service):
 
     def onServiceSeen(self, address):
         isArrival = False
-        if self.state.has_key(address):
+        if address in self.state:
             self.state[address]['time'] = time.time()
             if not self.state[address]['present']:
                 isArrival = True
@@ -102,7 +104,7 @@ class BtoothService(chains.service.Service):
         away    = 0
         some    = False
 
-        for address, nick in self.guests.iteritems():
+        for address, nick in six.iteritems(self.guests):
             state = self.state.get(address)
             if state and state['present']:
                 present += 1
@@ -132,7 +134,7 @@ class BtoothService(chains.service.Service):
                     result.append(addr)
             # This happens from time to time, and we don't want to die because of it:
             # BluetoothError: error communicating with local bluetooth adapter
-            except bluetooth.btcommon.BluetoothError,e:
+            except bluetooth.btcommon.BluetoothError as e:
                 log.warn('BluetoothError ignored: %s' % e)
         else:
             log.debug('Not configured to use services_discover() to find services')
@@ -149,7 +151,7 @@ class BtoothService(chains.service.Service):
                         log.debug('Did not find service: %s' % addr)
             # This happens from time to time, and we don't want to die because of it:
             # BluetoothError: error communicating with local bluetooth adapter
-            except bluetooth.btcommon.BluetoothError,e:
+            except bluetooth.btcommon.BluetoothError as e:
                 log.warn('BluetoothError ignored: %s' % e)
         else:
             log.debug('Not configured to use lookup_name() to find services')
@@ -159,7 +161,7 @@ class BtoothService(chains.service.Service):
         return result
 
     def guestsToState(self):
-        for mac, nick in self.guests.iteritems():
+        for mac, nick in six.iteritems(self.guests):
             self.addToState(mac, False, nick)
 
     def addToState(self, address, present, nick=None):

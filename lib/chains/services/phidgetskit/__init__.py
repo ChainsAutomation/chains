@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import time
 from Phidgets.PhidgetException import *
 from Phidgets.Events.Events import *
@@ -61,7 +63,7 @@ class PhidgetsKitService(Service):
         try:
             log.info("Open Phidget with serial: %s" % serial)
             self.dev.openPhidget(serial)
-            #self.dev.openPhidget()
+            # self.dev.openPhidget()
             log.info("Waiting for Phidget to be attached...")
             self.dev.waitForAttach(100000)
             self.phidgetsId = self.dev.getSerialNum()
@@ -75,9 +77,9 @@ class PhidgetsKitService(Service):
             self.ifname = self.dev.getServiceName()
             log.info("Phidget %s has name: %s" % (self.phidgetsId, self.ifname))
             self.setThresholds()
-                
+
         # make sure dev is closed again if error
-        except PhidgetException, e:
+        except PhidgetException as e:
             self.close()
             self.phidgetsId = None
             # but still let the exception continue down the stack
@@ -173,16 +175,20 @@ class PhidgetsKitService(Service):
 
     def _onEvent(self, type, e):
         pre = ''
-        if type == 'sensor': pre = 's'
-        elif type == 'input': pre = 'i'
-        elif type == 'output': pre = 'o'
-        else: raise Exception('Unknown type: %s' % type)
-        key = '%s%s' % (pre,e.index)
+        if type == 'sensor':
+            pre = 's'
+        elif type == 'input':
+            pre = 'i'
+        elif type == 'output':
+            pre = 'o'
+        else:
+            raise Exception('Unknown type: %s' % type)
+        key = '%s%s' % (pre, e.index)
         event = {}
-        #event = {
-        #    'key':    '%s%s' % (pre,e.index)
-        #    #'service': self.config['id'],
-        #}
+        # event = {
+        #     'key':    '%s%s' % (pre,e.index)
+        #     #'service': self.config['id'],
+        # }
         if type == 'sensor':
             event['value'] = e.value
             sensorType = self.config.get('type%s' % e.index)
@@ -204,7 +210,7 @@ class PhidgetsKitService(Service):
         self.dev.setOnSensorChangeHandler(self.onSensorChange)
 
     def parseValue(self, value, type):
-        if value == None:
+        if value is None:
             return None
         # Temperature - Celcius
         if type == 'temperature':
@@ -214,13 +220,13 @@ class PhidgetsKitService(Service):
             return ( (float(value)/1000) * 190.6 ) - 40.2
         # Magnet - Gauss
         elif type == 'magnet':
-            return 500 - value 
+            return 500 - value
         # DC Current (DC amps)
         elif type == 'amp_dc':
-            return ( (float(value)/1000) * 50 ) - 25
+            return ( (float(value) / 1000) * 50 ) - 25
         # AC Current (RMS amps)
         elif type == 'amp_ac':
-            return (float(value)/1000) * 27.75
+            return (float(value) / 1000) * 27.75
         # Sonar distance (cm)
         elif type == 'sonar':
             return float(value) * 1.296

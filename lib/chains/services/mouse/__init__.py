@@ -1,4 +1,5 @@
-#!/usr/bin/python2
+from __future__ import absolute_import
+
 import chains.service
 from chains.common import log
 from chains.common import cusb

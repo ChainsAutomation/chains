@@ -1,4 +1,5 @@
-#!/usr/bin/python2
+from __future__ import absolute_import
+from __future__ import print_function
 
 #CMDS[topic_index]: a topic array
 #CMDS[topic_index][0] : topic name (PWR)
@@ -13,12 +14,7 @@
 
 # import time
 from collections import OrderedDict
-try:
-    # Importing when used as a module
-    from . import iscp_codes
-except:
-    # Importing when used as a cli program
-    import iscp_codes
+from . import iscp_codes
 
 
 def model_cmds(model):
@@ -39,10 +35,10 @@ def model_cmds(model):
             if cmd[3][mindex]:  # Model is supported
                 m_cmds[topic[0]].update({cmd[0]: {'description': cmd[1], 'type': cmd[2]}})
         if not m_cmds[topic[0]]:
-            # print "Empty topic: %s" % topic[0]
+            # print("Empty topic: %s" % topic[0])
             del m_cmds[topic[0]]
         else:
-            # print "Supported topic: %s" % topic[0]
+            # print("Supported topic: %s" % topic[0])
             pass
     return (topic_desc, m_cmds)
 
@@ -96,9 +92,9 @@ if __name__ == '__main__':
     topic_desc, cmds = model_cmds('TX-SR705')
     # pprint(cmds)
     for cmd in cmds:
-        print cmd + ' : ' + topic_desc[cmd]
+        print(cmd + ' : ' + topic_desc[cmd])
         for subcmd in cmds[cmd]:
-            print '\t' + subcmd + ': ' + cmds[cmd][subcmd]['description']
+            print('\t' + subcmd + ': ' + cmds[cmd][subcmd]['description'])
             if cmds[cmd][subcmd]['type']:
                 pprint(cmds[cmd][subcmd]['type'], indent=12)
     # pprint(cmds['PWR'])
@@ -112,9 +108,9 @@ if __name__ == '__main__':
                         stopbits=serial.STOPBITS_ONE,
                         )
     for c in do_cmds:
-        print "Writing: !1" + c + "\\r\\n"
+        print("Writing: !1" + c + "\\r\\n")
         ser.write("!1" + c + '\r\n')
         ret_val = ser.readline()
-        print "\'" + ret_val + "\'"
+        print("\'" + ret_val + "\'")
         # time.sleep(0.5)
     ser.close()

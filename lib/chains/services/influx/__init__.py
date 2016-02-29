@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from chains.service import Service
 from chains.common import log, utils
 
@@ -73,7 +75,7 @@ class InfluxService(Service):
                         tags.update({'event': data[tag]})
                     else:
                         tagValue = data[tag]
-                        if type(tagValue) == types.UnicodeType:
+                        if type(tagValue) == str:
                             tagValue = tagValue.encode('utf-8')
                         tags.update({tag: tagValue})
             for measure in data['data']:
@@ -95,7 +97,7 @@ class InfluxService(Service):
             log.debug('insert measures: %s' % measures)
             try:
                 self.ix.insert(measures)
-            except Exception, e:
+            except Exception as e:
                 log.error('Failed inserting measures in influxdb: %s\nAttempted insert was: %s' % (utils.e2str(e), measures))
         elif topic[1] == 'h':
             # heartbeat

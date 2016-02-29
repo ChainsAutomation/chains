@@ -1,5 +1,4 @@
-#!/usr/bin/python2
-
+from __future__ import absolute_import
 import time
 
 from chains.service import Service

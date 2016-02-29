@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import chains.service
 from chains.common import log
 
@@ -103,7 +105,7 @@ class PhilipsHueService(chains.service.Service):
             info = discovery.discover()
             if info:
                 info = info[0] # todo: handle multiple bridges? 
-            if info and info.has_key('internalipaddress'):
+            if info and 'internalipaddress' in info:
                 address = info['internalipaddress']
                 log.info('discovered bridge-address: %s' % address)
             else:

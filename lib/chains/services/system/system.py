@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import psutil as ps
 import platform as pf
 import datetime
@@ -92,7 +94,7 @@ class System(object):
         nics = {}
         try:
             niclist = ps.net_io_counters(pernic=True)
-        except AttrbuteError:
+        except AttributeError:
             niclist = ps.network_io_counters(pernic=True)
         for nic in niclist:
             nics.update({nic: {}})
@@ -118,16 +120,15 @@ if __name__ == '__main__' and __package__ is None:
     from os import sys, path
     sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
     mys = System()
-    print "Sys info:"
-    print mys.get_sysinfo()
-    print "Mem info:"
-    print mys.get_meminfo()
-    print "CPU info:"
-    print mys.get_cpuinfo()
-    print "User-Process info:"
-    print mys.get_userprocinfo()
-    print "Disk info:"
-    print mys.get_diskinfo()
-    print "Netinfo:"
-    print mys.get_netinfo()
-
+    print("Sys info:")
+    print(mys.get_sysinfo())
+    print("Mem info:")
+    print(mys.get_meminfo())
+    print("CPU info:")
+    print(mys.get_cpuinfo())
+    print("User-Process info:")
+    print(mys.get_userprocinfo())
+    print("Disk info:")
+    print(mys.get_diskinfo())
+    print("Netinfo:")
+    print(mys.get_netinfo())
