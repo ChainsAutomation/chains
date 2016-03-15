@@ -105,14 +105,14 @@ All `services` are also run as seperate background processes.
 The manager is the process that starts and stops `service` processes for chains.
 There is one manager per `node` in the chains system.
 
-## Reactor
+## Reactor daemon
 
 The reactor is the process that runs `rules`. For now there is
 There is, for now, only one reactor in a chains system, it runs on the "master" node.
 
-## Orchestrator
+## Orchestrator daemon
 
-The orchestrator reads the centrally stored configuration for each `service` and tells managers on each node what configuration to apply to `services` they start. It also monitors the health of the system by watching heartbeats for all processes.
+The orchestrator reads the centrally stored configuration for each `service`, and tells managers on each node what configuration to apply to `services` they start. It also monitors the health of the system by watching heartbeats for all processes.
 There is only one orchestrator running in a chains system, like the reactor it runs on the "master" node.
 
 # The `chains` command line application
