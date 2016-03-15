@@ -94,6 +94,27 @@ sudo docker build --no-cache -t chains/chains-slave .
 sudo docker run -d --privileged --net=host -e "AMQP=192.168.1.1:5672" -v /etc/chains:/etc/chains -v /srv/chains-data:/srv/chains/data -v /dev:/dev -v /etc/localtime:/etc/localtime:ro chains/chains-slave
 ```
 
+# Chains daemons
+
+Chains starts several processes that run in the background. In the linux/unix world such processes are known as daemons.
+
+All `services` are also run as seperate background processes.
+
+## Manager daemon
+
+The manager is the process that starts and stops `service` processes for chains.
+There is one manager per `node` in the chains system.
+
+## Reactor
+
+The reactor is the process that runs `rules`. For now there is
+There is, for now, only one reactor in a chains system, it runs on the "master" node.
+
+## Orchestrator
+
+The orchestrator reads the centrally stored configuration for each `service` and tells managers on each node what configuration to apply to `services` they start. It also monitors the health of the system by watching heartbeats for all processes.
+There is only one orchestrator running in a chains system, like the reactor it runs on the "master" node.
+
 # The `chains` command line application
 
 Chains comes with the aptly named `chains` command line application.
@@ -122,11 +143,29 @@ chains service stop <service_id>
 
 Reactor
 ```sh
+# List reactor info
+chains reactor list
+
 # Dump the (full) current state of chains:
 chains reactor action <reactor_name> getState
 
 # Get the state of a specific service:
 chains reactor action <reactor_name> getState <service_id>
+```
+
+Manager
+```sh
+# List managers (all nodes running chains will have a manager)
+chains manager list
+
+# Examlpe output:
+------------------------------------------------------------
+Manager              Online     Last heartbeat
+------------------------------------------------------------
+chainsmaster         Online     1 sec ago
+alarmpi                         about 996 hours ago
+rpi-z                Online     1 sec ago
+mediacenter          Online     1 sec ago
 ```
 
 
