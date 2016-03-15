@@ -172,12 +172,12 @@ and so on
 While nodes, services and devices deal with the software controlling hardware sensors and such; events, actions and rules are what makes it possible for the former to connect and cooperate.
 
 ###Event
-A `device` will often report changes or things that happen in the system. This is called an `event`.
-A remote control device would send an event when a button is pressed, a temperature sensor device would send an event containing the current temperature and so on.
+A `service` will often report changes or things that happen in the system. This is called an `event`.
+A remote control `service` would send an event when a button on a remote-control `device` is pressed, a temperature sensor service would send an event containing the current temperature and so on.
 
 ###Action
-Some devices are able to do things as well as report `events` these are called actions.
-A receiver device could have actions like PowerOn, ChangeSource and Mute, while a light switch device might have actions like LightOn, LightOff and Dim.
+Some devices are able to do things as well as report `events` these are called `actions`.
+A receiver service could have actions like PowerOn, ChangeSource and Mute, while a light control `service` might have actions like LightOn, LightOff and Dim for its lamp `devices`.
 
 ###Rule
 A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic.
