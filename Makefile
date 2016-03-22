@@ -1,7 +1,7 @@
 .PHONY: test
 
 deps:
-	pip install pytest amqplib
+	pip install pytest amqplib pyyaml
 
 test:
 	PYTHONPATH=lib/ /usr/local/bin/py.test test/
