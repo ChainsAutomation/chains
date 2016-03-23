@@ -1,6 +1,6 @@
 FROM ubuntu:14.04
 # adding latest pyyp
-RUN apt-get update && apt-get install -y software-properties-common wget python
+RUN apt-get update && apt-get install -y software-properties-common wget bzip2 libffi5 python
 RUN add-apt-repository ppa:pypy/ppa -y
 RUN apt-get update && apt-get install -y pypy
 RUN wget https://bootstrap.pypa.io/get-pip.py -O /opt/get-pip.py && /usr/bin/pypy /opt/get-pip.py
