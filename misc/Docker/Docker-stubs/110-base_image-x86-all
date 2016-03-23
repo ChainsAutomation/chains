@@ -4,5 +4,5 @@ RUN apt-get update && apt-get install -y software-properties-common wget bzip2 l
 RUN add-apt-repository ppa:pypy/ppa -y
 RUN apt-get update && apt-get install -y pypy
 RUN wget https://bootstrap.pypa.io/get-pip.py -O /opt/get-pip.py && /usr/bin/pypy /opt/get-pip.py
-RUN /usr/bin/pypy -m pip install pyyaml six
+RUN pypy -m pip install pyyaml six
 RUN /usr/bin/python /opt/get-pip.py && rm /opt/get-pip.py

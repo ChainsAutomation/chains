@@ -5,5 +5,5 @@ RUN apt-get update && apt-get -y install wget bzip2 libffi5 software-properties-
 RUN wget https://bitbucket.org/pypy/pypy/downloads/pypy-4.0.1-linux-armhf-raspbian.tar.bz2 -O /opt/pypy.tar.bz
 RUN mkdir -p /opt/pypy && tar xf /opt/pypy.tar.bz -C /opt/pypy --strip-components=1 && rm /opt/pypy.tar.bz && ln -s /opt/pypy/bin/pypy /usr/local/bin/
 RUN wget https://bootstrap.pypa.io/get-pip.py -O /opt/get-pip.py && /usr/local/bin/pypy /opt/get-pip.py
-RUN /usr/local/bin/pypy -m pip install pyyaml six
+RUN pypy -m pip install pyyaml six
 RUN /usr/bin/python /opt/get-pip.py && rm /opt/get-pip.py

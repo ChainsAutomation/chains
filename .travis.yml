@@ -15,6 +15,7 @@ services:
 
 before_install:
   - if [[ $TRAVIS_PYTHON_VERSION == "3.5" && $TRAVIS_BRANCH == "master" ]]; then export DEPLOY=true; else export DEPLOY=false; fi
+  - $DEPLOY && echo "Will build, run and deploy" || echo "Will NOT build, run or deploy"
   - sudo make travis
   - sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-master/chains.conf -O /etc/chains/chains.conf"
   - bin/dockerfile-assemble.py master
