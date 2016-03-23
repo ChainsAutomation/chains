@@ -2,4 +2,5 @@
 RUN mkdir -p /srv/chains && mkdir -p /var/log/chains && mkdir -p /etc/chains
 ADD misc/Docker/chains-config/chains.yml-master /etc/chains/chains.yml
 COPY . /srv/chains
-RUN /srv/chains/bin/chains-install-from-svn -m
+# RUN /srv/chains/bin/chains-install-from-svn -m
+RUN ln -s /srv/chains/lib/chains /usr/lib/python2.7 && ln -s /srv/chains/lib/chains /usr/lib/python3.5
