@@ -1,6 +1,6 @@
 FROM resin/rpi-raspbian
 # get basic packages
-RUN apt-get update && apt-get -y install wget software-properties-common python
+RUN apt-get update && apt-get -y install wget bzip2 libffi5 software-properties-common python
 # Get newest pypy
 RUN wget https://bitbucket.org/pypy/pypy/downloads/pypy-4.0.1-linux-armhf-raspbian.tar.bz2 -O /opt/pypy.tar.bz
 RUN mkdir -p /opt/pypy && tar xf /opt/pypy.tar.bz -C /opt/pypy --strip-components=1 && rm /opt/pypy.tar.bz && ln -s /opt/pypy/bin/pypy /usr/local/bin/
