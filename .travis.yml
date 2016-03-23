@@ -14,22 +14,23 @@ services:
   - docker
 
 before_install:
-  - if [[ $TRAVIS_PYTHON_VERSION == "3.5" && $TRAVIS_BRANCH == "master" ]]; then export DEPLOY=true; else export DEPLOY=false; fi
-  - $DEPLOY && echo "Will build, run and deploy" || echo "Will NOT build, run or deploy"
+  - if [[ $TRAVIS_PYTHON_VERSION == "3.5" ]]; then export BUILD=true; else export BUILD=false; fi
+  - if [[ $TRAVIS_BRANCH == "master" ]]; then export DEPLOY=true; else export DEPLOY=false; fi
+  - $BUILD && echo "Will build, run and deploy" || echo "Will NOT build, run or deploy"
   - sudo make travis
   - sudo sh -c "mkdir -p /etc/chains/devices; wget https://raw.githubusercontent.com/ChainsAutomation/chains/master/misc/examples/etc-master/chains.conf -O /etc/chains/chains.conf"
   - bin/dockerfile-assemble.py master
   - docker version
-  - $DEPLOY && docker build --no-cache -t chains/chains-master . || echo "NOT BUILDING"
-  - $DEPLOY && docker run -d chains/chains-master || echo "NOT RUNNING"
+  - $BUILD && docker build --no-cache -t chains/chains-master . || echo "NOT BUILDING"
+  - $BUILD && docker run -d chains/chains-master || echo "NOT RUNNING"
 
 script:
-  - $DEPLOY && echo "Builded container and ready to deploy" || echo "Only running tests"
-  - $DEPLOY && docker ps -a || echo ""
-  - $DEPLOY && sleep 45 || echo ""
-  - $DEPLOY && DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status > output || echo ""
-  - $DEPLOY && cat output || echo ""
-  - $DEPLOY && cat output | grep "FATAL" && exit 1 || echo "Every process started correctly"
+  - $BUILD && echo "Builded container and ready to deploy" || echo "Only running tests"
+  - $BUILD && docker ps -a || echo ""
+  - $BUILD && sleep 45 || echo ""
+  - $BUILD && DOCKERID=`docker ps -q`; docker exec $DOCKERID /usr/bin/supervisorctl status > output || echo ""
+  - $BUILD && cat output || echo ""
+  - $BUILD && cat output | grep "FATAL" && exit 1 || echo "Every process started correctly"
 
 after_success:
   - ./deploy.sh
