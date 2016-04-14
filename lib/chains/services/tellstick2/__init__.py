@@ -23,8 +23,14 @@ class Tellstick2Service(chains.service.Service):
 
         self.devices = self.parseDeviceConfig()
         if self.config.getBool('managetellstickconf'):
+            tellconf1 = self.readTellstickConf()
             self.writeTellstickConf()
-            #self.restartTelldus() # todo: only if there is a change
+            tellconf2 = self.readTellstickConf()
+            if tellconf1 != tellconf2:
+                log.info('Restart telldus since config changed')
+                self.restartTelldus() # todo: only if there is a change
+            else:
+                log.info('Do not restart telldus since config did not change')
 
         self.openTelldus()
 
@@ -44,7 +50,6 @@ class Tellstick2Service(chains.service.Service):
         id = self.parseId(id)
         level = self.parseLevel(level)
         td.dim(id, level)
-        self.sendDeviceEvent(id, level)
         self.deviceEventCallback(id, td.TELLSTICK_DIM, level, 1)
 
     def action_on(self, id):
@@ -240,6 +245,7 @@ class Tellstick2Service(chains.service.Service):
         # phew...
 
         config = None
+        device = '%s-%s' % (type,id)
         for key in self.devices:
 
             _config = self.devices[key]
@@ -253,25 +259,23 @@ class Tellstick2Service(chains.service.Service):
                 if configParams: configId = str(configParams.get('id'))
                 if sensorId == configId and sensorType == configType:
                     config = _config
+                    device = key
                     break
 
             if type == 'device' and configClass == 'command':
                 configId = _config.get('id')
                 if id == configId:
                     config = _config
+                    device = key
                     break
                     
         if not deviceAttributes:
             deviceAttributes = {}
 
-        device = '%s-%s' % (type,id)
-
         if config:
             if config.get('suppress'):
                 log.debug('Config says suppress event: %s' % device)
                 return
-            if config.get('id'):
-                device = config.get('id')
             if config.get('name'):
                 deviceAttributes['name'] = config.get('name')
             if config.get('location'):
@@ -358,3 +362,11 @@ class Tellstick2Service(chains.service.Service):
         if ec != 0:
             raise Exception('Failed to restart telldusd:\n%s\n%s' % (out,err))
         log.info('Restart telldusd end')
+
+    # todo: move to tellconf
+    def readTellstickConf(self):
+        f = '/etc/tellstick.conf'
+        fp = open(f,'r')
+        text = fp.read()
+        fp.close()
+        return text.strip()
