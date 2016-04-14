@@ -173,7 +173,7 @@ def main(req):
             else:
                 error += 'Add -v to see error trace\n'
         except Exception as e:
-            error = e.message + '\n'
+            error = '%s\n' % e.message
             if opt.verbose or opt.debug:
                 error += '\n' + utils.e2str(e)
             else:
