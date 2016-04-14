@@ -13,8 +13,14 @@ def fromServiceConfig(config):
             source = config['devices'][key]
             if source.get('class') and source['class'] != 'command':
                 continue
-            if source.get('id'): device['id'] = source['id']
-            if source.get('name'): device['name'] = source['name']
+            if source.get('id'):
+                device['id'] = source['id']
+            else:
+                log.error("Ignoring device because missing id: %s" % source)
+                #raise Exception("Ignoring device because missing id: %s" % source)
+                continue
+            device['name'] = key
+            #if source.get('name'): device['name'] = source['name']
             if source.get('controller'): device['controller'] = source['controller']
             if source.get('protocol'): device['protocol'] = source['protocol']
             if source.get('model'): device['model'] = source['model']
