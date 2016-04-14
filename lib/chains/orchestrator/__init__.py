@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from chains.common import log, utils, amqp, config
 from chains.service import config as serviceConfig
+from chains.orchestrator.serviceconfigs import ServiceConfigs
 # import time, threading, ConfigParser, os, uuid
 import time, threading, six.moves.configparser, os, uuid
 
@@ -97,6 +98,7 @@ class Orchestrator(amqp.AmqpDaemon):
         self.timeoutInterval = 5
         self.startInterval = 15
         self.timeoutThread = TimeoutThread(self)
+        self.serviceConfigs = None
         self.loadServiceConfigs()
 
     def run(self):
@@ -217,108 +219,25 @@ class Orchestrator(amqp.AmqpDaemon):
         self.loadServiceConfigs(isReload=True)
 
     def loadServiceConfigs(self, isReload=False):
-        if not isReload or not self.data.get('service'):
-            self.data['service'] = {}
-        for path in self.getServiceConfigList():
-            self.loadServiceConfig(path, isReload=isReload)
+        self.data['service'] = {}
+        self.serviceConfigs = ServiceConfigs()
+        for serviceId in self.serviceConfigs.data:
+            data = self.serviceConfigs.data[serviceId]
 
-    def loadServiceConfig(self, path, isReload=False):
+            data['online'] = False
+            data['heartbeat'] = 0
 
-        if isReload:
-            log.info('Reload service config: %s' % path)
-        else:
-            log.info('Load service config: %s' % path)
+            if isReload and data['main']['id'] in self.data['service']:
+                old = self.data['service'][data['main']['id']]
+                data['online'] = old.get('online')
+                data['heartbeat'] = old.get('heartbeat')
 
-        instanceConfig = self.getConfig(path)
+                if not data.get('online'):
+                    data['online'] = False
+                if not data.get('heartbeat'):
+                    data['heartbeat'] = 0
 
-        if not instanceConfig:
-            return
-
-        instanceData = instanceConfig.data()
-        classDir = '%s/config/service-classes' % self.coreConfig.get('libdir')
-        classFile = '%s/%s.yml' % (classDir, instanceData['main']['class'])
-        classConfig = self.getConfig(classFile)
-        classData = classConfig.data()
-        hasChanges = False
-
-        if not classData:
-            return
-
-        if not instanceData['main'].get('id'):
-            id = self.generateUuid()
-            instanceData['main']['id'] = id
-            instanceConfig.set('id', id)
-            hasChanges = True
-
-        if not instanceData['main'].get('name'):
-            name = instanceData['main']['class'].lower()
-            instanceData['main']['name'] = name
-            instanceConfig.set('name', name)
-            hasChanges = True
-
-        if not instanceData['main'].get('manager'):
-            manager = 'master'
-            instanceData['main']['manager'] = manager
-            instanceConfig.set('manager', manager)
-            hasChanges = True
-
-        if hasChanges:
-            instanceConfig.save()
-
-        data = self.mergeDictionaries(classData, instanceData)
-
-        data['online'] = False
-        data['heartbeat'] = 0
-
-        if isReload and data['main']['id'] in self.data['service']:
-            old = self.data['service'][data['main']['id']]
-            data['online'] = old.get('online')
-            data['heartbeat'] = old.get('heartbeat')
-
-            if not data.get('online'):
-                data['online'] = False
-            if not data.get('heartbeat'):
-                data['heartbeat'] = 0
-
-        self.data['service'][data['main']['id']] = data
-
-    def getConfig(self, path):
-        try:
-            return config.BaseConfig(path)
-        except Exception as e:
-            log.error("Error loading config: %s, because: %s" % (path, utils.e2str(e)))
-            return None
-
-    def mergeDictionaries(self, dict1, dict2, result=None):
-        if not result:
-            result = {}
-        for k in set(dict1.keys()).union(list(dict2.keys())):
-            if k in dict1 and k in dict2:
-                if isinstance(dict1[k], dict) and isinstance(dict2[k], dict):
-                    result[k] = self.mergeDictionaries(dict1[k], dict2[k])
-                else:
-                    # If one of the values is not a dict, you can't continue merging it.
-                    # Value from second dict overrides one in first and we move on.
-                    result[k] = dict2[k]
-            elif k in dict1:
-                result[k] = dict1[k]
-            else:
-                result[k] = dict2[k]
-        return result
-
-    def getServiceConfigList(self):
-        dir = '%s/services' % self.coreConfig.get('confdir')
-        names = {}
-        for file in os.listdir(dir):
-            tmp = file.split('.')
-            ext = tmp.pop()
-            name = '.'.join(tmp)
-            if ext != 'conf' and ext != 'yml':
-                continue
-            if name in names and ext != 'yml':
-                continue
-            names[name] = dir + '/' + file
-        return list(names.values())
+            self.data['service'][data['main']['id']] = data
 
     def getServiceManager(self, serviceId):
         try:
@@ -411,8 +330,12 @@ class Orchestrator(amqp.AmqpDaemon):
         else:
             values = value.split(',')
             for _value in values:
-                service, manager = self._parseServiceParam(_value)
-                results.append((service, manager))
+                _serviceId = self.serviceConfigs.getId(_value)
+                try:
+                    manager = self.data['service'][_serviceId]['main']['manager']
+                except KeyError:
+                    manager = None
+                results.append((_serviceId, manager))
 
         log.info('Parsed service id: %s => %s' % (value, results))
 
@@ -420,39 +343,6 @@ class Orchestrator(amqp.AmqpDaemon):
             return results
         else:
             return results[0]
-
-    def _parseServiceParam(self, value):
-
-        # serviceId
-        serviceConfig = self.data['service'].get(value)
-        if serviceConfig:
-            return value, serviceConfig['main'].get('manager')
-
-        # managerId.serviceName
-        tmp = value.split('.')
-        if len(tmp) == 2:
-            managerId, serviceName = tmp
-            for serviceId in self.data['service']:
-                serviceConfig = self.data['service'][serviceId]
-                if serviceConfig['main'].get('manager') != managerId:
-                    continue
-                if serviceConfig['main'].get('name') != serviceName:
-                    continue
-                return serviceId, managerId
-
-        # serviceName
-        serviceName = value
-        items = []
-        for serviceId in self.data['service']:
-            serviceConfig = self.data['service'][serviceId]
-            if serviceConfig.get('main').get('name') == serviceName:
-                items.append(serviceConfig)
-        if len(items) == 1:
-            serviceConfig = items[0]
-            return serviceConfig['main'].get('id'), serviceConfig['main'].get('manager')
-
-        # not found
-        raise Exception('No such service: %s' % value)
 
 
 def main(id):
