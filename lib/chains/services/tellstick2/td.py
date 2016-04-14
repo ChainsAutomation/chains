@@ -569,75 +569,8 @@ if __name__ == '__main__':
         # print '  context:', context
 
     registerRawDeviceEvent(cb)
+
     import time
     while True:
         time.sleep(0.5)
 
-if __name__ == 'x__main__':
-    import time
-
-    init(defaultMethods=TELLSTICK_TURNON | TELLSTICK_TURNOFF | TELLSTICK_BELL | TELLSTICK_TOGGLE | TELLSTICK_DIM | TELLSTICK_LEARN)
-
-    print 'getNumberOfDevices', getNumberOfDevices()
-
-    print 'Id\tName'
-    for i in range(getNumberOfDevices()):
-        devId = getDeviceId(i)
-        print devId, getName(devId), methods(devId)
-
-    if 0:
-        print 'Methods(1)', methods(1)
-        print 'methods(1, readable=True)', methods(1, readable=True)
-        print 'methods(3124, readable=True)', methods(3124, readable=True)
-        print 'TurnOn(1)', turnOn(1)
-        time.sleep(1)
-        print 'TurnOff(1)', turnOff(1)
-        time.sleep(1)
-        print 'Dim (1, 121)', dim(1, 121)
-
-        print 'LastSentCommand(1)', lastSentCommand(1)
-        print 'LastSentValue(1)', lastSentValue(1)
-        print 'GetErrorString(-2)', getErrorString(-2)
-
-    print 'getDeviceIdFromStr', getDeviceIdFromStr('2')
-    print 'getDeviceIdFromStr', getDeviceIdFromStr('Vardagsrum')
-    print 'getDeviceIdFromStr', getDeviceIdFromStr('234')
-
-    devId = addDevice()
-    if devId > 0:
-        print 'AddDevice', devId
-        print 'setName', repr(setName(devId, 'Test'))
-        print 'getName', repr(getName(devId))
-        print 'getProtocol', getProtocol(devId)
-        print 'setProtocol', setProtocol(devId, 'arctech')
-        print 'getProtocol', getProtocol(devId)
-
-        print 'getModel', getModel(devId)
-        print 'setModel', setModel(devId, 'selflearning-switch')
-        print 'getModel', getModel(devId)
-
-        print 'getDeviceParameter (unit)', repr(getDeviceParameter(devId, "unit", ""))
-        print 'setDeviceParameter (unit)', repr(setDeviceParameter(devId, 'unit', '123'))
-        print 'getDeviceParameter (unit)', repr(getDeviceParameter(devId, "unit", ""))
-
-        print 'getDeviceParameter (house)', repr(getDeviceParameter(devId, "house", ""))
-        print 'setDeviceParameter (house)', repr(setDeviceParameter(devId, "house", "321"))
-        print 'getDeviceParameter (house)', repr(getDeviceParameter(devId, "house", ""))
-
-        print '\n\nId\tName'
-        for i in range(getNumberOfDevices()):
-            devId = getDeviceId(i)
-            print devId, getName(devId), methods(devId)
-
-        print 'Remove Device', removeDevice(devId)
-
-    else:
-        print 'addDevice returned error', getErrorString(devId)
-
-    print '\n\nId\tName'
-    for i in range(getNumberOfDevices()):
-        devId = getDeviceId(i)
-        print devId, getName(devId), methods(devId)
-
-
-    print 'Done with unit test'
