@@ -51,7 +51,7 @@ def getData(module=None):
     # print 'MODS: %s' % mods
     if not mods:
         return []
-    pkg = __import__(getEnabledModule())
+    pkg = __import__(_getEnabledModule())
     reload(pkg)
     ret = []
     for modname in mods:
