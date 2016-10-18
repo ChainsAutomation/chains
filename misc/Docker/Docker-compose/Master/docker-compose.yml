@@ -1,0 +1,30 @@
+# https://docs.docker.com/compose/compose-file/
+# https://docs.docker.com/compose/gettingstarted/
+# https://docs.docker.com/compose/
+version: '2'
+services:
+  chains-master:
+    image: chains/chains-master
+    privileged: true
+    volumes:
+      - /srv/chains/data:/srv/chains/data
+      - /srv/chains/config:/etc/chains
+      - /dev:/dev
+      - /etc/localtime:/etc/localtime:ro
+  influxdb: # https://hub.docker.com/_/influxdb/
+    image: influxdb:alpine
+    ports:
+      - "8086:8086"
+      - "8083:8083"
+    volumes:
+      - /srv/influxdb/data:/var/lib/influxdb
+      - /srv/influxdb/conf/influxdb.conf:/etc/influxdb.conf
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - /srv/grafana/data:/var/lib/grafana
+      - /srv/grafana/conf/grafana.ini:/etc/grafana.ini
+    depends_on:
+      - influxdb
