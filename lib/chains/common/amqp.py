@@ -3,9 +3,13 @@ from __future__ import absolute_import
 import amqplib.client_0_8 as amqp
 import chains.common.jsonlib as json
 from chains.common import log, utils, config, ChainsException, NoSuchActionException, introspect
-import time, threading, socket, sys, signal
+import time
+import socket
+import sys
+import signal
+# import threading
 import amqplib.client_0_8.exceptions
-import codecs
+# import codecs
 
 PREFIX_SERVICE            = 's'
 PREFIX_MANAGER            = 'm'
@@ -23,6 +27,7 @@ HEARTBEAT_VALUE_OFFLINE  = 0
 HEARTBEAT_VALUE_ONLINE   = 1
 HEARTBEAT_VALUE_RESPONSE = 2
 HEARTBEAT_VALUE_REQUEST  = 3
+
 
 class TimeoutException(Exception):
     pass
@@ -96,11 +101,11 @@ class Connection:
         self.password  = password
         self.ssl       = ssl
 
-        self.conn      = amqp.Connection(
+        self.conn = amqp.Connection(
             self.address,
-            userid = self.user,
-            password = self.password,
-            ssl = self.ssl
+            userid=self.user,
+            password=self.password,
+            ssl=self.ssl
         )
 
     def producer(self, **kw):
@@ -275,8 +280,8 @@ class Consumer(Channel):
         try:
             data = json.decode(msg.body)
         except Exception as e:
-            raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (body, repr(e)))
-            #raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (msg.body, repr(e)))
+            raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (msg.body, repr(e)))
+            # raise Exception("Failed decoding JSON: %s\nOrig exception: %s" % (msg.body, repr(e)))
         self.deliveryTag = msg.delivery_tag
         correlationId = None
         if 'correlation_id' in msg.properties:
@@ -291,6 +296,7 @@ class Consumer(Channel):
         if not self.noAck:
             self.ch.basic_ack(self.deliveryTag)
         self.deliveryTag = None
+
 
 class Rpc(Channel):
 
@@ -314,7 +320,7 @@ class Rpc(Channel):
     def _callback(self, msg):
         log.notice('RPC-CALL: callback seen: %s = %s' % (msg.routing_key, msg.body))
         res = None
-        if len(msg.routing_key) > 1 and msg.routing_key[1] in ['r','x'] and 'correlation_id' in msg.properties and msg.properties['correlation_id'] == self.correlationId:
+        if len(msg.routing_key) > 1 and msg.routing_key[1] in ['r', 'x'] and 'correlation_id' in msg.properties and msg.properties['correlation_id'] == self.correlationId:
             log.notice('RPC-CALL: callback matched: %s = %s' % (msg.routing_key, msg.body))
             self.response = msg
             res = True
@@ -374,12 +380,12 @@ class Rpc(Channel):
         except Exception as e:
             raise Exception("json decoding error: %s - for raw response: %s" % (e, self.response.body))
         tmp = self.response.routing_key.split('.')
-        if tmp[0][1] == 'x': # todo: use constants
-            if tmp[0][0] == 'o': d = 'orchestrator' # here too
+        if tmp[0][1] == 'x':  # todo: use constants
+            if tmp[0][0] == 'o': d = 'orchestrator'  # here too
             elif tmp[0][0] == 's': d = 'service'
             elif tmp[0][0] == 'r': d = 'reactor'
             elif tmp[0][0] == 'm': d = 'manager'
-            e = RemoteException('Error in %s %s when calling %s' % (d,tmp[1],tmp[2]))
+            e = RemoteException('Error in %s %s when calling %s' % (d, tmp[1], tmp[2]))
             e.setResponse(body)
             raise e
         log.debug('RPC-CALL: respone %s = %s' % (self.response.routing_key, body))
@@ -469,7 +475,7 @@ class AmqpDaemon:
             else:
                 log.notice('Handeling topic: %s' % topic)
                 tmp = topic.split('.')
-                handle = False
+                # handle = False
                 if tmp[0] == actionPrefix and len(tmp) > 1 and tmp[1] == self.id:
                     pre, src, key = tmp
                     if key == '_shutdown':
@@ -496,7 +502,7 @@ class AmqpDaemon:
         except AttributeError:
             raise NoSuchActionException(key)
         else:
-            if type(data) == type([]):
+            if isinstance(data, list):
                 data = tuple(data)
             res = fun(*data)
             return res
