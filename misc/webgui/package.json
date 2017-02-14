@@ -1,0 +1,31 @@
+{
+  "name": "reduce_them_bytes_react",
+  "version": "1.0.0",
+  "author": "Bjarne Oeverli",
+  "devDependencies": {
+    "babel-core": "^6.4.0",
+    "babel-loader": "^6.2.1",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "redux-devtools": "^3.3.1",
+    "webpack": "^1.12.10"
+  },
+  "dependencies": {
+    "babel-eslint": "^7.1.1",
+    "eslint": "^3.12.2",
+    "eslint-plugin-react": "^6.8.0",
+    "history": "^4.4.1",
+    "react": "^15.0.0",
+    "react-dom": "^15.4.2",
+    "react-redux": "^5.0.2",
+    "react-router": "^4.0.0-alpha.6",
+    "redux": "^3.6.0",
+    "redux-devtools-extension": "^1.0.0",
+    "redux-thunk": "^2.1.0",
+    "semantic-ui-react": "^0.64.5",
+    "webpack-dev-server": "^1.16.2"
+  },
+  "scripts": {
+    "dev": "webpack-dev-server --content-base . --inline --hot --host 0.0.0.0 --port 8000"
+  }
+}
