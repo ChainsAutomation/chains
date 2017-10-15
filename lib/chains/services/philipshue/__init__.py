@@ -6,14 +6,30 @@ from chains.common import log
 # https://github.com/aleroddepaz/pyhue
 # pip install pyhue
 import pyhue
+import time
 
 class PhilipsHueService(chains.service.Service):
 
     def onInit(self):
-        address, username = self.getBridgeConfig()
         self.location = self.config.get('location')
-        self.bridge = pyhue.Bridge(address, username)
+        self.hueConnect()
         self.sendStartupEvents()
+
+    def hueConnect(self):
+        address, username = self.getBridgeConfig()
+        self.bridge = pyhue.Bridge(address, username)
+
+    def onStart(self):
+        while not self._shutdown:
+            try:
+                self.bridge.get_light(1)
+            except:
+                log.info('Hue bridge no longer reachable, try to reconnect')
+                try:
+                    self.hueConnect()
+                except:
+                    log.warn('Hue reconnect failed')
+            time.sleep(5)
 
     def action_on(self, id):
         '''
