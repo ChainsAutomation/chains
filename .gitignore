@@ -1,3 +1,9 @@
 *.pyc
 *.swp
 data
+/misc/webgui/bower_components
+/misc/webgui/node_modules
+/misc/webgui/dist
+/misc/webgui/.sass-cache
+/misc/webgui/package-lock.json
+/misc/webgui/src/config.js
