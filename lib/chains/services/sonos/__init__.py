@@ -13,7 +13,10 @@ class SonosService(chains.service.Service):
     def onInit(self):
 
         # Discover Sonos players
-        self.zones = list(discover())
+        discovery = discover()
+        if not discovery:
+            raise Exception('No Sonos players discovered')
+        self.zones = list(discovery)
 
         # Set default player
         self.defaultZone = None
