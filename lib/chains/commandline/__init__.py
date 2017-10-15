@@ -157,7 +157,7 @@ def main(req):
                 print('')
             result = fmt.main(result)
             if result:
-                print(result)
+                print(result.encode('utf-8','replace'))
             if not opt.json:
                 print('')
         except amqp.RemoteException as e:
