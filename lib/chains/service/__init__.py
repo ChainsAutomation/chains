@@ -96,6 +96,7 @@ class Service(AmqpDaemon):
         self.config = config
         self.eventThread = None
         self.actionThread = None
+        self.backoff = {}
         self.onInit()
 
     def start(self, block=False):
@@ -217,9 +218,49 @@ class Service(AmqpDaemon):
     #   See AmqpDaemon.onDescribe()
 
     def sendEvent(self, key, data, deviceAttributes={}):
+
+        deviceKey = deviceAttributes.get('device')
+        deviceConf = None
+        if deviceKey:
+            deviceConf = self.config.get(deviceKey, 'devices')
+        if deviceConf:
+            # if suppress configured, skip events from this device
+            if deviceConf.get('suppress'):
+                return
+            # if backoff configured, only send first event when bursts
+            if self.shouldBackoff(deviceKey, data, deviceConf.get('backoff')):
+                return
+
         # add the service class to all events from that class
         deviceAttributes['class'] = self.config.get('class')
         AmqpDaemon.sendEvent(self, key, data, deviceAttributes)
+
+    # todo: clean this up
+    def shouldBackoff(self, deviceKey, data, backoffConf):
+        if not backoffConf:
+            return False
+        value = None
+        backoffMillisec = 0
+        backoffMatchValue = False
+        backoffMillisecText = backoffConf.get('millisec')
+        backoffMatchValueText = backoffConf.get('matchvalue')
+        backoffMatchValue = (backoffMatchValueText and backoffMatchValueText != '0')
+        try: backoffMillisec = int(backoffMillisecText)
+        except: pass
+        if not backoffMillisec:
+            return False
+        if data:
+            value = data.get('value')
+        now = round(time.time()*1000)
+        key = deviceKey
+        if backoffMatchValue:
+            key += '.%s' % value
+        lastTime = self.backoff.get(key)
+        if lastTime and (now - lastTime) < backoffMillisec:
+            return True
+        else:
+            self.backoff[key] = now
+            return False
 
 
 if __name__ == '__main__':
