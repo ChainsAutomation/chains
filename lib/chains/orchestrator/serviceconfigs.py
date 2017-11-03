@@ -85,7 +85,7 @@ class ServiceConfigs():
             return
 
         if not instanceData['main'].get('id'):
-            id = self.generateUuid()
+            id = uuid.uuid4().hex
             instanceData['main']['id'] = id
             instanceConfig.set('id', id)
             hasChanges = True
