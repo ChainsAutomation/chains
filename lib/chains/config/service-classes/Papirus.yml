@@ -1,4 +1,4 @@
 main:
     rotation: 0
-    font: freefont/FreeMono.ttf
+    font: freefont/FreeSans.ttf
     size: 20

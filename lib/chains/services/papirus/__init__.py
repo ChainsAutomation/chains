@@ -13,7 +13,7 @@ class PapirusService(Service):
         if not self._checkEpdSizeSet():
             log.error("Please select your screen size by running: papirus-config")
         self.rotation = self._getRotation()
-        self.display = PapirusComposite(autoupdate=False, rotation=self.rotation)
+        self.display = PapirusComposite(False, rotation=self.rotation)
 
     def action_add_text(self, text, size=None, x=None, y=None, invert=False, font=None, update=False):
         """
@@ -29,6 +29,10 @@ class PapirusService(Service):
         size = self._getFontSize(size)
         x = self._getCoordinateX(x, font, size, text)
         y = self._getCoordinateY(y, font, size, text)
+        invert = self._getInvert(invert)
+        log.info("add_text: x=%s y=%s size=%s invert=%s font=%s update=%s : %s" % (
+            x, y, size, invert, os.path.basename(font), update, text
+        ))
         self.display.AddText(text, x=x, y=y, size=size, invert=invert, fontPath=font)
         if update:
             self.action_update()
@@ -49,10 +53,11 @@ class PapirusService(Service):
         """
         Render texts on display after multiple calls to add_text
         """
+        log.info('update')
         self.display.WriteAll()
         # Start fresh with a new display after update
         # (else all previous add_text() calls are still there)
-        self.display = PapirusComposite(autoupdate=False, rotation=self.rotation)
+        self.display = PapirusComposite(False, rotation=self.rotation)
 
     # ====================================================================
     # Helpers
@@ -66,11 +71,12 @@ class PapirusService(Service):
         if rotation not in [0,90,180,270]:
             log.warn("Invalid config main.rotation: %s, valid is: 0 or 90 or 180 or 270, will use 0")
             rotation = 0
+        return rotation
 
     # Take relative font path and make absolute (unless already absolute)
     # or return default font from config (or FreeMono) if none passed.
     def _getFont(self, font):
-        if not font:
+        if not font or font == 'None':
             defaultFont = self.config.get('font')
             if defaultFont: font = defaultFont
             else: font = 'freefont/FreeMono.ttf'
@@ -92,12 +98,12 @@ class PapirusService(Service):
     # Take x argument and ensure it is int
     # or return coordinate that centers text horizontally if none passed.
     def _getCoordinateX(self, x, font, size, text):
-        if x != None:
+        if x != None and x != 'None' and x != '':
             try: x = int(x)
             except: x = 0
             return x
         f = ImageFont.truetype(font, size)
-        font_width = font.getsize(text)[1]
+        font_width = f.getsize(text)[0]
         p = Papirus()
         disp_width = p.width
         return (disp_width-font_width) / 2
@@ -105,18 +111,24 @@ class PapirusService(Service):
     # Take y argument and ensure it is int
     # or return coordinate that centers text vertically if none passed.
     def _getCoordinateY(self, y, font, size, text):
-        if y != None:
+        if y != None and y != 'None' and y != '':
             try: y = int(y)
             except: y = 0
             return y
         f = ImageFont.truetype(font, size)
-        font_height = font.getsize(text)[0]
+        font_height = f.getsize(text)[1]
         p = Papirus()
         disp_height = p.height
         return (disp_height-font_height) / 2
 
+    def _getInvert(self, invert):
+        if invert == True or invert == 'True':
+            return True
+        else:
+            return False
 
-    def _checkEpdSizeSet():
+
+    def _checkEpdSizeSet(self):
         # Check EPD_SIZE is defined
         EPD_SIZE=0.0
         if os.path.exists('/etc/default/epd-fuse'):
