@@ -11,8 +11,11 @@ class LogService(Service):
         self.logdir = ''
         try:
             self.logdir = self.config.get('logdir')
-            log.info('Using logdir from config: %s' % self.logdir)
         except KeyError:
+            pass
+        if self.logdir:
+            log.info('Using logdir from config: %s' % self.logdir)
+        else:
             self.logdir = '/var/log/chains'
             log.warn('Got no logdir in config, using %s' % self.logdir)
 
