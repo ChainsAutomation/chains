@@ -9,21 +9,12 @@ class LogService(Service):
     def onInit(self):
         self.loggers = {}
         self.logdir = ''
-        # Get relative or absolute logdir from config
         try:
             self.logdir = self.config.get('logdir')
-        # Use blank if not defined
+            log.info('Using logdir from config: %s' % self.logdir)
         except KeyError:
-            pass
-        # Get absolute logdir
-        if not self.logdir or self.logdir == '':
-            # Log path root if logdir explicitly defined as empty
-            self.logdir = config.get('logdir')
-        elif self.logdir[0] != '/':
-            # Or log path + logdir if logdir defined
-            self.logdir = '%s/%s' % (config.get('logdir'), self.logdir)
-        # Or absolute path if logdir starts with /
-        log.info('Using logdir: %s' % self.logdir)
+            self.logdir = '/var/log/chains'
+            log.warn('Got no logdir in config, using %s' % self.logdir)
 
     def action_log(self, message, file=None, *args):
         """
