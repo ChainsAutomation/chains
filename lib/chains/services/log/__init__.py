@@ -39,7 +39,8 @@ class LogService(Service):
                 if file[0] != '/':
                     file = '%s/%s' % (self.logdir, file)
             except KeyError:
-                raise Exception("No such configfile. You may need to add %s under %s service's config section [files]" % (file, self.config.get('id')))
+                file = self.logdir + '/' + file
+                #raise Exception("No such configfile. You may need to add %s under %s service's config section [files]" % (file, self.config.get('id')))
         self._log(file, message, key)
 
     def _log(self, file, message, key):
