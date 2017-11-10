@@ -43,12 +43,11 @@ def getCommandDirs():
     dirs = []
 
     # If user has configured custom commands dir
-    items = config.data('commandline')
-    if items:
-        for key in items:
-            tmp = key.split('.')
-            if len(tmp) == 2 and tmp[0] == 'commands':
-                dirs.append( items[key] + '/commands' )
+    customDirs = config.data('commandline.commands')
+    if customDirs:
+        for customDir in customDirs:
+            if os.path.exists(customDir):
+                dirs.append(customDir + '/commands')
 
     # Build in commands
     dirs.append( config.get('libdir') + '/commandline/commands' )
