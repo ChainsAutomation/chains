@@ -93,7 +93,7 @@ class PhilipsHueService(chains.service.Service):
     def action_state(self, id, state):
         light = self.getLight(id)
         light.on = True
-        keys = ['bri','sat','hue']
+        keys = ['bri','sat','hue','effect','xy','ct','alert','colormode']
         for key in keys:
             try:
                 value = state[key]
