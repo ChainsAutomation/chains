@@ -562,11 +562,12 @@ def getSensors():
 
 if __name__ == '__main__':
     def cb(data, controllerId, callbackId):
-        print 'RawDeviceEvent'
-        print '  data:', data
-        print '  controllerId:', controllerId
-        print '  callbackId:', callbackId
+        #print 'RawDeviceEvent'
+        #print '  data:', data
+        #print '  controllerId:', controllerId
+        #print '  callbackId:', callbackId
         # print '  context:', context
+        print 'RawDeviceEvent:', data
 
     registerRawDeviceEvent(cb)
     import time
