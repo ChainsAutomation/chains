@@ -3,32 +3,46 @@ from __future__ import absolute_import
 import chains.service
 from chains.common import log
 
+# NB: Removed this and placed pyhue.py inside service dir
+# Because needed to fix a bug with encoding causing special chars in lamp texts to fail
+# ---
 # https://github.com/aleroddepaz/pyhue
 # pip install pyhue
-import pyhue
+#import pyhue
+
+from chains.services.philipshue import pyhue
+
 import time
 
 class PhilipsHueService(chains.service.Service):
 
     def onInit(self):
         self.location = self.config.get('location')
-        self.hueConnect()
-        self.sendStartupEvents()
+        self.didInitialConnect = False
+        #self.hueConnect()
+        #self.sendStartupEvents()
 
     def hueConnect(self):
         address, username = self.getBridgeConfig()
+        log.info("Connect to bridge: %s @ %s" % (username, address))
         self.bridge = pyhue.Bridge(address, username)
 
     def onStart(self):
         while not self._shutdown:
+            connected = False
             try:
-                self.bridge.get_light(1)
+                self.bridge.lights #get_light('1')
+                connected = True
             except:
-                log.info('Hue bridge no longer reachable, try to reconnect')
                 try:
                     self.hueConnect()
-                except:
-                    log.warn('Hue reconnect failed')
+                    log.info('Successfully connected to bridge')
+                except: # pyhue.HueException, e:
+                    log.warn('Connect to bridge failed: %s' % e)
+            if connected:
+                if not self.didInitialConnect:
+                    self.didInitialConnect = True
+                    self.sendStartupEvents()
             time.sleep(5)
 
     def action_on(self, id):
