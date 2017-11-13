@@ -97,7 +97,7 @@ class PhilipsHueService(chains.service.Service):
         for key in keys:
             try:
                 value = state[key]
-            except AttributeError:
+            except KeyError:
                 continue
             setattr(light, key, value)
 
