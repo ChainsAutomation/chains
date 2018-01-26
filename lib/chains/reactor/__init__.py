@@ -21,7 +21,8 @@ class Reactor(AmqpDaemon):
 
         self.state = State()
         self.context = Context(self.state)
-        self.ruleset = RuleSet(config.getData(), self.context)
+        rules = config.getData()
+        self.ruleset = RuleSet(rules, self.context)
 
     def run(self):
         self.sendOnlineEvent()
@@ -84,17 +85,31 @@ class Reactor(AmqpDaemon):
         return config.getAvailableNames()
 
     def action_enableRule(self, rule):
-        config.enable(rule)
+        try:
+            config.enable(rule)
+        except Exception as e:
+            log.error('Ignore error when enabling rule: %s : %s' % (rule,utils.e2str(e)))
+            return False
         self.action_reloadRules()
 
     def action_disableRule(self, rule):
-        config.disable(rule)
+        try:
+            config.disable(rule)
+        except Exception as e:
+            log.error('Ignore error when disabling rule: %s : %s' % (rule,utils.e2str(e)))
+            return False
         self.action_reloadRules()
 
     def action_reloadRules(self):
-        reload(config)
+        try:
+            reload(config)
+            ruleset = RuleSet(config.getData(), self.context)
+        except Exception as e:
+            log.error('Ignore error when reloading rules: %s' % utils.e2str(e))
+            return False
         del self.ruleset
-        self.ruleset = RuleSet(config.getData(), self.context)
+        self.ruleset = ruleset
+        return True
 
     def action_getState(self, key=None):
         return self.state.get(key)
@@ -104,16 +119,6 @@ class Reactor(AmqpDaemon):
 
     def action_delState(self, key=None):
         return self.state.delete(key)
-
-    """ needs l0ve, or deprecate...
-
-    def action_getActiveRule(self, id):
-        return self.worker.get(id)
-
-    def action_listActiveRules(self, rule=None):
-        return self.worker.list(rule)
-
-    """
 
 
 def main(id):

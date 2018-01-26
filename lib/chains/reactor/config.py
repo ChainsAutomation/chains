@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from chains.common.config import CoreConfig
-from chains.common import ParameterException, ChainsException
+from chains.common import ParameterException, ChainsException, log, utils
 import os
 
 config = CoreConfig()
@@ -57,12 +57,15 @@ def getData(module=None):
     for modname in mods:
         if module and module != modname:
             continue
-        pkg2 = __import__('%s.%s' % (_getEnabledModule(), modname))
-        reload(pkg2)
-        mod = getattr(pkg2, modname)
-        reload(mod)
-        conf = {'id': modname, 'maxCount': 1}  # todo: config in rule with maxCount etc
-        ret.append((mod, conf))
+        try:
+            pkg2 = __import__('%s.%s' % (_getEnabledModule(), modname))
+            reload(pkg2)
+            mod = getattr(pkg2, modname)
+            reload(mod)
+            conf = {'id': modname, 'maxCount': 1}  # todo: config in rule with maxCount etc
+            ret.append((mod, conf))
+        except Exception as e:
+            log.error('Skip invalid rule: %s : %s' % (modname, utils.e2str(e)))
     return ret
 
 

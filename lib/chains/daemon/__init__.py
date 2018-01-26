@@ -6,6 +6,11 @@ import os
 from chains.common import log, utils
 from chains.common.config import CoreConfig
 
+# todo:
+# can probably get rid of this whole class, since we do not fork anymore
+# but rather use supervisor. and if we should need to fork in the future,
+# that should probably be left to some init system rather than be in our code.
+# stian 2018-01
 
 class Daemon:
 
@@ -110,4 +115,7 @@ if __name__ == '__main__':
     fork = False
     if len(sys.argv) > 2 and sys.argv[2] != '0':
         fork = True
+    # try to deprecate forking, since we use supervisor
+    if fork:
+        raise Exception('Forking daemon is deprecated')
     main(sys.argv[1], fork)
