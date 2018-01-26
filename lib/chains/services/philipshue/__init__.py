@@ -101,6 +101,18 @@ class PhilipsHueService(chains.service.Service):
                 continue
             setattr(light, key, value)
 
+    def action_get(self, id):
+        light = self.getLight(id)
+        item = {
+            'id':    light.id,
+            'name':  light.name,
+            'type':  light.type,
+            'model': light.modelid,
+        }
+        for key in light.state:
+            item[key] = light.state[key]
+        return item
+
     def action_list(self):
         '''
         List available lamps
