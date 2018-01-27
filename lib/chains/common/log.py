@@ -87,9 +87,15 @@ def formatMessageItem(arg):
         result = []
         for item in arg:
             result.append(formatMessageItem(item))
-        return json.dumps(result)
+        try:
+            return json.dumps(result)
+        except TypeError:
+            return '%s' % (arg,)
     else:
-        return json.dumps(arg)
+        try:
+            return json.dumps(arg)
+        except TypeError:
+            return '%s' % (arg,)
 
 
 # can pass f.ex. __name__ to getLogger() to get per-module logmsgs,
