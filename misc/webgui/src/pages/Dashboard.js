@@ -6,7 +6,7 @@ import ProfileList from '../containers/profile-list';
 export default class Dashboard extends React.Component {
   render() {
     return (
-      <div className="ui main text container">
+      <div className="ui main container">
         <PageHeader name="Dashboards" desc="Your most used services and devices" />
         <ProfileList />
       </div>

@@ -31,10 +31,8 @@ class ManagersList extends React.Component {
       )
     }
     return (
-      <div className="ui main container">
-        <div className="ui two column stackable grid">
-          {managerNodes}
-        </div>
+      <div className="ui two column stackable grid">
+        {managerNodes}
       </div>
     );
   }

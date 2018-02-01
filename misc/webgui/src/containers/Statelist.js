@@ -34,12 +34,10 @@ class StateList extends React.Component {
 
     }
     return (
-      <div className="ui main container">
       <div className="ui cards">
       {/*<div className="ui grid container">*/}
         {stateDevNodes}
       </div>
-    </div>
     );
   }
 }

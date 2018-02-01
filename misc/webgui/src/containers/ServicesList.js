@@ -55,10 +55,8 @@ class ServicesList extends React.Component {
       scount++;
     }
     return (
-      <div className="ui main container">
-        <div className="ui three column stackable grid">
-          {serviceNodes}
-        </div>
+      <div className="ui three column stackable grid">
+        {serviceNodes}
       </div>
     );
   }

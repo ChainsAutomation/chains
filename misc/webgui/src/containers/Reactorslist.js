@@ -31,10 +31,8 @@ class ReactorsList extends React.Component {
       )
     }
     return (
-      <div className="ui main container">
-        <div className="ui two column stackable grid">
-          {reactorNodes}
-        </div>
+      <div className="ui two column stackable grid">
+        {reactorNodes}
       </div>
     );
   }
