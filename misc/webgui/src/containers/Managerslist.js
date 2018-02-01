@@ -24,11 +24,15 @@ class ManagersList extends React.Component {
       const heartbeat = this.props.managers[srv]['heartbeat'];
       const mid = this.props.managers[srv]['id'];
       const status = this.props.managers[srv]['online'];
-      managerNodes.push(<ManagerDetail key={mid} mid={mid} name={name} heartbeat={heartbeat} status={status}/>)
+      managerNodes.push(
+        <div className="column">
+          <ManagerDetail key={mid} mid={mid} name={name} heartbeat={heartbeat} status={status}/>
+        </div>
+      )
     }
     return (
-      <div className="ui one column grid">
-        <div className="column">
+      <div className="ui main container">
+        <div className="ui two column stackable grid">
           {managerNodes}
         </div>
       </div>

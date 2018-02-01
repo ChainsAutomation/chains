@@ -28,15 +28,9 @@ class ServicesList extends React.Component {
     });
     */
     // var serviceNodes = this.props.services;
-    let serviceNodesLeft = [];
-    let serviceNodesRight = [];
+    let serviceNodes = [];
     var scount = 0;
     for (var srv in this.props.services) {
-      if(scount % 2 === 0) {
-        var serviceNodes = serviceNodesLeft;
-      } else {
-        var serviceNodes = serviceNodesRight;
-      }
       const sid = this.props.services[srv]['id'];
       const sname = this.props.services[srv]['name'];
       const sonline = this.props.services[srv]['online'];
@@ -48,23 +42,22 @@ class ServicesList extends React.Component {
         const d = new Date(this.props.services[srv]['heartbeat'] * 1000);
         heartdate = d.toLocaleTimeString() + ' - ' + d.toLocaleDateString();
       }
-      const srvdet = <ServiceDetail key={sid} name={sname} status={sonline} sclass={sclass} autostart={sautostart} manager={smanager} heartbeat={heartdate}/>;
+      const srvdet = (
+        <div className="column">
+          <ServiceDetail key={sid} name={sname} status={sonline} sclass={sclass} autostart={sautostart} manager={smanager} heartbeat={heartdate}/>
+        </div>
+      )
       if(sonline) {
         serviceNodes.unshift(srvdet);
-        //serviceNodes.unshift(<ServiceDetail key={sid} name={sname} status={sonline} sclass={sclass} autostart={sautostart} manager={smanager} heartbeat={heartdate}/>);
       } else {
         serviceNodes.push(srvdet);
-        //serviceNodes.push(<ServiceDetail key={sid} name={sname} status={sonline} sclass={sclass} autostart={sautostart} manager={smanager} heartbeat={heartdate}/>);
       }
       scount++;
     }
     return (
-      <div className="ui two column grid">
-        <div className="column">
-            {serviceNodesLeft}
-        </div>
-        <div className="column">
-            {serviceNodesRight}
+      <div className="ui main container">
+        <div className="ui three column stackable grid">
+          {serviceNodes}
         </div>
       </div>
     );

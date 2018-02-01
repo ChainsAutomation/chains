@@ -24,11 +24,15 @@ class ReactorsList extends React.Component {
       const heartbeat = this.props.reactors[srv]['heartbeat'];
       const rid = this.props.reactors[srv]['id'];
       const status = this.props.reactors[srv]['online'];
-      reactorNodes.push(<ReactorDetail key={rid} rid={rid} name={name} heartbeat={heartbeat} status={status}/>)
+      reactorNodes.push(
+        <div className="column">
+          <ReactorDetail key={rid} rid={rid} name={name} heartbeat={heartbeat} status={status}/>
+        </div>
+      )
     }
     return (
-      <div className="ui one column grid">
-        <div className="column">
+      <div className="ui main container">
+        <div className="ui two column stackable grid">
           {reactorNodes}
         </div>
       </div>
