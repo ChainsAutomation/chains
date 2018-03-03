@@ -20,7 +20,7 @@ export default class Layout extends React.Component {
       <BrowserRouter>
         <div>
           <Nav />
-          <div className="pusher" style={{paddingTop: '50px'}}>
+          <div className="pusher" style={{paddingTop: '70px'}}>
           </div>
           {/*<div className="ui main text container">*/}
             <Match exactly pattern="/" component={Dashboard} />

@@ -17,6 +17,7 @@
     "history": "^4.4.1",
     "react": "^15.0.0",
     "react-dom": "^15.4.2",
+    "react-hot-loader": "^3.1.3",
     "react-redux": "^5.0.2",
     "react-router": "4.0.0-alpha.6",
     "redux": "^3.6.0",
@@ -26,6 +27,6 @@
     "webpack-dev-server": "^1.16.2"
   },
   "scripts": {
-    "dev": "webpack-dev-server --content-base . --inline --hot --host 0.0.0.0 --port 8000"
+    "dev": "webpack-dev-server --content-base . --inline --hot --host 0.0.0.0 --port 8000 --output-public-path dist/js"
   }
 }
