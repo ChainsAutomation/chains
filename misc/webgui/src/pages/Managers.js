@@ -5,7 +5,7 @@ import ManagersList from '../containers/Managerslist';
 export default class Managers extends React.Component {
   render() {
     return (
-        <div className="ui main text container">
+        <div className="ui main container">
           <PageHeader name="Managers" desc="Registered Chains Managers"/>
           <ManagersList />
         </div>

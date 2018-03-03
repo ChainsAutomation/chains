@@ -12,7 +12,9 @@ export default class StateDevice extends React.Component {
     let devData = [];
     for (var dev in ddata['data']) {
       const dItem = dev;
-      const dVal = ddata['data'][dev]['value'];
+      let dVal = ddata['data'][dev]['value'];
+      if (typeof(dVal) != 'string')
+        dVal = JSON.stringify(dVal);
       const attr = <div key={dItem}><div className="header">{dItem}</div><div className="meta">{dVal}</div></div>;
       //console.log(attr);
       devData.push(attr);
