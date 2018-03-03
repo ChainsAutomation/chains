@@ -79,21 +79,25 @@ class InfluxService(Service):
                             tagValue = tagValue.encode('utf-8')
                         tags.update({tag: tagValue})
             for measure in data['data']:
-                if 'value' in data['data'][measure]:
-                    curval = data['data'][measure]['value']
-                    if isinstance(curval, numbers.Number):
-                        measures.append(self.ix.data_template(measure, tags, {'value': curval}))
-                        # log.info('field: %s: %s' % (measure, str(curval)))
-                        # log.info('tags: %s' % str(tags))
-                    elif curval in [True, 'True', 'true', 'On', 'on', 'Yes', 'yes']:
-                        measures.append(self.ix.data_template(measure, tags, {'value': True}))
-                    elif curval in [False, 'False', 'false', 'Off', 'off', 'No', 'no']:
-                        measures.append(self.ix.data_template(measure, tags, {'value': False}))
-                    else:
-                        # log.info('Skipping because value is not a number:')
-                        # log.info("topic: " + str(topic))
-                        # log.info("data: " + str(data))
-                        pass
+                try:
+                    if 'value' in data['data'][measure]:
+                        curval = data['data'][measure]['value']
+                        if isinstance(curval, numbers.Number):
+                            measures.append(self.ix.data_template(measure, tags, {'value': curval}))
+                            # log.info('field: %s: %s' % (measure, str(curval)))
+                            # log.info('tags: %s' % str(tags))
+                        elif curval in [True, 'True', 'true', 'On', 'on', 'Yes', 'yes']:
+                            measures.append(self.ix.data_template(measure, tags, {'value': True}))
+                        elif curval in [False, 'False', 'false', 'Off', 'off', 'No', 'no']:
+                            measures.append(self.ix.data_template(measure, tags, {'value': False}))
+                        else:
+                            # log.info('Skipping because value is not a number:')
+                            # log.info("topic: " + str(topic))
+                            # log.info("data: " + str(data))
+                            pass
+                except Exception as e:
+                    log.warn("unexpected event structure? %s : %s : %s" % (e, measure, data))
+                    pass
             log.debug('insert measures: %s' % measures)
             try:
                 self.ix.insert(measures)
@@ -103,9 +107,9 @@ class InfluxService(Service):
             # heartbeat
             self.aggregated['heartbeats'] += 1
         else:
-            log.info('not yet handled:')
-            log.info("topic: " + str(topic))
-            log.info("data: " + str(data))
+            log.debug('not yet handled:')
+            log.debug("- topic: " + str(topic))
+            log.debug("- data: " + str(data))
 
     def getConsumeKeys(self):
         return ['#']
