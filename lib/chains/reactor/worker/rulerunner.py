@@ -87,7 +87,7 @@ class RuleRunner:
         # There are definitively at least some cases where thread can die
         # without us noticing. So make sure code in Action() is ok.
         except Exception as e:
-            log.error("Rule crashed:", e)
+            log.error("Rule crashed: %s :" % self.id, e)
             self.complete()
 
     # Wait for action-thread to complete (used for tests)
