@@ -20,8 +20,8 @@ PY_PATH=/usr/lib/python$PY_VER
 
 mkdir -p $CONF_DIR
 echo "main:" > $CONF_DIR/amqp.conf
-echo "  host: chainsmaster" > $CONF_DIR/amqp.conf
-echo "  user: chains" > $CONF_DIR/amqp.conf
+echo "  host: chainsmaster" >> $CONF_DIR/amqp.conf
+echo "  user: chains" >> $CONF_DIR/amqp.conf
 echo "  password: chains" > $CONF_DIR/amqp.conf
 
 # Dirs
@@ -29,6 +29,7 @@ echo "  password: chains" > $CONF_DIR/amqp.conf
 mkdir -p $CONF_DIR/rules_available
 mkdir -p $CONF_DIR/rules_enabled
 mkdir -p $CONF_DIR/services
+mkdir -p /var/log/chains/supervisor
 
 # Python lib
 
@@ -45,10 +46,20 @@ ln -s $BASE_DIR/bin/chains /usr/local/bin/chains
 
 apt-get install -y python-pip python-cjson python-psutil python-amqplib \
   wget software-properties-common python \
-  build-essential git curl libudev1 libudev-dev python-software-properties supervisor python-dev cython \
+  build-essential git curl libudev1 libudev-dev supervisor python-dev cython \
   libusb-1.0-0 libusb-1.0-0-dev 
 
 pip install --no-cache-dir six amqplib zeroconf pyyaml python-cjson
+
+# Supervisor
+
+cp $BASE_DIR/misc/supervisord/supervisord.conf-slave-minimal /etc/supervisor/conf.d/chains.conf
+
+sudo touch /var/run/supervisor.sock
+sudo chmod 777 /var/run/supervisor.sock
+sudo service supervisor restart
+
+#supervisorctl reload
 
 echo ""
 echo "All done"
