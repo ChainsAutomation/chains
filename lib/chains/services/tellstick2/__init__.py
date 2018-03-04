@@ -133,6 +133,9 @@ class Tellstick2Service(chains.service.Service):
         time.sleep(1)
         self.openTelldus()
 
+    def action_id(self, id):
+        return self.parseId(id)
+
     # Note about dimming and external controllers:
     #
     # Tellstick Duo will receive on/off events from external controllers,
@@ -203,7 +206,13 @@ class Tellstick2Service(chains.service.Service):
         )
 
     def parseId(self, id):
-        return int(id)
+        try:
+            return int(id)
+        except ValueError:
+            for devId in self.devices:
+                if devId == id and self.devices[devId].get('id'):
+                    return int(self.devices[devId]['id'])
+        raise Exception('Not found: %s' % id)
 
     def parseLevel(self, level):
         return int(level)
