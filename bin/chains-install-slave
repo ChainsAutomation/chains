@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -e
+
+apt-get update
+
+if ! which realpath >/dev/null 2>/dev/null; then
+  apt-get install -y realpath
+fi
+
+SCRIPT_DIR=$(dirname $(realpath "$0"));
+BASE_DIR="$SCRIPT_DIR/.."
+BASE_DIR=$(realpath "$BASE_DIR")
+CONF_DIR=/etc/chains
+
+PY_VER=$(python -V 2>&1 | awk '{ print $2 }' | awk -F '.' '{ print $1"."$2 }')
+PY_PATH=/usr/lib/python$PY_VER
+
+# Config
+
+mkdir -p $CONF_DIR
+echo "main:" > $CONF_DIR/amqp.conf
+echo "  host: chainsmaster" >> $CONF_DIR/amqp.conf
+echo "  user: chains" >> $CONF_DIR/amqp.conf
+echo "  password: chains" > $CONF_DIR/amqp.conf
+
+# Dirs
+
+mkdir -p $CONF_DIR/rules_available
+mkdir -p $CONF_DIR/rules_enabled
+mkdir -p $CONF_DIR/services
+mkdir -p /var/log/chains/supervisor
+
+# Python lib
+
+echo "Symlinking $BASE_DIR/lib/chains to $PY_PATH/chains"
+rm -rf $PY_PATH/chains
+ln -s $BASE_DIR/lib/chains $PY_PATH/chains
+
+# Command line
+
+rm -f  /usr/local/bin/chains
+ln -s $BASE_DIR/bin/chains /usr/local/bin/chains
+
+# Dependencies
+
+apt-get install -y python-pip python-cjson python-psutil python-amqplib \
+  wget software-properties-common python \
+  build-essential git curl libudev1 libudev-dev supervisor python-dev cython \
+  libusb-1.0-0 libusb-1.0-0-dev 
+
+pip install --no-cache-dir six amqplib zeroconf pyyaml python-cjson
+
+# Supervisor
+
+cp $BASE_DIR/misc/supervisord/supervisord.conf-slave-minimal /etc/supervisor/conf.d/chains.conf
+
+sudo touch /var/run/supervisor.sock
+sudo chmod 777 /var/run/supervisor.sock
+sudo service supervisor restart
+
+#supervisorctl reload
+
+echo ""
+echo "All done"
+echo ""

@@ -1,0 +1,6 @@
+[program:chains-manager]
+command=/srv/chains/lib/chains/daemon/__init__.py manager
+autostart=true
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/chains/supervisor/manager.log
