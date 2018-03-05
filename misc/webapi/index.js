@@ -130,6 +130,8 @@ require('./controllers/state')(app, '/state');
 
 require('./controllers/event')(app, '/event');
 
+require('./controllers/dashboards')(app, '/dashboards');
+
 require('./controllers/index')(app, '/');
 
 
