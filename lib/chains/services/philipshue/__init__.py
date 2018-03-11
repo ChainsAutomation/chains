@@ -19,20 +19,26 @@ class PhilipsHueService(chains.service.Service):
     def onInit(self):
         self.location = self.config.get('location')
         self.didInitialConnect = False
-        #self.hueConnect()
-        #self.sendStartupEvents()
+        self.hueConnect()
+        self.sendStartupEvents()
 
     def hueConnect(self):
         address, username = self.getBridgeConfig()
-        log.info("Connect to bridge: %s @ %s" % (username, address))
+        prefix = 'Connect'
+        if self.didInitialConnect:
+            prefix = 'Reconnect'
+        log.info("%s to bridge: %s @ %s" % (prefix, username, address))
         self.bridge = pyhue.Bridge(address, username)
+        self.didInitialConnect = True
 
+    """
     def onStart(self):
         while not self._shutdown:
             connected = False
             try:
                 self.bridge.lights #get_light('1')
                 connected = True
+                log.debug('Is already connected to bridge')
             except:
                 try:
                     self.hueConnect()
@@ -44,6 +50,7 @@ class PhilipsHueService(chains.service.Service):
                     self.didInitialConnect = True
                     self.sendStartupEvents()
             time.sleep(5)
+    """
 
     def action_on(self, id):
         '''
@@ -118,7 +125,7 @@ class PhilipsHueService(chains.service.Service):
         List available lamps
         '''
         result = []
-        for light in self.bridge.lights:
+        for light in self.getLights():
             item = {
                 'id':    light.id,
                 'name':  light.name,
@@ -156,7 +163,21 @@ class PhilipsHueService(chains.service.Service):
             log.info('got bridge-address from config: %s' % address)
         return (address, username)
 
+    def getLights(self):
+        try:
+            return self.bridge.lights
+        except:
+            self.hueConnect()
+            return self.bridge.lights
+
     def getLight(self, id):
+        try:
+            return self._getLight(id)
+        except:
+            self.hueConnect()
+            return self._getLight(id)
+
+    def _getLight(self, id): 
         id    = self.parseId(id)
         light = self.bridge.get_light(id)
         if not light:
