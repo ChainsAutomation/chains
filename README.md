@@ -3,7 +3,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/ChainsAutomation/chains.svg)]()
 [![IRC](https://img.shields.io/badge/freenode-%23chains-blue.svg)](http://webchat.freenode.net/?channels=chains)
 
-#Chains
+# Chains
 
 Chains is a home automation system.
 
@@ -14,11 +14,11 @@ The main goals of the Chains project are:
 
 While most home automation software focuses on supporting a single piece of hardware, we aim to support them all and make them work together.
 
-##Supported platforms
+## Supported platforms
 * Linux on Raspberry Pi and Raspberry Pi 2
 * Linux on x86 (32/64bit)
 
-##Supported services (sensors, relays etc)
+## Supported services (sensors, relays etc)
 * Phidgets
 * Philips Hue
 * InfluxDB (graphing)
@@ -52,7 +52,7 @@ While most home automation software focuses on supporting a single piece of hard
 * Asterisk (voip)
 * Motion
 
-#Installation
+# Installation
 
 We will eventually provide docker images from the docker registry, but for now dockerfiles can be created by bin/dockerfile-assemble.py and built on your own system.
 Docker is a good match for our project since we need a host of different libraries and daemons running to support the different services. Providing instructions for all distributions and testing these configurations would be too time consuming. The whole process, however, is described in the generated dockerfile. Feel free to install it locally.
@@ -66,7 +66,7 @@ sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains-data"
 sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains-data:/srv/chains/data -v /dev:/dev -v /etc/localtime:/etc/localtime:ro chains/chains-master
 ```
 
-####Docker build/install for chains master node
+#### Docker build/install for chains master node
 ```sh
 # Create config and data dir:
 sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains-data"
@@ -80,7 +80,7 @@ sudo docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/ch
 ```
 
 
-####Docker build/install for chains slave node (only if you already have a master node running on different computer)
+#### Docker build/install for chains slave node (only if you already have a master node running on different computer)
 ```sh
 # Create config and data dir:
 sudo sh -c "mkdir -p /etc/chains/services && mkdir -p /srv/chains/data"
@@ -158,7 +158,7 @@ Manager
 # List managers (all nodes running chains will have a manager)
 chains manager list
 
-# Examlpe output:
+# Example output:
 ------------------------------------------------------------
 Manager              Online     Last heartbeat
 ------------------------------------------------------------
@@ -171,21 +171,21 @@ mediacenter          Online     1 sec ago
 
 # Chains intro
 
-##What are nodes(master/slave), services, devices and properties?
+## What are nodes(master/slave), services, devices and properties?
 
 In the Chains documentation we often refer to nodes, devices and services, these are explained below.
 
-###Node
+### Node
 Nodes are computers runnning Chains. Multiple machines are supported, and they communicate on a regular tcp/ip network using an included RabbitMQ-server. If you run chains on only one machine you must run the "master" node, this is the hub of the chains system and it takes cares of the `rules` described below. Slave nodes are installed on additional computers that you may add to the chains network.
 
 ### Service
 A `service` is a program that controls something in chains, usually a piece of hardware like a light controller or internet service like pushover.net.
 Example services: PhilipsHue, onewire, timer, pushover.
 
-###Device
+### Device
 Devices are how functionality is divided into units in a `service`. In a service that control light switches, each light switch would typically be a `device`. A device may be able to do several `actions` and report several `events`.
 
-###Property
+### Property
 Properties are information made available from a `device`. A light switch device could for example have the properties 'dimlevel', 'power' and 'location'. A property can also be the target of an `action`, if the property is something that can be change. An example of this would be the "power" property on a light switch `device`, that might switch between "on" and "off".
 
 ### Components summary
@@ -206,24 +206,24 @@ Node (computer)
 and so on
 ```
 
-##What are events, actions and rules?
+## What are events, actions and rules?
 
 While nodes, services and devices deal with the software controlling hardware sensors and such; events, actions and rules are what makes it possible for the former to connect and cooperate.
 
-###Event
+### Event
 A `service` will often report changes or things that happen in the system. This is called an `event`.
 A remote control `service` would send an event when a button on a remote-control `device` is pressed, a temperature sensor service would send an event containing the current temperature and so on.
 
-###Action
+### Action
 Some devices are able to do things as well as report `events` these are called `actions`.
 A receiver service could have actions like PowerOn, ChangeSource and Mute, while a light control `service` might have actions like LightOn, LightOff and Dim for its lamp `devices`.
 
-###Rule
+### Rule
 A `rule` is a description of what should happen as a response to an `event` in the system. These rules can be `chain`ed together to create more advanced logic.
 
 The simplest `rules` can be easily created in the upcoming webgui, while for advanced applications the full power of the python programming langauge is available. Special objects are created to represent `events`, `actions` and current `state` in the chains system to simplify creation of `rules`.
 
-####Example if written by hand
+#### Example if written by hand
 ```python
 # TODO: change to match new service/device naming
 def rule(context):
@@ -237,7 +237,7 @@ def rule(context):
    Action(...)
 ```
 
-#Development
+# Development
 
 We aim at making development of new devices as easy as possible.
 While it is possible to write everything from scratch, we provide a framework that takes care of common functions and hides unnecessary boilerplate.
@@ -281,11 +281,11 @@ docker run -d --privileged --net=host -v /etc/chains:/etc/chains -v /srv/chains:
 ```
 
 
-#Contact
+# Contact
 
-You can find us in the `#chains` channel on the `Freenode` IRC network.
+You can find us in the `#chains` channel on the `Freenode` IRC network. Or via Slack: https://chainsautomation.slack.com
 
-#Tech
+# Tech
 Chains is a grateful user of a number of great open source projects:
 * Python
 * PYPY
