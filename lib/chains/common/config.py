@@ -4,6 +4,10 @@ from __future__ import absolute_import
 import os as _os
 import yaml as _yaml
 
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
 class BaseConfig(object):
 
@@ -79,7 +83,7 @@ class BaseConfig(object):
         fp = open(path, 'r')
         text = fp.read()
         fp.close()
-        conf = _yaml.load(text) 
+        conf = _yaml.load(text, Loader=Loader) 
         self._data = conf
 
     def _getDataForPath(self, path):

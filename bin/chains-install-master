@@ -10,3 +10,7 @@ $BASE_DIR/bin/chains-install-slave
 apt-get install -y rabbitmq-server pypy
 cp $BASE_DIR/misc/supervisord/supervisord.conf-x86-master-minimal /etc/supervisor/conf.d/chains.conf
 
+cp $BASE_DIR/misc/Docker/chains-config/chains.yml-master /etc/chains/chains.conf
+cp $BASE_DIR/misc/Docker/chains-config/amqp.yml /etc/chains/amqp.yml
+
+
