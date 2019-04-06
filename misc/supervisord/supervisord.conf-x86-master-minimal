@@ -1,0 +1,48 @@
+[inet_http_server]
+port = 0.0.0.0:9001
+username = chains
+password = chains
+
+[supervisord]
+nodaemon=true
+
+[program:chains-zeroconf-publishd]
+command=/srv/chains/bin/chains-zeroconf-publishd
+autostart=true
+autorestart=true
+redirect_stderr=true
+
+[program:chains-manager]
+command=/srv/chains/lib/chains/daemon/__init__.py manager
+autostart=true
+autorestart=true
+redirect_stderr=true
+
+[program:chains-orchestrator]
+command=/srv/chains/lib/chains/daemon/__init__.py orchestrator
+autostart=true
+autorestart=true
+redirect_stderr=true
+
+[program:chains-reactor]
+command=/usr/bin/pypy /srv/chains/lib/chains/daemon/__init__.py reactor
+autostart=true
+autorestart=true
+redirect_stderr=true
+#user=chainsuser
+
+[program:chains-webapi]
+directory=/srv/chains/misc/webapi
+command=nodejs index.js
+autostart=true
+autorestart=true
+redirect_stderr=true
+#user=chainsuser
+
+#[program:chains-webapi]
+#command=uwsgi --enable-threads --http :8000 --static-map /data=/srv/chains/data --wsgi-file /srv/chains/lib/chains/services/webapi/__init__.py --callable app --master --processes 1 -l 50 -L
+#autostart=false
+#autorestart=true
+#redirect_stderr=true
+#stopsignal=INT
+

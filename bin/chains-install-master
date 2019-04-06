@@ -1,0 +1,12 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(dirname $(realpath "$0"));
+BASE_DIR="$SCRIPT_DIR/.."
+BASE_DIR=$(realpath "$BASE_DIR")
+CONF_DIR=/etc/chains
+
+$BASE_DIR/bin/chains-install-slave
+
+apt-get install -y rabbitmq-server pypy
+cp $BASE_DIR/misc/supervisord/supervisord.conf-x86-master-minimal /etc/supervisor/conf.d/chains.conf
+
