@@ -364,13 +364,16 @@ class Tellstick2Service(chains.service.Service):
         tellconf.write(text)
 
     def restartTelldus(self):
-        log.info('Restart telldusd start')
-        proc = subprocess.Popen(['/etc/init.d/telldusd', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = proc.communicate()
-        ec = proc.wait()
-        if ec != 0:
-            raise Exception('Failed to restart telldusd:\n%s\n%s' % (out,err))
-        log.info('Restart telldusd end')
+        try:
+            log.info('Restart telldusd start')
+            proc = subprocess.Popen(['/etc/init.d/telldusd', 'restart'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = proc.communicate()
+            ec = proc.wait()
+            if ec != 0:
+                raise Exception('Failed to restart telldusd:\n%s\n%s' % (out,err))
+            log.info('Restart telldusd end')
+        except:
+            log.error('Restart telldusd failed')
 
     # todo: move to tellconf
     def readTellstickConf(self):
