@@ -2,6 +2,7 @@
 # pip install bluepy
 
 from __future__ import absolute_import
+from bluepy import btle
 import chains.service
 from chains.common import log
 import time, datetime, re, copy
@@ -12,29 +13,42 @@ class NUSRXDelegate(btle.DefaultDelegate):
     def __init__(self):
         self.chainsService = None
         btle.DefaultDelegate.__init__(self)
+        self.buffer = ''
         # ... initialise here
     def handleNotification(self, cHandle, data):
-        log.info('EspruinoService.NUSRXDelegate.RX:', data)
-    def __handleNotification(self, cHandle, data):
-        print('RX: ', data)
+        log.info('EspruinoService.NUSRXDelegate.RX: %s' % (data,))
         try:
-            if data.find('BTN') > -1:
-                tmp = data.split('BTN ')
-                val = float(tmp[1])
-                print('VAL:', val)
-                if val > 1:
-                    program('LED2.toggle()')
-        except:
-            print "err"
+            pat = re.compile('#st#([^#]+)#/st#')
+            self.buffer += data
+            mat = None
+            for mat in pat.finditer(self.buffer):
+                data = mat.group(1)
+                #log.info('DATA: %s' % data)
+                keyval = data.split(';')
+                key = keyval.pop(0)
+                type = keyval.pop(0)
+                val = ';'.join(keyval)
+                self.chainsService.sendEventWrapper(key, type, val)
+            if mat:
+                #log.info('LEN: %s END: %s' % (len(self.buffer), mat.end()))
+                self.buffer = self.buffer[mat.end():]
+                #log.info('REST: %s' % self.buffer)
+        except Exception, e:
+            log.info('EspruinoService.NUSRXDelegate.ERR: error handling last message: %s' % (e,))
     def setChainsService(self, service):
         self.chainsService = service
 
 class EspruinoService(chains.service.Service):
+#class DummyEspruinoService():
 
     def onInit(self):
 
+        self.programQueue = []
+
+        #self.config = {"puckaddress": "e0:be:3a:91:85:b5"} # tmp
+
         log.info('Starting EspruinoService')
-        self.address = self.config.get('puckaddress') # NRF.getAddress() on Puck console
+        self.address = self.config.get('address') # NRF.getAddress() on Puck console
         log.info('address = %s' % self.address)
 
         # Connect, set up notifications
@@ -61,7 +75,15 @@ class EspruinoService(chains.service.Service):
 
     def onStart(self):
         while True:
-            time.sleep(1)
+            self.peripheral.waitForNotifications(1.0)
+            while len(self.programQueue) > 0:
+                prog = self.programQueue.pop()
+                log.info('send prog: %s' % prog)
+                self.sendProgram(prog)
+
+    def queueProgram(self, commands):
+        log.info('queue prog: %s' % commands)
+        self.programQueue.append(commands)
 
     # re-program puck.js
     def sendProgram(self, commands):
@@ -71,6 +93,7 @@ class EspruinoService(chains.service.Service):
             c = c.strip()
             if not c: continue
             command += '\x10' + c + '\n'
+        #log.info('sendProgram: %s' % command)
         #print command
         # Start
         self.peripheral.writeCharacteristic(self.nusrxnotifyhandle, b"\x01\x00", withResponse=True)
@@ -86,14 +109,44 @@ class EspruinoService(chains.service.Service):
         toggleString = 'false'
         if toggle:
             toggleString = 'true'
-        self.sendProgram('setBlink(%s, %s);' % (index, toggleString))
+        self.queueProgram('setBlink(%s, %s);' % (index, toggleString))
 
-    """
     def onShutdown(self):
-        if self.interval:
-            self.interval.cancel()
+        self.peripheral.disconnect()
 
-        self.deRegisterForEvents()
+    def sendEventWrapper(self, key, type, value):
 
-        event_listener.stop()
-    """
+        if type == 'i':
+            try:
+                value = int(value)
+            except:
+                log.error('failed converting int "%s" for key "%s"' % (value, key))
+                value = -1
+        if type == 'f':
+            try:
+                value = float(value)
+            except:
+                log.error('failed converting float "%s" for key "%s"' % (value, key))
+                value = -1
+        if type == 'b':
+            if value in ['1',1,'true',True]:
+                value = True
+            else:
+                value = False
+
+        device = key
+        deviceAttributes = {}
+        deviceAttributes['device'] = device
+        data = {}
+        data[key] = {"value": value}
+        log.info('sendEventWrapper: data=%s attr=%s' % (data, deviceAttributes))
+
+        self.sendEvent('change', data, deviceAttributes)
+
+
+"""
+if __name__ == '__main__':
+    d = DummyEspruinoService()
+    d.onInit()
+    d.onStart()
+"""

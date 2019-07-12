@@ -86,6 +86,10 @@ def parse(_req):
             for a in req[3:]:
                 if a[0] in ['{', '[']:
                     a = json.decode(a)
+                elif a == 'true':
+                    a = True
+                elif a == 'false':
+                    a = False
                 args.append(a)
     if section == 'help':
         options.section = command
