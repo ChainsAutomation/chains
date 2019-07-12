@@ -51,17 +51,32 @@ class EspruinoService(chains.service.Service):
         self.address = self.config.get('address') # NRF.getAddress() on Puck console
         log.info('address = %s' % self.address)
 
-        # Connect, set up notifications
-        d = NUSRXDelegate()
-        d.setChainsService(self)
-        self.peripheral = btle.Peripheral(self.address, "random")
-        self.peripheral.setDelegate(d)
-        nus = self.peripheral.getServiceByUUID(btle.UUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E"))
-        self.nustx = nus.getCharacteristics(btle.UUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"))[0]
-        self.nusrx = nus.getCharacteristics(btle.UUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E"))[0]
-        self.nusrxnotifyhandle = self.nusrx.getHandle() + 1
+        self.btConnect()
+        self.btUpload()
 
-        log.info('connected communications')
+    def btConnect(self):
+
+        while True:
+
+            try:
+                # Connect, set up notifications
+                d = NUSRXDelegate()
+                d.setChainsService(self)
+                self.peripheral = btle.Peripheral(self.address, "random")
+                self.peripheral.setDelegate(d)
+                nus = self.peripheral.getServiceByUUID(btle.UUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E"))
+                self.nustx = nus.getCharacteristics(btle.UUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"))[0]
+                self.nusrx = nus.getCharacteristics(btle.UUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E"))[0]
+                self.nusrxnotifyhandle = self.nusrx.getHandle() + 1
+
+                log.info('connected communications')
+                break
+
+            except btle.BTLEDisconnectError:
+                log.info('BT connect failed, will retry in 3')
+                time.sleep(3)
+
+    def btUpload(self):
 
         # Initial program
         # @todo: relative path
@@ -75,11 +90,16 @@ class EspruinoService(chains.service.Service):
 
     def onStart(self):
         while True:
-            self.peripheral.waitForNotifications(1.0)
-            while len(self.programQueue) > 0:
-                prog = self.programQueue.pop()
-                log.info('send prog: %s' % prog)
-                self.sendProgram(prog)
+            try:
+                self.peripheral.waitForNotifications(1.0)
+                while len(self.programQueue) > 0:
+                    prog = self.programQueue.pop(0)
+                    log.info('send prog: %s' % prog)
+                    self.sendProgram(prog)
+            except btle.BTLEDisconnectError:
+                log.info('BT disconnect, will reconnect in 1')
+                time.sleep(1)
+                self.btConnect()
 
     def queueProgram(self, commands):
         log.info('queue prog: %s' % commands)
@@ -106,6 +126,9 @@ class EspruinoService(chains.service.Service):
         self.sendProgram('reset();')
 
     def action_blink(self, index, toggle):
+        index = int(index)
+        if index != 1 and index != 2:
+            raise Exception('Only index 1 and 2 supported')
         toggleString = 'false'
         if toggle:
             toggleString = 'true'
