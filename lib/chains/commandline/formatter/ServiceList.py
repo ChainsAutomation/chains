@@ -6,16 +6,29 @@ import time
 
 class FormatterServiceList(Formatter):
     def main(self, result):
+
+        def sorter(val):
+            if val.get('main') and val['main'].get('name'):
+                return val['main']['name']
+            else:
+                return ''
+
+        result2 = []
+        for serviceId in result:
+            result2.append(result[serviceId])
+        result = result2
+        result.sort(key = sorter)
+
         fmt = '%-15s %-8s %-15s %-15s %s'
         ret = []
         ret.append('-' * 90)
         ret.append(fmt % ('Service', 'Online', 'Manager', 'Heartbeat', 'ID'))
         ret.append('-' * 90)
-        for serviceId in result:
-            item = result[serviceId]
+        for item in result:
             main = item.get('main')
             if not main:
                 main = {}
+            serviceId = main.get('id')
             values = [main.get('name')]
             if item.get('online'):
                 values.append('Online')

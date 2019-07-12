@@ -223,6 +223,10 @@ class Orchestrator(amqp.AmqpDaemon):
         self.serviceConfigs = ServiceConfigs()
         for serviceId in self.serviceConfigs.data:
             data = self.serviceConfigs.data[serviceId]
+            name = '(no-name)'
+            if data and data.get('main') and data['main'].get('name'):
+                name = data['main']['name']
+            log.info('loadServiceConfigs: %s => %s' % (name, serviceId))
 
             data['online'] = False
             data['heartbeat'] = 0

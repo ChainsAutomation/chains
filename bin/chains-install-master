@@ -14,3 +14,5 @@ cp $BASE_DIR/misc/Docker/chains-config/chains.yml-master /etc/chains/chains.conf
 cp $BASE_DIR/misc/Docker/chains-config/amqp.yml /etc/chains/amqp.yml
 
 rabbitmqctl add_user chains chains
+rabbitmqctl set_permissions -p / chains ".*" ".*" ".*"
+

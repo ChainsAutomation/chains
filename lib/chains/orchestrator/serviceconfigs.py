@@ -72,6 +72,7 @@ class ServiceConfigs():
         instanceConfig = self._readConfigFile(path)
 
         if not instanceConfig:
+            log.error('_loadServiceConfig: not config from file: %s' % path)
             return
 
         instanceData = instanceConfig.data()
@@ -82,6 +83,7 @@ class ServiceConfigs():
         hasChanges = False
 
         if not classData:
+            log.error('_loadServiceConfig: no class found: %s from config file: %s' % (classFile, path))
             return
 
         if not instanceData['main'].get('id'):
