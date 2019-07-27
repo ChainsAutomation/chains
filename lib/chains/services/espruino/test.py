@@ -13,8 +13,26 @@ class Log:
         print 'LOG: %s' % msg
 log = Log()
 
-def callback(addr, key, value):
-    print 'CALLBACK: %s : %s => %s' % (addr, key, value)
+def sendEvent(key, data, devAttr):
+    log.info('sendEvent: key=%s, data=%s, devAddr=%s' % (key, data, devAttr))
+
+def callback(addr, key, values):
+    log.info('btEventCallback: %s = %s' % (key, values))
+
+    device = key
+    deviceAttributes = {}
+
+    # todo: lookup device name from address
+    #deviceAttributes['device'] = device
+    deviceAttributes['device'] = device # now battery, temperature, etc
+
+    data = {}
+    for valueKey in values:
+        valueValue = values[valueKey]
+        data[valueKey] = {"value": valueValue}
+    #log.info('sendEvent: data=%s attr=%s' % (data, deviceAttributes))
+
+    sendEvent('change', data, deviceAttributes)
 
 addr = 'e0:be:3a:91:85:b5'
 
