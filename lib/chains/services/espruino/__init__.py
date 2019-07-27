@@ -3,11 +3,23 @@
 
 from __future__ import absolute_import
 from bluepy import btle
+import time, datetime, re, copy, os
+import time
 import chains.service
 from chains.common import log
-import time, datetime, re, copy
-import time
 
+"""
+class Log:
+    def info(self, msg):
+        self._log(msg)
+    def warn(self, msg):
+        self._log(msg)
+    def _log(self, msg):
+        print 'LOG: %s' % msg
+log = Log()
+"""
+
+"""
 # Receiver for notifications on this side
 class NUSRXDelegate(btle.DefaultDelegate):
     def __init__(self):
@@ -37,50 +49,113 @@ class NUSRXDelegate(btle.DefaultDelegate):
             log.info('EspruinoService.NUSRXDelegate.ERR: error handling last message: %s' % (e,))
     def setChainsService(self, service):
         self.chainsService = service
+"""
+
+class ScanDelegate(btle.DefaultDelegate):
+    def __init__(self):
+        btle.DefaultDelegate.__init__(self)
+        self._lastAdvertising = {}
+        self._lastState = {}
+    def setAddresses(self, addresses):
+        self.addresses = addresses
+    def setChainsDevice(self, device):
+        self.chainsDevice = device
+    def _splitAdvertismentData(self, data):
+        keys = ['button','battery','temperature','light']
+        index = 0
+        result = {}
+        #print 'DATA: %s' % data
+        for key in keys:
+            value = data[index:index+2]
+            index += 2
+            result[key] = int(value, 16) # hex to dec
+        return result
+    def handleDiscovery(self, dev, isNewDev, isNewData):
+        if not dev.addr in self.addresses:
+            return
+        #print 'DISCO: %s' % dev.addr
+        for (adtype, desc, value) in dev.getScanData():
+            #print '- DATA: %s : %s : %s' % (adtype, desc, value)
+            if adtype==255 and value[:4]=="9005": # Manufacturer Data
+                #print 'DATA: %s' % (value)
+                data = value[4:]
+                if not dev.addr in self._lastAdvertising or self._lastAdvertising[dev.addr] != data:
+                    #onDeviceChanged(dev.addr, data)
+                    state = self._splitAdvertismentData(data)
+                    log.info('ADV-DATA: %s' % state)
+                    for key in state:
+                        oldValue = self._lastState.get(key)
+                        newValue = state[key]
+                        if oldValue != newValue:
+                            self.chainsDevice.sendEventWrapper(key, newValue)
+                self._lastAdvertising[dev.addr] = data
+
 
 class EspruinoService(chains.service.Service):
 #class DummyEspruinoService():
 
     def onInit(self):
 
-        self.programQueue = []
-
-        #self.config = {"puckaddress": "e0:be:3a:91:85:b5"} # tmp
-
+        #self.config = {"address": "e0:be:3a:91:85:b5"} # tmp
         log.info('Starting EspruinoService')
         self.address = self.config.get('address') # NRF.getAddress() on Puck console
         log.info('address = %s' % self.address)
 
-        self.btConnect()
+        delegate = ScanDelegate()
+        delegate.setAddresses([self.address])
+        delegate.setChainsDevice(self)
+        self.scanning = False
+        self.scanner = btle.Scanner().withDelegate(delegate)
+        self.programQueue = []
+
         self.btUpload()
 
+        self.scanning = True
+        self.scanner.clear()
+        self.scanner.start(passive=True) # passive important for speed
+
     def btConnect(self):
-
+        log.info('btConnect start')
+        tries = 0
+        maxTries = 3
         while True:
-
+            tries += 1
+            if tries >= maxTries:
+                log.info('btConnect given up after %s tries' % maxTries)
+                return False
             try:
-                # Connect, set up notifications
-                d = NUSRXDelegate()
-                d.setChainsService(self)
                 self.peripheral = btle.Peripheral(self.address, "random")
-                self.peripheral.setDelegate(d)
                 nus = self.peripheral.getServiceByUUID(btle.UUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E"))
                 self.nustx = nus.getCharacteristics(btle.UUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"))[0]
                 self.nusrx = nus.getCharacteristics(btle.UUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E"))[0]
                 self.nusrxnotifyhandle = self.nusrx.getHandle() + 1
+                """
+                d = NUSRXDelegate()
+                d.setChainsService(self)
+                self.peripheral.setDelegate(d)
+                """
 
-                log.info('connected communications')
-                break
+                log.info('btConnect succeeded')
+                return True
 
             except btle.BTLEDisconnectError:
-                log.info('BT connect failed, will retry in 3')
-                time.sleep(3)
+                log.info('btConnect failed, will retry in 1')
+                time.sleep(1)
+
+    def btDisconnect(self):
+        log.info('btDisconnect start')
+        self.peripheral.disconnect()
+        self.nustx = None
+        self.nusrx = None
+        self.nusrxnotifyhandle = None
+        log.info('btDisconnect done')
 
     def btUpload(self):
 
         # Initial program
         # @todo: relative path
-        progFile = '/srv/chains/lib/chains/services/espruino/program.js'
+        thisDir = os.path.dirname(os.path.realpath(__file__))
+        progFile = '%s/program.js' % thisDir
         fp = open(progFile, 'r')
         progData = fp.read()
         fp.close()
@@ -89,6 +164,22 @@ class EspruinoService(chains.service.Service):
         log.info('sent initial program')
 
     def onStart(self):
+        # Keep scanning in  10 second chunks
+        while True:
+            """
+            print ''
+            print '=' * 50
+            print 'scan'
+            print '=' * 50
+            print ''
+            """
+            if self.scanning:
+                self.scanner.process(10)
+            else:
+                time.sleep(0.2)
+        # in case were wanted to finish, we should call 'stop'
+        scanner.stop()
+        """
         while True:
             try:
                 self.peripheral.waitForNotifications(1.0)
@@ -100,6 +191,7 @@ class EspruinoService(chains.service.Service):
                 log.info('BT disconnect, will reconnect in 1')
                 time.sleep(1)
                 self.btConnect()
+        """
 
     def queueProgram(self, commands):
         log.info('queue prog: %s' % commands)
@@ -107,20 +199,31 @@ class EspruinoService(chains.service.Service):
 
     # re-program puck.js
     def sendProgram(self, commands):
-        # Format
-        command = '\x03'
-        for c in commands.split("\n"):
-            c = c.strip()
-            if not c: continue
-            command += '\x10' + c + '\n'
-        #log.info('sendProgram: %s' % command)
-        #print command
-        # Start
-        self.peripheral.writeCharacteristic(self.nusrxnotifyhandle, b"\x01\x00", withResponse=True)
-        # Send data (chunked to 20 bytes)
-        while len(command)>0:
-            self.nustx.write(command[0:20]);
-            command = command[20:];
+        wasScanning = False
+        if self.scanning:
+            wasScanning = True
+            self.scanning = False
+            self.scanner.stop()
+        if self.btConnect():
+            # Format
+            command = '\x03'
+            for c in commands.split("\n"):
+                c = c.strip()
+                if not c: continue
+                command += '\x10' + c + '\n'
+            #log.info('sendProgram: %s' % command)
+            #print command
+            # Start
+            #self.peripheral.writeCharacteristic(self.nusrxnotifyhandle, b"\x01\x00", withResponse=True)
+            self.peripheral.writeCharacteristic(self.nusrxnotifyhandle, b"\x01\x00", withResponse=False)
+            # Send data (chunked to 20 bytes)
+            while len(command)>0:
+                self.nustx.write(command[0:20]);
+                command = command[20:];
+            self.btDisconnect()
+        if wasScanning:
+            self.scanning = True
+            self.scanner.start()
 
     def action_reset(self):
         self.sendProgram('reset();')
@@ -137,25 +240,8 @@ class EspruinoService(chains.service.Service):
     def onShutdown(self):
         self.peripheral.disconnect()
 
-    def sendEventWrapper(self, key, type, value):
-
-        if type == 'i':
-            try:
-                value = int(value)
-            except:
-                log.error('failed converting int "%s" for key "%s"' % (value, key))
-                value = -1
-        if type == 'f':
-            try:
-                value = float(value)
-            except:
-                log.error('failed converting float "%s" for key "%s"' % (value, key))
-                value = -1
-        if type == 'b':
-            if value in ['1',1,'true',True]:
-                value = True
-            else:
-                value = False
+    def sendEventWrapper(self, key, value):
+        log.info('sendEvent: %s = %s' % (key,value))
 
         device = key
         deviceAttributes = {}
@@ -164,7 +250,7 @@ class EspruinoService(chains.service.Service):
         data[key] = {"value": value}
         log.info('sendEventWrapper: data=%s attr=%s' % (data, deviceAttributes))
 
-        self.sendEvent('change', data, deviceAttributes)
+        self.sendEvent(key, data, deviceAttributes)
 
 
 """
